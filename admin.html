@@ -11,7 +11,7 @@
 </head>
 <body class="h-full bg-slate-900 p-4">
 
-  <!-- ŞİFRELİ GİRİŞ EKRANI -->
+  <!-- GİRİŞ EKRANI -->
   <div id="login-screen" class="max-w-md mx-auto mt-16 bg-slate-800 p-8 rounded-3xl border border-slate-700 shadow-2xl text-center space-y-4">
     <div class="w-16 h-16 bg-red-600/20 text-red-500 rounded-2xl flex items-center justify-center mx-auto text-2xl font-black">🔐</div>
     <h2 class="text-xl font-black">Garson / Admin Girişi</h2>
@@ -106,7 +106,7 @@
           document.getElementById('login-screen').classList.add('hidden');
           document.getElementById('dashboard').classList.remove('hidden');
           fetchData();
-          setInterval(fetchData, 2500);
+          setInterval(fetchData, 2000);
         } else { alert(data.error || 'Giriş Başarısız!'); }
       } catch (err) { alert('Sunucuya bağlanılamadı.'); }
     }
