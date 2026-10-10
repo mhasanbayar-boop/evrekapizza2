@@ -95,7 +95,6 @@
     let cachedCatalog = [];
     let previousOrderCount = 0;
     let selectedOrderForPay = null;
-    let localStatusOverrides = JSON.parse(localStorage.getItem('evreka_order_statuses') || '{}');
 
     window.addEventListener('DOMContentLoaded', () => {
       if (localStorage.getItem('evreka_admin_logged') === 'true') {
@@ -163,9 +162,8 @@
         const res = await fetch('/api/orders');
         const data = await res.json();
         if (data.success) {
-          const newOrders = (data.orders || []).map(o => ({ ...o, status: String(localStatusOverrides[o.id] || o.status || 'WAITING').toUpperCase().trim() }));
-          
-          const waitingCount = newOrders.filter(o => o.status === 'WAITING' || o.status === 'WAITING_WAITER').length;
+          const newOrders = data.orders || [];
+          const waitingCount = newOrders.filter(o => String(o.status || '').toUpperCase() === 'WAITING').length;
           if (waitingCount > previousOrderCount) {
             playNotificationSound();
           }
@@ -234,10 +232,10 @@
     }
 
     function updateCounts() {
-      document.getElementById('stat-ciro').innerText = `${cachedOrders.filter(o => o.status === 'PAID').reduce((s,o)=>s+Number(o.totalPrice),0)} ₺`;
-      document.getElementById('stat-bekleyen').innerText = cachedOrders.filter(o => o.status === 'WAITING' || o.status === 'WAITING_WAITER' || !o.status).length;
-      document.getElementById('stat-mutfakta').innerText = cachedOrders.filter(o => o.status === 'PREPARING').length;
-      document.getElementById('stat-servis').innerText = cachedOrders.filter(o => o.status === 'SERVED' || o.status === 'SERVICED' || o.status === 'DELIVERED').length;
+      document.getElementById('stat-ciro').innerText = `${cachedOrders.filter(o => String(o.status || '').toUpperCase() === 'PAID').reduce((s,o)=>s+Number(o.totalPrice),0)} ₺`;
+      document.getElementById('stat-bekleyen').innerText = cachedOrders.filter(o => String(o.status || '').toUpperCase() === 'WAITING').length;
+      document.getElementById('stat-mutfakta').innerText = cachedOrders.filter(o => String(o.status || '').toUpperCase() === 'PREPARING').length;
+      document.getElementById('stat-servis').innerText = cachedOrders.filter(o => String(o.status || '').toUpperCase() === 'SERVED').length;
     }
 
     function setFilter(f) {
@@ -256,12 +254,9 @@
     }
 
     async function updateOrderStatus(id, newStatus) {
-      localStatusOverrides[id] = newStatus;
-      localStorage.setItem('evreka_order_statuses', JSON.stringify(localStatusOverrides));
-      fetchData();
       try {
-        if (newStatus === 'PREPARING') await fetch(`/api/orders/${id}/approve`, { method: 'PATCH' });
-        else await fetch(`/api/orders/${id}/status`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ status: newStatus }) });
+        await fetch(`/api/orders/${id}/status`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ status: newStatus }) });
+        fetchData();
       } catch (e) {}
     }
 
@@ -276,19 +271,19 @@
     async function processPayment() { await updateOrderStatus(selectedOrderForPay.id, 'PAID'); closePaymentModal(); }
     async function cancelOrder(id) {
       if (!confirm('İptal edilsin mi?')) return;
-      localStatusOverrides[id] = 'CANCELLED';
-      localStorage.setItem('evreka_order_statuses', JSON.stringify(localStatusOverrides));
-      fetchData();
+      await updateOrderStatus(id, 'CANCELLED');
     }
 
     function renderOrders() {
       const container = document.getElementById('orders-container');
       let filtered = cachedOrders;
-      if (currentFilter === 'WAITING') filtered = cachedOrders.filter(o => o.status === 'WAITING' || o.status === 'WAITING_WAITER' || !o.status);
-      else if (currentFilter === 'PREPARING') filtered = cachedOrders.filter(o => o.status === 'PREPARING');
-      else if (currentFilter === 'SERVED') filtered = cachedOrders.filter(o => o.status === 'SERVED' || o.status === 'SERVICED' || o.status === 'DELIVERED');
-      else if (currentFilter === 'PAID') filtered = cachedOrders.filter(o => o.status === 'PAID');
-      else filtered = cachedOrders.filter(o => o.status !== 'CANCELLED');
+      const f = currentFilter.toUpperCase();
+
+      if (f === 'WAITING') filtered = cachedOrders.filter(o => String(o.status || '').toUpperCase() === 'WAITING');
+      else if (f === 'PREPARING') filtered = cachedOrders.filter(o => String(o.status || '').toUpperCase() === 'PREPARING');
+      else if (f === 'SERVED') filtered = cachedOrders.filter(o => String(o.status || '').toUpperCase() === 'SERVED');
+      else if (f === 'PAID') filtered = cachedOrders.filter(o => String(o.status || '').toUpperCase() === 'PAID');
+      else filtered = cachedOrders.filter(o => String(o.status || '').toUpperCase() !== 'CANCELLED');
 
       if (filtered.length === 0) {
         container.innerHTML = '<div class="col-span-full p-12 text-center text-slate-500 text-xs bg-slate-800/40 rounded-3xl border border-slate-800">Sipariş bulunamadı.</div>';
@@ -296,19 +291,20 @@
       }
 
       container.innerHTML = [...filtered].reverse().map(o => {
+        const st = String(o.status || 'WAITING').toUpperCase();
         let statusBadge = '';
         let action = '';
 
-        if (o.status === 'PREPARING') {
+        if (st === 'PREPARING') {
           statusBadge = '<span class="bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-2.5 py-1 rounded-lg text-[10px] font-black">Mutfakta</span>';
           action = `<button onclick="updateOrderStatus('${o.id}', 'SERVED')" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-extrabold text-xs py-2.5 rounded-xl shadow">Hazır / Servis Et</button>`;
-        } else if (o.status === 'SERVED' || o.status === 'SERVICED' || o.status === 'DELIVERED') {
+        } else if (st === 'SERVED') {
           statusBadge = '<span class="bg-indigo-500/20 text-indigo-400 border border-indigo-500/30 px-2.5 py-1 rounded-lg text-[10px] font-black">Masada / Ödeme Bekliyor</span>';
           action = `<button onclick="openPaymentModal('${o.id}')" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs py-2.5 rounded-xl shadow">💳 Ödeme Al (POS)</button>`;
-        } else if (o.status === 'PAID') {
+        } else if (st === 'PAID') {
           statusBadge = '<span class="bg-slate-700 text-slate-300 border border-slate-600 px-2.5 py-1 rounded-lg text-[10px] font-black">Tamamlandı</span>';
           action = `<div class="text-center text-xs text-slate-500 font-bold">Masa Kapatıldı ✅</div>`;
-        } else if (o.status === 'CANCELLED') {
+        } else if (st === 'CANCELLED') {
           statusBadge = '<span class="bg-slate-700 text-slate-400 border border-slate-600 px-2.5 py-1 rounded-lg text-[10px] font-black">İptal Edildi</span>';
           action = `<div class="text-center text-xs text-slate-500 font-bold">İptal ❌</div>`;
         } else {
