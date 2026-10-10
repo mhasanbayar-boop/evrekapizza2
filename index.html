@@ -13,6 +13,9 @@
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     .cart-drawer, .tracker-drawer { transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1); transform: translateY(100%); }
     .cart-drawer.active, .tracker-drawer.active { transform: translateY(0); }
+    /* Kibar ve naif akordeon panel animasyonu */
+    .accordion-panel { max-height: 0; overflow: hidden; transition: max-height 0.4s ease-in-out, opacity 0.3s ease-in-out; opacity: 0; }
+    .accordion-panel.open { max-height: 600px; opacity: 1; }
   </style>
 </head>
 <body class="h-full text-slate-800 bg-slate-100 flex flex-col antialiased items-center">
@@ -124,33 +127,64 @@
         <div class="grid grid-cols-2 gap-2" id="modal-sizes"></div>
       </div>
 
-      <!-- 1. ZORUNLU SEÇENEK: Menü Tercihi (Sadece Pizza ve Burger için) -->
+      <!-- ZORUNLU MENÜ / PAKET TERCİHİ -->
       <div class="mt-5 hidden" id="menu-choice-section">
-        <label class="block text-xs font-extrabold text-slate-700 uppercase mb-2">Menü Tercihi (Zorunlu) *</label>
-        <div class="grid grid-cols-2 gap-2">
-          <button type="button" onclick="setMenuChoice('yes')" id="menu-btn-yes" class="menu-choice-btn p-2.5 rounded-xl border text-left text-xs border-slate-200 transition">
-            <div class="font-bold">Menü İstiyorum</div>
-            <div class="text-[10px] text-red-600 font-extrabold">+80 ₺ (Kola + Patates)</div>
-          </button>
-          <button type="button" onclick="setMenuChoice('no')" id="menu-btn-no" class="menu-choice-btn p-2.5 rounded-xl border text-left text-xs border-slate-200 transition">
-            <div class="font-bold">Menü İstemiyorum</div>
+        <label class="block text-xs font-extrabold text-slate-700 uppercase mb-2">Servis Tercihi (Zorunlu) *</label>
+        <div class="grid grid-cols-3 gap-2">
+          <button type="button" onclick="setServiceChoice('none')" id="srv-btn-none" class="srv-btn p-2 rounded-xl border text-center text-xs border-slate-200 transition">
+            <div class="font-bold">Sadece Ürün</div>
             <div class="text-[10px] opacity-70">+0 ₺</div>
+          </button>
+          <button type="button" onclick="setServiceChoice('menu')" id="srv-btn-menu" class="srv-btn p-2 rounded-xl border text-center text-xs border-slate-200 transition">
+            <div class="font-bold">Menü Yap</div>
+            <div class="text-[10px] text-red-600 font-extrabold">+80 ₺</div>
+          </button>
+          <button type="button" onclick="setServiceChoice('package')" id="srv-btn-package" class="srv-btn p-2 rounded-xl border text-center text-xs border-slate-200 transition">
+            <div class="font-bold">Paket Yap</div>
+            <div class="text-[10px] text-red-600 font-extrabold">+120 ₺</div>
           </button>
         </div>
-      </div>
 
-      <!-- 2. ZORUNLU SEÇENEK: Paket Tercihi (Menü İstemiyorum denilirse açılır) -->
-      <div class="mt-4 hidden" id="package-choice-section">
-        <label class="block text-xs font-extrabold text-slate-700 uppercase mb-2">Paket Seçimi (Zorunlu) *</label>
-        <div class="grid grid-cols-2 gap-2">
-          <button type="button" onclick="setPackageChoice('yes')" id="pkg-btn-yes" class="pkg-choice-btn p-2.5 rounded-xl border text-left text-xs border-slate-200 transition">
-            <div class="font-bold">Paket Olsun</div>
-            <div class="text-[10px] text-red-600 font-extrabold">+120 ₺ (Kola + Patates)</div>
-          </button>
-          <button type="button" onclick="setPackageChoice('no')" id="pkg-btn-no" class="pkg-choice-btn p-2.5 rounded-xl border text-left text-xs border-slate-200 transition">
-            <div class="font-bold">Paket İstemiyorum</div>
-            <div class="text-[10px] opacity-70">+0 ₺</div>
-          </button>
+        <!-- AKILCI, KİBAR VE NAFİK AÇILIR KAYIRMALI (ACCORDION) DETAY PANELİ -->
+        <div id="service-accordion" class="accordion-panel mt-3 bg-slate-50 border border-slate-200 rounded-2xl p-4 space-y-4">
+          
+          <!-- Sabit Patates -->
+          <div class="flex items-center justify-between text-xs bg-white p-2.5 rounded-xl border border-slate-200 shadow-sm">
+            <span class="font-bold text-slate-700 flex items-center gap-2"><i class="fa-solid fa-utensils text-amber-500"></i> Patates Kızartması</span>
+            <span class="text-[10px] font-extrabold bg-amber-50 text-amber-700 px-2.5 py-1 rounded-lg border border-amber-200">Orta Boy (Dahil / Ücretsiz)</span>
+          </div>
+
+          <!-- Şişe İçecekler (Ücretsiz) -->
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-[11px] font-extrabold text-slate-700 uppercase">🥤 Şişe İçecekler</span>
+              <span class="text-[10px] text-emerald-600 font-bold bg-emerald-50 px-2 py-0.5 rounded-md">Ücretsiz Dahil</span>
+            </div>
+            <div class="grid grid-cols-2 gap-1.5" id="bottle-beverages">
+              <button type="button" onclick="setBeverage('Coca-Cola (Şişe)', 0)" id="bev-Coca-Cola (Şişe)" class="bev-btn p-2 rounded-xl border text-left text-xs border-slate-200 bg-white font-medium transition">Coca-Cola</button>
+              <button type="button" onclick="setBeverage('Kola Şekersiz (Şişe)', 0)" id="bev-Kola Şekersiz (Şişe)" class="bev-btn p-2 rounded-xl border text-left text-xs border-slate-200 bg-white font-medium transition">Kola Şekersiz</button>
+              <button type="button" onclick="setBeverage('Fanta (Şişe)', 0)" id="bev-Fanta (Şişe)" class="bev-btn p-2 rounded-xl border text-left text-xs border-slate-200 bg-white font-medium transition">Fanta</button>
+              <button type="button" onclick="setBeverage('Sprite (Şişe)', 0)" id="bev-Sprite (Şişe)" class="bev-btn p-2 rounded-xl border text-left text-xs border-slate-200 bg-white font-medium transition">Sprite</button>
+              <button type="button" onclick="setBeverage('Ayran', 0)" id="bev-Ayran" class="bev-btn p-2 rounded-xl border text-left text-xs border-slate-200 bg-white font-medium transition">Ayran</button>
+              <button type="button" onclick="setBeverage('Ice Tea Şeftali (Şişe)', 0)" id="bev-Ice Tea Şeftali (Şişe)" class="bev-btn p-2 rounded-xl border text-left text-xs border-slate-200 bg-white font-medium transition">Ice Tea Şeftali</button>
+            </div>
+          </div>
+
+          <!-- Kutu İçecekler (+20 ₺ Farklı) -->
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-[11px] font-extrabold text-slate-700 uppercase">🥫 Kutu İçecekler</span>
+              <span class="text-[10px] text-red-600 font-bold bg-red-50 px-2 py-0.5 rounded-md">+20 ₺ Fark</span>
+            </div>
+            <div class="grid grid-cols-2 gap-1.5" id="can-beverages">
+              <button type="button" onclick="setBeverage('Coca-Cola (Kutu)', 20)" id="bev-Coca-Cola (Kutu)" class="bev-btn p-2 rounded-xl border text-left text-xs border-slate-200 bg-white font-medium transition">Coca-Cola (Kutu)</button>
+              <button type="button" onclick="setBeverage('Kola Şekersiz (Kutu)', 20)" id="bev-Kola Şekersiz (Kutu)" class="bev-btn p-2 rounded-xl border text-left text-xs border-slate-200 bg-white font-medium transition">Kola Şekersiz (Kutu)</button>
+              <button type="button" onclick="setBeverage('Fanta (Kutu)', 20)" id="bev-Fanta (Kutu)" class="bev-btn p-2 rounded-xl border text-left text-xs border-slate-200 bg-white font-medium transition">Fanta (Kutu)</button>
+              <button type="button" onclick="setBeverage('Sprite (Kutu)', 20)" id="bev-Sprite (Kutu)" class="bev-btn p-2 rounded-xl border text-left text-xs border-slate-200 bg-white font-medium transition">Sprite (Kutu)</button>
+              <button type="button" onclick="setBeverage('Ice Tea Şeftali (Kutu)', 20)" id="bev-Ice Tea Şeftali (Kutu)" class="bev-btn p-2 rounded-xl border text-left text-xs border-slate-200 bg-white font-medium transition">Ice Tea (Kutu)</button>
+            </div>
+          </div>
+
         </div>
       </div>
 
@@ -173,8 +207,9 @@
     let cart = [];
     let selectedProduct = null;
     let selectedSize = null;
-    let menuChoice = null;
-    let packageChoice = null;
+    let serviceChoice = 'none'; // 'none', 'menu', 'package'
+    let selectedBeverage = 'Coca-Cola (Şişe)';
+    let beverageExtraPrice = 0;
     let currentCategory = 'all';
 
     document.addEventListener('DOMContentLoaded', async () => {
@@ -229,8 +264,9 @@
       selectedProduct = catalog.find(p => String(p.id) === String(id));
       if (!selectedProduct) return;
       selectedSize = selectedProduct.sizes && selectedProduct.sizes.length > 0 ? selectedProduct.sizes[0] : null;
-      menuChoice = null;
-      packageChoice = null;
+      serviceChoice = 'none';
+      selectedBeverage = 'Coca-Cola (Şişe)';
+      beverageExtraPrice = 0;
 
       document.getElementById('modal-note').value = '';
       document.getElementById('modal-img').src = selectedProduct.image;
@@ -250,12 +286,10 @@
 
       const isPizzaOrBurger = selectedProduct.category === 'pizza' || selectedProduct.category === 'burger';
       const menuSec = document.getElementById('menu-choice-section');
-      const pkgSec = document.getElementById('package-choice-section');
-      pkgSec.classList.add('hidden');
 
       if (isPizzaOrBurger) {
         menuSec.classList.remove('hidden');
-        setMenuChoice('no'); // Varsayılan olarak menü istemiyorum seçili gelsin
+        setServiceChoice('none');
       } else {
         menuSec.classList.add('hidden');
       }
@@ -273,53 +307,46 @@
       updateModalPrice();
     }
 
-    function setMenuChoice(choice) {
-      menuChoice = choice;
-      const pkgSec = document.getElementById('package-choice-section');
-
-      document.querySelectorAll('.menu-choice-btn').forEach(b => {
-        b.className = "menu-choice-btn p-2.5 rounded-xl border text-left text-xs border-slate-200 transition";
+    function setServiceChoice(choice) {
+      serviceChoice = choice;
+      document.querySelectorAll('.srv-btn').forEach(b => {
+        b.className = "srv-btn p-2 rounded-xl border text-center text-xs border-slate-200 transition";
       });
-      document.getElementById(`menu-btn-${choice}`).className = "menu-choice-btn p-2.5 rounded-xl border text-left text-xs border-red-600 bg-red-50 text-red-600 font-bold transition";
+      document.getElementById(`srv-btn-${choice}`).className = "srv-btn p-2 rounded-xl border text-center text-xs border-red-600 bg-red-50 text-red-600 font-bold transition";
 
-      if (choice === 'no') {
-        pkgSec.classList.remove('hidden');
-        setPackageChoice('no'); // Varsayılan paket istemiyorum
+      const accordion = document.getElementById('service-accordion');
+      if (choice === 'none') {
+        accordion.classList.remove('open');
       } else {
-        pkgSec.classList.add('hidden');
-        packageChoice = null;
+        accordion.classList.add('open');
+        setBeverage('Coca-Cola (Şişe)', 0); // Varsayılan şişe içecek
       }
       updateModalPrice();
     }
 
-    function setPackageChoice(choice) {
-      packageChoice = choice;
-      document.querySelectorAll('.pkg-choice-btn').forEach(b => {
-        b.className = "pkg-choice-btn p-2.5 rounded-xl border text-left text-xs border-slate-200 transition";
+    function setBeverage(bev, extra) {
+      selectedBeverage = bev;
+      beverageExtraPrice = extra;
+      document.querySelectorAll('.bev-btn').forEach(b => {
+        b.className = "bev-btn p-2 rounded-xl border text-left text-xs border-slate-200 bg-white font-medium transition";
       });
-      document.getElementById(`pkg-btn-${choice}`).className = "pkg-choice-btn p-2.5 rounded-xl border text-left text-xs border-red-600 bg-red-50 text-red-600 font-bold transition";
+      const target = document.getElementById(`bev-${bev}`);
+      if(target) {
+        target.className = "bev-btn p-2 rounded-xl border text-left text-xs border-red-600 bg-red-50 text-red-600 font-bold transition";
+      }
       updateModalPrice();
     }
 
     function updateModalPrice() {
       let total = selectedProduct.basePrice + (selectedSize ? selectedSize.priceOffset : 0);
-      if (menuChoice === 'yes') {
-        total += 80;
-      } else if (menuChoice === 'no' && packageChoice === 'yes') {
-        total += 120;
+      if (serviceChoice === 'menu') {
+        total += 80 + beverageExtraPrice;
+      } else if (serviceChoice === 'package') {
+        total += 120 + beverageExtraPrice;
       }
 
       document.getElementById('modal-total-price').innerText = `${total} ₺`;
       document.getElementById('modal-add-btn').onclick = () => {
-        const isPizzaOrBurger = selectedProduct.category === 'pizza' || selectedProduct.category === 'burger';
-        if (isPizzaOrBurger && !menuChoice) {
-          alert('Lütfen menü tercihinizi seçiniz.');
-          return;
-        }
-        if (isPizzaOrBurger && menuChoice === 'no' && !packageChoice) {
-          alert('Lütfen paket seçiminizi yapınız.');
-          return;
-        }
         addToCart(total);
         closeOptionsModal();
       };
@@ -328,13 +355,19 @@
     function addToCart(totalPrice) {
       let details = [];
       if (selectedSize) details.push(selectedSize.name);
-      if (menuChoice === 'yes') details.push('Menü (+80 ₺)');
-      else if (menuChoice === 'no' && packageChoice === 'yes') details.push('Paket (+120 ₺)');
+      
+      if (serviceChoice === 'menu') {
+        let bevText = beverageExtraPrice > 0 ? `${selectedBeverage} (+20 ₺)` : selectedBeverage;
+        details.push(`Menü (+80 ₺: Orta Patates + ${bevText})`);
+      } else if (serviceChoice === 'package') {
+        let bevText = beverageExtraPrice > 0 ? `${selectedBeverage} (+20 ₺)` : selectedBeverage;
+        details.push(`Paket (+120 ₺: Orta Patates + ${bevText})`);
+      }
 
       cart.push({
         id: Date.now(),
         title: selectedProduct.title,
-        size: details.length > 0 ? details.join(', ') : null,
+        size: details.length > 0 ? details.join(' | ') : null,
         price: totalPrice,
         note: document.getElementById('modal-note').value.trim()
       });
