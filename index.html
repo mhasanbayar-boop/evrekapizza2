@@ -28,7 +28,7 @@
   <header class="bg-slate-900 text-white sticky top-0 z-40 shadow-xl border-b border-slate-800">
     <div class="max-w-xl mx-auto px-4 py-3 flex items-center justify-between">
       <div class="flex items-center gap-3">
-        <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-amber-500 via-red-600 to-red-700 flex items-center justify-center text-white text-xl">🍕</div>
+        <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-amber-500 via-red-600 to-red-700 flex items-center justify-center text-white text-xl shadow-md">🍕</div>
         <div><h1 class="font-black text-base text-white leading-none">EVREKA PIZZA</h1><p class="text-[11px] text-amber-400 font-semibold mt-0.5">Gurme Taş Fırın</p></div>
       </div>
       <div id="table-display-badge" class="bg-emerald-600/20 text-emerald-400 font-extrabold text-xs px-3.5 py-2 rounded-2xl border border-emerald-500/40 flex items-center gap-2">
@@ -37,8 +37,8 @@
     </div>
   </header>
 
-  <!-- CANLI TAKİP BARI -->
-  <div id="mini-tracker-banner" class="hidden bg-slate-900 border-b border-slate-800 px-4 py-2.5 sticky top-[57px] z-30">
+  <!-- CANLI TAKİP BARI (Akış İçi) -->
+  <div id="mini-tracker-banner" class="hidden bg-slate-900 border-b border-slate-800 px-4 py-3">
     <div class="max-w-xl mx-auto flex items-center justify-between">
       <div class="flex items-center gap-2 text-xs"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span><span class="text-slate-200 font-bold" id="mini-tracker-text">Aktif Siparişiniz Var</span></div>
       <button onclick="toggleTrackerDrawer()" class="bg-gradient-to-r from-amber-500 to-red-600 text-white font-extrabold text-[11px] px-3.5 py-1.5 rounded-xl shadow">Canlı Takip Et ➔</button>
@@ -53,14 +53,15 @@
       </div>
     </div>
 
-    <div class="px-4 overflow-x-auto no-scrollbar flex gap-2 py-1 sticky top-[65px] z-20 bg-slate-100/90 backdrop-blur-md">
-      <button onclick="filterCategory('all', this)" class="cat-btn px-4 py-2 rounded-2xl bg-slate-900 text-white text-xs font-black shadow-sm whitespace-nowrap">Tüm Menü</button>
-      <button onclick="filterCategory('pizza', this)" class="cat-btn px-4 py-2 rounded-2xl bg-white text-slate-600 border text-xs font-bold whitespace-nowrap">Pizzalar</button>
-      <button onclick="filterCategory('burger', this)" class="cat-btn px-4 py-2 rounded-2xl bg-white text-slate-600 border text-xs font-bold whitespace-nowrap">Burgerler</button>
-      <button onclick="filterCategory('salad', this)" class="cat-btn px-4 py-2 rounded-2xl bg-white text-slate-600 border text-xs font-bold whitespace-nowrap">Salatalar</button>
-      <button onclick="filterCategory('side', this)" class="cat-btn px-4 py-2 rounded-2xl bg-white text-slate-600 border text-xs font-bold whitespace-nowrap">Atıştırmalıklar</button>
-      <button onclick="filterCategory('beverage', this)" class="cat-btn px-4 py-2 rounded-2xl bg-white text-slate-600 border text-xs font-bold whitespace-nowrap">İçecekler</button>
-      <button onclick="filterCategory('dessert', this)" class="cat-btn px-4 py-2 rounded-2xl bg-white text-slate-600 border text-xs font-bold whitespace-nowrap">Tatlılar</button>
+    <!-- MODERN KATEGORİ ÇUBUĞU (Sticky) -->
+    <div class="px-4 overflow-x-auto no-scrollbar flex gap-2.5 py-3 sticky top-[57px] z-30 bg-slate-100/95 backdrop-blur-md border-b border-slate-200/60 shadow-sm">
+      <button onclick="filterCategory('all', this)" class="cat-btn px-4 py-2 rounded-2xl bg-slate-900 text-white text-xs font-black shadow-md whitespace-nowrap transition-all">Tüm Menü</button>
+      <button onclick="filterCategory('pizza', this)" class="cat-btn px-4 py-2 rounded-2xl bg-white text-slate-600 border border-slate-200 text-xs font-bold whitespace-nowrap transition-all hover:border-slate-300">Pizzalar</button>
+      <button onclick="filterCategory('burger', this)" class="cat-btn px-4 py-2 rounded-2xl bg-white text-slate-600 border border-slate-200 text-xs font-bold whitespace-nowrap transition-all hover:border-slate-300">Burgerler</button>
+      <button onclick="filterCategory('salad', this)" class="cat-btn px-4 py-2 rounded-2xl bg-white text-slate-600 border border-slate-200 text-xs font-bold whitespace-nowrap transition-all hover:border-slate-300">Salatalar</button>
+      <button onclick="filterCategory('side', this)" class="cat-btn px-4 py-2 rounded-2xl bg-white text-slate-600 border border-slate-200 text-xs font-bold whitespace-nowrap transition-all hover:border-slate-300">Atıştırmalıklar</button>
+      <button onclick="filterCategory('beverage', this)" class="cat-btn px-4 py-2 rounded-2xl bg-white text-slate-600 border border-slate-200 text-xs font-bold whitespace-nowrap transition-all hover:border-slate-300">İçecekler</button>
+      <button onclick="filterCategory('dessert', this)" class="cat-btn px-4 py-2 rounded-2xl bg-white text-slate-600 border border-slate-200 text-xs font-bold whitespace-nowrap transition-all hover:border-slate-300">Tatlılar</button>
     </div>
 
     <div class="px-4 mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4" id="product-list"></div>
@@ -282,7 +283,6 @@
           const allOrders = data.orders || [];
           const myOrders = allOrders.filter(o => ids.includes(String(o.id)));
 
-          // Eğer masa kapatıldıysa (Tüm siparişler PAID veya CANCELLED olduysa) oturumu temizle
           if (myOrders.length > 0 && myOrders.every(o => {
             const st = String(o.status || 'WAITING').toUpperCase();
             return st === 'PAID' || st === 'CANCELLED';
@@ -360,8 +360,8 @@
     }
 
     function filterCategory(cat, btn) {
-      document.querySelectorAll('.cat-btn').forEach(b => b.className = "cat-btn px-4 py-2 rounded-2xl bg-white text-slate-600 border text-xs font-bold whitespace-nowrap");
-      btn.className = "cat-btn px-4 py-2 rounded-2xl bg-slate-900 text-white text-xs font-black shadow-sm whitespace-nowrap";
+      document.querySelectorAll('.cat-btn').forEach(b => b.className = "cat-btn px-4 py-2 rounded-2xl bg-white text-slate-600 border border-slate-200 text-xs font-bold whitespace-nowrap transition-all hover:border-slate-300");
+      btn.className = "cat-btn px-4 py-2 rounded-2xl bg-slate-900 text-white text-xs font-black shadow-md whitespace-nowrap transition-all";
       renderProducts(cat);
     }
   </script>
