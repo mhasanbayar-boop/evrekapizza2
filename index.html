@@ -139,6 +139,7 @@
     let cart = [];
     let selectedProduct = null;
     let selectedSize = null;
+    let currentCategory = 'all';
 
     document.addEventListener('DOMContentLoaded', async () => {
       const urlParams = new URLSearchParams(window.location.search);
@@ -151,21 +152,27 @@
 
       await loadCatalog();
       checkActiveOrdersMini();
-      setInterval(checkActiveOrdersMini, 2000);
+      
+      // Saniyede bir arka planda menüyü ve sipariş durumunu otomatik yenile (Sessiz Güncelleme)
+      setInterval(async () => {
+        await loadCatalog(true);
+        await checkActiveOrdersMini();
+      }, 3000);
     });
 
-    async function loadCatalog() {
+    async function loadCatalog(isBackground = false) {
       try {
         const res = await fetch('/api/catalog');
         const data = await res.json();
         if (data.success) {
           catalog = data.catalog || [];
-          renderProducts('all');
+          renderProducts(currentCategory, isBackground);
         }
       } catch (e) {}
     }
 
-    function renderProducts(filter) {
+    function renderProducts(filter, isBackground = false) {
+      currentCategory = filter;
       const list = document.getElementById('product-list');
       const filtered = filter === 'all' ? catalog : catalog.filter(p => p.category === filter);
       if (filtered.length === 0) {
@@ -266,19 +273,38 @@
         const res = await fetch('/api/orders');
         const data = await res.json();
         if (data.success) {
-          const ids = JSON.parse(localStorage.getItem(`evreka_orders_${currentTable}`) || '[]');
+          const tableKey = `evreka_orders_${currentTable}`;
+          let ids = JSON.parse(localStorage.getItem(tableKey) || '[]');
+          if (ids.length === 0) {
+            document.getElementById('mini-tracker-banner').classList.add('hidden');
+            return;
+          }
+
           const localStatuses = JSON.parse(localStorage.getItem('evreka_order_statuses') || '{}');
-          const active = (data.orders || []).filter(o => {
-            const strId = String(o.id);
-            if (!ids.includes(strId)) return false;
-            const st = (localStatuses[strId] || o.status || 'WAITING').toUpperCase();
+          const allOrders = data.orders || [];
+          const myOrders = allOrders.filter(o => ids.includes(String(o.id)));
+
+          // Eğer masa kapatıldıysa (Tüm siparişler PAID veya CANCELLED olduysa) hafızayı tamamen temizle!
+          if (myOrders.length > 0 && myOrders.every(o => {
+            const st = String(localStatuses[o.id] || o.status || 'WAITING').toUpperCase();
+            return st === 'PAID' || st === 'CANCELLED';
+          })) {
+            localStorage.removeItem(tableKey);
+            document.getElementById('mini-tracker-banner').classList.add('hidden');
+            closeTrackerDrawer();
+            return;
+          }
+
+          const activeOrders = myOrders.filter(o => {
+            const st = String(localStatuses[o.id] || o.status || 'WAITING').toUpperCase();
             return st !== 'PAID' && st !== 'CANCELLED';
           });
-          if (active.length > 0) {
+
+          if (activeOrders.length > 0) {
             document.getElementById('mini-tracker-banner').classList.remove('hidden');
-            document.getElementById('mini-tracker-text').innerText = `${active.length} Aktif Siparişiniz Var`;
+            document.getElementById('mini-tracker-text').innerText = `${activeOrders.length} Aktif Siparişiniz Var`;
             if (document.getElementById('tracker-drawer').classList.contains('active')) {
-              renderTrackerContent(data.orders);
+              renderTrackerContent(allOrders);
             }
           } else {
             document.getElementById('mini-tracker-banner').classList.add('hidden');
