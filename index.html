@@ -153,7 +153,6 @@
       await loadCatalog();
       checkActiveOrdersMini();
       
-      // Saniyede bir arka planda menüyü ve sipariş durumunu otomatik yenile (Sessiz Güncelleme)
       setInterval(async () => {
         await loadCatalog(true);
         await checkActiveOrdersMini();
@@ -284,7 +283,6 @@
           const allOrders = data.orders || [];
           const myOrders = allOrders.filter(o => ids.includes(String(o.id)));
 
-          // Eğer masa kapatıldıysa (Tüm siparişler PAID veya CANCELLED olduysa) hafızayı tamamen temizle!
           if (myOrders.length > 0 && myOrders.every(o => {
             const st = String(localStatuses[o.id] || o.status || 'WAITING').toUpperCase();
             return st === 'PAID' || st === 'CANCELLED';
