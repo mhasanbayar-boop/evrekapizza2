@@ -10,9 +10,9 @@ app.use(express.static(path.join(__dirname)));
 let orders = [];
 let nextOrderId = 1001;
 
-// Gönderdiğiniz Görsellerdeki Tüm Gerçek Ürün Kataloğu
+// Tüm Kapsamlı Menü Kataloğu
 let catalog = [
-  // --- CLASSIC PİZZALAR (Orta / Jumbo Fiyatları) ---
+  // --- CLASSIC PİZZALAR (Orta / Jumbo Boy Seçenekleriyle) ---
   {
     id: 'piz-c1', category: 'pizza', title: 'Pepperoni Pizza', description: 'Mozarella/kaşar, sucuk, mantar, biber, mısır, zeytin.', basePrice: 260,
     image: 'https://images.unsplash.com/photo-1628840042765-356cda07504e?auto=format&fit=crop&w=800&q=80',
@@ -229,22 +229,16 @@ app.post('/api/orders', (req, res) => {
   res.json({ success: true, order: newOrder });
 });
 
-app.patch('/api/orders/:id/approve', (req, res) => {
-  const o = orders.find(x => String(x.id) === String(req.params.id));
-  if (o) o.status = 'PREPARING';
-  res.json({ success: true, order: o });
-});
-
+// Merkezi Durum Güncelleme Rotası (WAITING -> PREPARING -> SERVED -> PAID / CANCELLED)
 app.patch('/api/orders/:id/status', (req, res) => {
+  const { status } = req.body;
   const o = orders.find(x => String(x.id) === String(req.params.id));
-  if (o) o.status = req.body.status;
-  res.json({ success: true, order: o });
-});
-
-app.delete('/api/orders/:id', (req, res) => {
-  const o = orders.find(x => String(x.id) === String(req.params.id));
-  if (o) o.status = 'CANCELLED';
-  res.json({ success: true });
+  if (o) {
+    o.status = status;
+    res.json({ success: true, order: o });
+  } else {
+    res.status(404).json({ success: false, error: 'Sipariş bulunamadı' });
+  }
 });
 
 // Menü Yönetimi API'leri
