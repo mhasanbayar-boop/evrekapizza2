@@ -37,10 +37,11 @@
     </div>
   </header>
 
+  <!-- CANLI TAKİP BARI -->
   <div id="mini-tracker-banner" class="hidden bg-slate-900 border-b border-slate-800 px-4 py-2.5 sticky top-[57px] z-30">
     <div class="max-w-xl mx-auto flex items-center justify-between">
       <div class="flex items-center gap-2 text-xs"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span><span class="text-slate-200 font-bold" id="mini-tracker-text">Aktif Siparişiniz Var</span></div>
-      <button onclick="toggleTrackerDrawer()" class="bg-gradient-to-r from-amber-500 to-red-600 text-white font-extrabold text-[11px] px-3.5 py-1.5 rounded-xl">Canlı Takip Et ➔</button>
+      <button onclick="toggleTrackerDrawer()" class="bg-gradient-to-r from-amber-500 to-red-600 text-white font-extrabold text-[11px] px-3.5 py-1.5 rounded-xl shadow">Canlı Takip Et ➔</button>
     </div>
   </div>
 
@@ -48,7 +49,7 @@
     <div class="p-4">
       <div class="bg-gradient-to-r from-red-600 via-amber-600 to-orange-600 rounded-3xl p-6 text-white shadow-xl relative overflow-hidden">
         <h2 class="text-2xl font-black leading-tight">İtalyan Usulü Taş Fırın</h2>
-        <p class="text-xs text-white/80 mt-1">Anında sipariş verin, masanızda takip edin.</p>
+        <p class="text-xs text-white/80 mt-1">Anında sipariş verin, masanızda canlı takip edin.</p>
       </div>
     </div>
 
@@ -74,6 +75,7 @@
     </div>
   </div>
 
+  <!-- SEPET ÇEKMECESİ -->
   <div id="drawer-overlay" onclick="closeCartDrawerExplicit()" class="fixed inset-0 bg-slate-950/70 backdrop-blur-sm z-50 hidden"></div>
   <div id="cart-drawer" class="cart-drawer fixed bottom-0 right-0 left-0 sm:left-auto sm:top-0 sm:w-96 bg-white z-50 rounded-t-3xl sm:rounded-l-3xl max-h-[85vh] flex flex-col shadow-2xl">
     <div class="p-5 border-b flex justify-between items-center bg-slate-50 rounded-t-3xl">
@@ -87,12 +89,14 @@
     </div>
   </div>
 
+  <!-- CANLI TAKİP ÇEKMECESİ -->
   <div id="tracker-overlay" onclick="closeTrackerDrawer()" class="fixed inset-0 bg-slate-950/70 backdrop-blur-sm z-50 hidden"></div>
   <div id="tracker-drawer" class="tracker-drawer fixed bottom-0 right-0 left-0 bg-slate-900 text-white z-50 rounded-t-3xl max-h-[85vh] flex flex-col shadow-2xl">
     <div class="p-5 border-b border-slate-800 flex justify-between items-center"><h3 class="text-lg font-black">Canlı Sipariş Takibi</h3><button onclick="closeTrackerDrawer()" class="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center"><i class="fa-solid fa-xmark"></i></button></div>
     <div id="tracker-items-container" class="flex-1 overflow-y-auto p-5 space-y-4"></div>
   </div>
 
+  <!-- BAŞARI MODALI -->
   <div id="order-success-modal" class="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md hidden flex items-center justify-center p-4">
     <div class="bg-slate-900 border border-slate-800 w-full max-w-sm rounded-3xl p-6 shadow-2xl text-center space-y-5">
       <div class="w-16 h-16 bg-emerald-500/20 text-emerald-400 rounded-2xl flex items-center justify-center mx-auto text-3xl"><i class="fa-solid fa-check"></i></div>
@@ -101,6 +105,7 @@
     </div>
   </div>
 
+  <!-- ÜRÜN ÖZELLEŞTİRME MODALI -->
   <div id="options-modal" class="fixed inset-0 z-50 bg-slate-950/75 backdrop-blur-sm hidden flex items-end sm:items-center justify-center p-0 sm:p-4">
     <div class="bg-white w-full max-w-md rounded-t-3xl sm:rounded-3xl max-h-[90vh] overflow-y-auto p-6 shadow-2xl flex flex-col">
       <div class="relative h-48 -mx-6 -mt-6 mb-4 overflow-hidden rounded-t-3xl bg-slate-100">
@@ -145,6 +150,7 @@
       document.getElementById('cart-drawer-table-display').innerText = currentTable;
 
       await loadCatalog();
+      checkActiveOrdersMini();
       setInterval(checkActiveOrdersMini, 2000);
     });
 
@@ -162,6 +168,10 @@
     function renderProducts(filter) {
       const list = document.getElementById('product-list');
       const filtered = filter === 'all' ? catalog : catalog.filter(p => p.category === filter);
+      if (filtered.length === 0) {
+        list.innerHTML = '<div class="col-span-full py-12 text-center text-xs text-slate-400">Bu kategoride ürün bulunamadı.</div>';
+        return;
+      }
       list.innerHTML = filtered.map(p => `
         <div class="bg-white rounded-3xl overflow-hidden border shadow-sm flex flex-col justify-between">
           <div>
@@ -174,7 +184,8 @@
     }
 
     function openOptionsModal(id) {
-      selectedProduct = catalog.find(p => p.id === id);
+      selectedProduct = catalog.find(p => String(p.id) === String(id));
+      if (!selectedProduct) return;
       selectedSize = selectedProduct.sizes && selectedProduct.sizes.length > 0 ? selectedProduct.sizes[0] : null;
       document.getElementById('modal-note').value = '';
       document.getElementById('modal-img').src = selectedProduct.image;
@@ -229,12 +240,13 @@
     function renderCartDrawerItems() {
       document.getElementById('cart-items-container').innerHTML = cart.map((item, idx) => `
         <div class="bg-slate-50 p-3 rounded-2xl border flex justify-between items-start text-xs">
-          <div><h4 class="font-extrabold text-slate-900">${item.title} ${item.size ? `(${item.size})` : ''}</h4><span class="font-black text-slate-900">${item.price} ₺</span></div>
+          <div><h4 class="font-extrabold text-slate-900">${item.title} ${item.size ? `(${item.size})` : ''}</h4>${item.note ? `<div class="text-[10px] text-amber-600">Not: ${item.note}</div>`:''}<span class="font-black text-slate-900">${item.price} ₺</span></div>
           <button onclick="cart.splice(${idx},1); updateCartBar();" class="text-slate-400 hover:text-red-600"><i class="fa-solid fa-trash"></i></button>
         </div>
       `).join('');
       document.getElementById('cart-drawer-total').innerText = `${cart.reduce((s,i)=>s+i.price,0)} ₺`;
     }
+
     async function submitOrderToAPI() {
       if (!currentTable || cart.length === 0) return;
       const res = await fetch('/api/orders', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ tableName: currentTable, items: cart, totalPrice: cart.reduce((s,i)=>s+i.price,0) }) });
@@ -245,22 +257,86 @@
         localStorage.setItem(`evreka_orders_${currentTable}`, JSON.stringify(ids));
         cart = []; updateCartBar(); closeCartDrawerExplicit();
         document.getElementById('order-success-modal').classList.remove('hidden');
+        checkActiveOrdersMini();
       }
     }
+
     async function checkActiveOrdersMini() {
       try {
         const res = await fetch('/api/orders');
         const data = await res.json();
         if (data.success) {
           const ids = JSON.parse(localStorage.getItem(`evreka_orders_${currentTable}`) || '[]');
-          const active = (data.orders || []).filter(o => ids.includes(String(o.id)) && o.status !== 'PAID' && o.status !== 'CANCELLED');
-          if (active.length > 0) document.getElementById('mini-tracker-banner').classList.remove('hidden');
-          else document.getElementById('mini-tracker-banner').classList.add('hidden');
+          const localStatuses = JSON.parse(localStorage.getItem('evreka_order_statuses') || '{}');
+          const active = (data.orders || []).filter(o => {
+            const strId = String(o.id);
+            if (!ids.includes(strId)) return false;
+            const st = (localStatuses[strId] || o.status || 'WAITING').toUpperCase();
+            return st !== 'PAID' && st !== 'CANCELLED';
+          });
+          if (active.length > 0) {
+            document.getElementById('mini-tracker-banner').classList.remove('hidden');
+            document.getElementById('mini-tracker-text').innerText = `${active.length} Aktif Siparişiniz Var`;
+            if (document.getElementById('tracker-drawer').classList.contains('active')) {
+              renderTrackerContent(data.orders);
+            }
+          } else {
+            document.getElementById('mini-tracker-banner').classList.add('hidden');
+          }
         }
       } catch (e) {}
     }
-    function toggleTrackerDrawer() { document.getElementById('tracker-drawer').classList.toggle('active'); document.getElementById('tracker-overlay').classList.toggle('hidden'); }
+
+    async function toggleTrackerDrawer() {
+      const drawer = document.getElementById('tracker-drawer');
+      const overlay = document.getElementById('tracker-overlay');
+      if (drawer.classList.contains('active')) {
+        closeTrackerDrawer();
+      } else {
+        let allOrders = [];
+        try {
+          const res = await fetch('/api/orders');
+          const data = await res.json();
+          if (data.success) allOrders = data.orders;
+        } catch (e) {}
+        renderTrackerContent(allOrders);
+        drawer.classList.add('active');
+        overlay.classList.remove('hidden');
+      }
+    }
     function closeTrackerDrawer() { document.getElementById('tracker-drawer').classList.remove('active'); document.getElementById('tracker-overlay').classList.add('hidden'); }
+
+    function renderTrackerContent(allOrders) {
+      const ids = JSON.parse(localStorage.getItem(`evreka_orders_${currentTable}`) || '[]');
+      const container = document.getElementById('tracker-items-container');
+      const localStatuses = JSON.parse(localStorage.getItem('evreka_order_statuses') || '{}');
+      const myOrders = allOrders.filter(o => ids.includes(String(o.id)));
+
+      if (myOrders.length === 0) {
+        container.innerHTML = '<div class="text-center text-xs text-slate-400 py-8">Aktif siparişiniz bulunmuyor.</div>';
+        return;
+      }
+
+      container.innerHTML = myOrders.map(o => {
+        const strId = String(o.id);
+        const st = String(localStatuses[strId] || o.status || 'WAITING').toUpperCase();
+        let badge = '<span class="text-amber-400">⏳ Onay Bekliyor</span>';
+        if (st === 'PREPARING') badge = '<span class="text-emerald-400">🔥 Mutfakta Hazırlanıyor</span>';
+        else if (st === 'SERVED' || st === 'SERVICED') badge = '<span class="text-indigo-400">🍽️ Masaya Servis Edildi</span>';
+        else if (st === 'PAID') badge = '<span class="text-emerald-300">✅ Ödeme Alındı & Kapatıldı</span>';
+
+        return `
+          <div class="bg-slate-800 border border-slate-700 rounded-2xl p-4 space-y-2 text-xs">
+            <div class="flex justify-between items-center font-bold border-b border-slate-700 pb-2">
+              <span class="text-red-400">Sipariş #${o.id}</span><span class="text-amber-400">${o.totalPrice} ₺</span>
+            </div>
+            <div class="space-y-1">${(o.items||[]).map(i=>`<div class="flex justify-between"><span>${i.title}${i.size?`(${i.size})`:''}</span><b>${i.price} ₺</b></div>`).join('')}</div>
+            <div class="pt-2 border-t border-slate-700 font-extrabold text-center">${badge}</div>
+          </div>
+        `;
+      }).join('');
+    }
+
     function filterCategory(cat, btn) {
       document.querySelectorAll('.cat-btn').forEach(b => b.className = "cat-btn px-4 py-2 rounded-2xl bg-white text-slate-600 border text-xs font-bold whitespace-nowrap");
       btn.className = "cat-btn px-4 py-2 rounded-2xl bg-slate-900 text-white text-xs font-black shadow-sm whitespace-nowrap";
