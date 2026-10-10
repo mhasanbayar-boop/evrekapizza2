@@ -338,7 +338,19 @@
           }
           previousOrderCount = waitingCount;
 
-          cachedOrders = newOrders;
+          // Yerel state verilerini koruyarak sunucu verilerini güncelleyelim
+          cachedOrders = newOrders.map(serverOrder => {
+            const existing = cachedOrders.find(o => String(o.id) === String(serverOrder.id));
+            if (existing) {
+              return {
+                ...serverOrder,
+                handledBy: serverOrder.handledBy || existing.handledBy,
+                timeLogs: serverOrder.timeLogs || existing.timeLogs
+              };
+            }
+            return serverOrder;
+          });
+
           updateCounts();
           renderOrders();
           if (currentUserRole === 'patron') {
@@ -451,12 +463,13 @@
         const targetOrder = cachedOrders.find(o => String(o.id) === String(id));
         if (targetOrder) {
           targetOrder.status = newStatus;
-          // İlk onaylayan personeli kalıcı olarak ata (sonradan değişmesin, ilk kim onayladıysa o kalsın)
+          
+          // İlk onaylayan personeli kalıcı olarak sabitle
           if (!targetOrder.handledBy) {
             targetOrder.handledBy = staffSignature;
           }
 
-          // Zaman damgalarını aşamalı kaydet
+          // Butona basıldığında saatleri eksiksiz kaydet
           if (!targetOrder.timeLogs) targetOrder.timeLogs = {};
           if (!targetOrder.timeLogs.created) {
             targetOrder.timeLogs.created = targetOrder.createdAt || nowTime;
@@ -538,22 +551,22 @@
 
         const orderTime = o.timeLogs && o.timeLogs.created ? o.timeLogs.created : (new Date().toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' }) + ' - ' + new Date().toLocaleDateString('tr-TR'));
 
-        // Kalıcı Personel Onay Rozeti (Onaylandığı andan itibaren her zaman üst kısımda görünür)
+        // Onaylayan Personel İsmi (Kalıcı ve Kesintisiz Gösterim)
         const handledBadge = o.handledBy 
           ? `<div class="bg-indigo-500/10 border border-indigo-500/30 text-indigo-300 text-[11px] font-bold px-3 py-1.5 rounded-xl mb-3 flex items-center justify-between shadow-sm"><span class="flex items-center gap-1.5"><i class="fa-solid fa-user-check text-emerald-400"></i> Onaylayan:</span> <span class="text-white">${o.handledBy}</span></div>` 
           : `<div class="bg-amber-500/10 border border-amber-500/30 text-amber-300 text-[11px] font-bold px-3 py-1.5 rounded-xl mb-3 flex items-center gap-2 shadow-sm"><i class="fa-solid fa-clock text-amber-400"></i> Onay Bekliyor</div>`;
 
-        // Tamamlananlar (Arşiv) sekmesinde detaylı zaman çizelgesi
+        // Tamamlananlar / Arşiv Kısmı İçin Detaylı Saat Dökümü
         let timelineBox = '';
         if (st === 'PAID') {
           const logs = o.timeLogs || {};
           timelineBox = `
             <div class="bg-slate-900/95 border border-emerald-500/30 p-3 rounded-2xl text-[11px] space-y-1.5 mb-3 text-slate-300 shadow-inner">
-              <div class="font-black text-emerald-400 mb-1 flex items-center gap-1.5"><i class="fa-solid fa-clock-rotate-left"></i> Sipariş Zaman Çizelgesi</div>
-              <div class="flex justify-between"><span>📥 Alınma:</span> <b class="text-white">${logs.created || orderTime}</b></div>
-              <div class="flex justify-between"><span>👨‍🍳 Onaylanma:</span> <b class="text-white">${logs.preparing || '-'}</b></div>
-              <div class="flex justify-between"><span>🛎️ Servis Edilme:</span> <b class="text-white">${logs.served || '-'}</b></div>
-              <div class="flex justify-between"><span>💳 Ödeme Alınma:</span> <b class="text-emerald-400">${logs.paid || '-'}</b></div>
+              <div class="font-black text-emerald-400 mb-1 flex items-center gap-1.5"><i class="fa-solid fa-clock-rotate-left"></i> İşlem Zaman Damgaları</div>
+              <div class="flex justify-between"><span>📥 Sipariş Alınma:</span> <b class="text-white">${logs.created || orderTime}</b></div>
+              <div class="flex justify-between"><span>👨‍🍳 Mutfağa Onay:</span> <b class="text-white">${logs.preparing || '-'}</b></div>
+              <div class="flex justify-between"><span>🛎️ Servis / Hazır:</span> <b class="text-white">${logs.served || '-'}</b></div>
+              <div class="flex justify-between"><span>💳 Ödeme Alındı:</span> <b class="text-emerald-400">${logs.paid || '-'}</b></div>
             </div>
           `;
         }
@@ -586,10 +599,10 @@
                 <span class="text-xs font-mono font-bold text-slate-400">#${o.id}</span>
               </div>
               
-              <!-- Kalıcı Onaylayan Personel Rozeti -->
+              <!-- Kalıcı Personel Onay Rozeti -->
               ${handledBadge}
 
-              <!-- Tamamlananlar / Arşiv İçin Ayrıntılı Zaman Çizelgesi -->
+              <!-- Tamamlananlar / Arşiv İçin Ayrıntılı Saat Çizelgesi -->
               ${timelineBox}
 
               <div class="space-y-2.5">
