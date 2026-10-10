@@ -26,7 +26,7 @@
     </div>
   </div>
 
-  <!-- AKILLI ÜST BÖLÜM (Hemen yukarı kaydırmada anında beliriş yapar) -->
+  <!-- AKILLI ÜST BÖLÜM (Tüm sayfada yukarı kaydırmada anında görünür) -->
   <div id="sticky-header-wrapper" class="sticky top-0 z-40 w-full shadow-xl">
     <header class="bg-slate-900 text-white border-b border-slate-800">
       <div class="max-w-xl mx-auto px-4 py-3 flex items-center justify-between">
@@ -146,19 +146,25 @@
     let selectedSize = null;
     let currentCategory = 'all';
 
-    // Hassas Kaydırma Yönü Algılama (Scroll-up Reveal - Çok Hızlı Tepki Verir)
+    // Evrensel Kaydırma Yönü Algılama (Her yerde anında çalışan Scroll-up Reveal)
     let lastScrollY = window.pageYOffset;
     const headerWrapper = document.getElementById('sticky-header-wrapper');
 
     window.addEventListener('scroll', () => {
       let currentScrollY = window.pageYOffset;
-      if (currentScrollY > lastScrollY && currentScrollY > 60) {
-        // Aşağı kaydırırken gizle
+      let diff = currentScrollY - lastScrollY;
+
+      if (currentScrollY <= 20) {
+        // En üstteyse kesinlikle göster
+        headerWrapper.style.transform = 'translateY(0)';
+      } else if (diff > 5) {
+        // Aşağı doğru kaydırıyorsa gizle
         headerWrapper.style.transform = 'translateY(-100%)';
-      } else if (currentScrollY < lastScrollY || currentScrollY <= 20) {
-        // Yukarı kaydırır kaydırmaz veya en üstteyken anında göster
+      } else if (diff < -5) {
+        // Yukarı doğru en ufak bir hareket yapıldığında (tüm sayfa boyunca) hemen göster
         headerWrapper.style.transform = 'translateY(0)';
       }
+      
       lastScrollY = currentScrollY;
     });
 
