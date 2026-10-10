@@ -148,7 +148,6 @@
     let currentUserRole = 'garson'; 
     let currentUsername = 'Garson';
 
-    // Personel Hesap Yönetimi (localStorage Tabanlı Güvenli Veritabanı)
     function getStaffAccounts() {
       let accounts = JSON.parse(localStorage.getItem('evreka_staff_accounts') || 'null');
       if (!accounts) {
@@ -446,20 +445,28 @@
 
     async function updateOrderStatus(id, newStatus) {
       try {
-        // Hangi personelin onayladığını belirten imza (örn: garson1 (GARSON))
         const staffSignature = `${currentUsername} (${currentUserRole.toUpperCase()})`;
-        
-        // Önce yerel önbellekte anında güncelleyelim ki arayüz gecikmesiz göstersin
+        const nowTime = new Date().toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' }) + ' - ' + new Date().toLocaleDateString('tr-TR');
+
         const targetOrder = cachedOrders.find(o => String(o.id) === String(id));
         if (targetOrder) {
           targetOrder.status = newStatus;
           targetOrder.handledBy = staffSignature;
+
+          // Aşamalı zaman damgalarını kayıt altına alalım
+          if (!targetOrder.timeLogs) targetOrder.timeLogs = {};
+          if (!targetOrder.timeLogs.created) {
+            targetOrder.timeLogs.created = targetOrder.createdAt || nowTime;
+          }
+          if (newStatus === 'PREPARING') targetOrder.timeLogs.preparing = nowTime;
+          if (newStatus === 'SERVED') targetOrder.timeLogs.served = nowTime;
+          if (newStatus === 'PAID') targetOrder.timeLogs.paid = nowTime;
         }
 
         await fetch(`/api/orders/${id}/status`, { 
           method: 'PATCH', 
           headers: { 'Content-Type': 'application/json' }, 
-          body: JSON.stringify({ status: newStatus, handledBy: staffSignature }) 
+          body: JSON.stringify({ status: newStatus, handledBy: staffSignature, timeLogs: targetOrder?.timeLogs }) 
         });
         
         renderOrders();
@@ -522,10 +529,27 @@
           displayTableName += ' <span class="text-amber-300 text-[11px] font-bold">(- Paket Servis)</span>';
         }
 
-        // KİM ONAYLADI / İŞLEME ALDI - SİPARİŞİN ÜST KISMINDA KÜÇÜK VE ŞIK BİR ROZET OLARAK
+        // Siparişin alınma zamanı (Yoksa şu anki saat verilir)
+        const orderTime = o.timeLogs && o.timeLogs.created ? o.timeLogs.created : (new Date().toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' }) + ' - ' + new Date().toLocaleDateString('tr-TR'));
+
+        // Onaylayan Personel Rozeti
         const handledBadge = o.handledBy 
-          ? `<div class="bg-indigo-500/10 border border-indigo-500/30 text-indigo-300 text-[11px] font-bold px-3 py-1.5 rounded-xl mb-3.5 flex items-center gap-2"><i class="fa-solid fa-user-check text-emerald-400"></i> Onaylayan Personel: <span class="text-white">${o.handledBy}</span></div>` 
-          : `<div class="bg-amber-500/10 border border-amber-500/30 text-amber-300 text-[11px] font-bold px-3 py-1.5 rounded-xl mb-3.5 flex items-center gap-2"><i class="fa-solid fa-clock text-amber-400"></i> Bekliyor / Henüz işlem yapılmadı</div>`;
+          ? `<div class="bg-indigo-500/10 border border-indigo-500/30 text-indigo-300 text-[11px] font-bold px-3 py-1.5 rounded-xl mb-3 flex items-center justify-between shadow-sm"><span class="flex items-center gap-1.5"><i class="fa-solid fa-user-check text-emerald-400"></i> Onaylayan:</span> <span class="text-white">${o.handledBy}</span></div>` 
+          : `<div class="bg-amber-500/10 border border-amber-500/30 text-amber-300 text-[11px] font-bold px-3 py-1.5 rounded-xl mb-3 flex items-center gap-2 shadow-sm"><i class="fa-solid fa-clock text-amber-400"></i> Bekliyor / İşlem yapılmadı</div>`;
+
+        // Eğer tamamlananlar (PAID) sekmesindeyse detaylı zaman tünelini gösterelim
+        let timelineBox = '';
+        if (st === 'PAID' && o.timeLogs) {
+          timelineBox = `
+            <div class="bg-slate-900/90 border border-emerald-500/30 p-3 rounded-2xl text-[11px] space-y-1.5 mb-3 text-slate-300">
+              <div class="font-black text-emerald-400 mb-1 flex items-center gap-1.5"><i class="fa-solid fa-clock-rotate-left"></i> Zaman Çizelgesi (Log)</div>
+              <div class="flex justify-between"><span>📥 Alınma:</span> <b class="text-white">${o.timeLogs.created || '-'}</b></div>
+              <div class="flex justify-between"><span>👨‍🍳 Onaylanma:</span> <b class="text-white">${o.timeLogs.preparing || '-'}</b></div>
+              <div class="flex justify-between"><span>🛎️ Servis:</span> <b class="text-white">${o.timeLogs.served || '-'}</b></div>
+              <div class="flex justify-between"><span>💳 Ödeme/Kapanış:</span> <b class="text-emerald-400">${o.timeLogs.paid || '-'}</b></div>
+            </div>
+          `;
+        }
 
         if (st === 'PREPARING') {
           statusBadge = '<span class="bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-3 py-1 rounded-xl text-[11px] font-black">Mutfakta</span>';
@@ -548,12 +572,18 @@
           <div class="bg-slate-800 border border-slate-700 rounded-3xl p-5 shadow-xl flex flex-col justify-between gap-4">
             <div>
               <div class="flex justify-between items-center border-b border-slate-700/80 pb-3 mb-3">
-                <span class="bg-red-600 text-white font-black text-xs px-3.5 py-1.5 rounded-xl shadow-sm">${displayTableName}</span>
+                <div>
+                  <span class="bg-red-600 text-white font-black text-xs px-3.5 py-1.5 rounded-xl shadow-sm inline-block mb-1">${displayTableName}</span>
+                  <span class="text-[10px] text-slate-400 block font-bold"><i class="fa-regular fa-clock text-amber-400"></i> Alınma: ${orderTime}</span>
+                </div>
                 <span class="text-xs font-mono font-bold text-slate-400">#${o.id}</span>
               </div>
               
-              <!-- Onaylayan Personel Bilgisi Rozeti -->
+              <!-- Personel Onay Rozeti -->
               ${handledBadge}
+
+              <!-- Tamamlananlar İçin Detaylı Zaman Çizelgesi -->
+              ${timelineBox}
 
               <div class="space-y-2.5">
                 ${(o.items||[]).map(i=>`
