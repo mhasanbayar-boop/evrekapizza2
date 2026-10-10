@@ -182,13 +182,11 @@
         if (data.success) {
           let newOrders = data.orders || [];
           newOrders = newOrders.map(o => {
-            if (localStatusOverrides[o.id]) {
-              return { ...o, status: localStatusOverrides[o.id] };
-            }
-            return o;
+            let st = String(localStatusOverrides[o.id] || o.status || 'WAITING').toUpperCase().trim();
+            return { ...o, status: st };
           });
 
-          const waitingOrders = newOrders.filter(o => isWaitingStatus(o.status));
+          const waitingOrders = newOrders.filter(o => o.status === 'WAITING' || o.status === 'WAITING_WAITER');
           if (waitingOrders.length > previousOrderCount) {
             playNotificationSound();
           }
@@ -201,16 +199,12 @@
       } catch (err) {}
     }
 
-    function isWaitingStatus(status) {
-      return status === 'WAITING' || status === 'WAITING_WAITER';
-    }
-
     function updateCounts() {
       document.getElementById('count-ALL').innerText = cachedOrders.filter(o => o.status !== 'CANCELLED' && o.status !== 'PAID').length;
       
-      const waiting = cachedOrders.filter(o => isWaitingStatus(o.status)).length;
+      const waiting = cachedOrders.filter(o => o.status === 'WAITING' || o.status === 'WAITING_WAITER').length;
       const preparing = cachedOrders.filter(o => o.status === 'PREPARING').length;
-      const served = cachedOrders.filter(o => o.status === 'SERVED').length;
+      const served = cachedOrders.filter(o => o.status === 'SERVED' || o.status === 'SERVICED' || o.status === 'DELIVERED').length;
       const paid = cachedOrders.filter(o => o.status === 'PAID').length;
 
       document.getElementById('count-WAITING').innerText = waiting;
@@ -328,10 +322,15 @@
     function renderOrders() {
       const container = document.getElementById('orders-container');
       let filtered = cachedOrders;
+
       if (currentFilter === 'WAITING') {
-        filtered = cachedOrders.filter(o => isWaitingStatus(o.status));
-      } else if (currentFilter !== 'ALL') {
-        filtered = cachedOrders.filter(o => o.status === currentFilter);
+        filtered = cachedOrders.filter(o => o.status === 'WAITING' || o.status === 'WAITING_WAITER');
+      } else if (currentFilter === 'PREPARING') {
+        filtered = cachedOrders.filter(o => o.status === 'PREPARING');
+      } else if (currentFilter === 'SERVED') {
+        filtered = cachedOrders.filter(o => o.status === 'SERVED' || o.status === 'SERVICED' || o.status === 'DELIVERED');
+      } else if (currentFilter === 'PAID') {
+        filtered = cachedOrders.filter(o => o.status === 'PAID');
       } else {
         filtered = cachedOrders.filter(o => o.status !== 'CANCELLED' && o.status !== 'PAID');
       }
@@ -348,7 +347,7 @@
         let statusBadge = '';
         let actionButtons = '';
 
-        if (isWaitingStatus(o.status)) {
+        if (o.status === 'WAITING' || o.status === 'WAITING_WAITER') {
           statusBadge = '<span class="bg-amber-500/20 text-amber-400 border border-amber-500/30 px-2.5 py-1 rounded-lg text-[10px] font-black">Onay Bekliyor</span>';
           actionButtons = `
             <div class="grid grid-cols-2 gap-2">
@@ -367,7 +366,7 @@
               <i class="fa-solid fa-bell"></i> Hazır / Masaya Servis Et
             </button>
           `;
-        } else if (o.status === 'SERVED') {
+        } else if (o.status === 'SERVED' || o.status === 'SERVICED' || o.status === 'DELIVERED') {
           statusBadge = '<span class="bg-indigo-500/20 text-indigo-400 border border-indigo-500/30 px-2.5 py-1 rounded-lg text-[10px] font-black">Masada / Ödeme Bekliyor</span>';
           actionButtons = `
             <button onclick="openPaymentModal('${o.id}')" class="w-full bg-gradient-to-r from-indigo-600 to-emerald-600 hover:from-indigo-500 hover:to-emerald-500 text-white font-extrabold text-xs py-2.5 rounded-xl transition flex items-center justify-center gap-1.5 shadow-lg shadow-indigo-900/30">
