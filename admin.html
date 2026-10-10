@@ -15,12 +15,12 @@
   <div id="login-screen" class="max-w-md mx-auto mt-20 bg-slate-800 p-8 rounded-3xl border border-slate-700 shadow-2xl text-center space-y-4">
     <div class="w-16 h-16 bg-red-600/20 text-red-500 rounded-2xl flex items-center justify-center mx-auto text-2xl font-black shadow-inner">🔐</div>
     <h2 class="text-xl font-black">Yönetim Paneli Girişi</h2>
-    <p class="text-xs text-slate-400">Personel veya Patron Hesabınızla Giriş Yapın</p>
+    <p class="text-xs text-slate-400">Patron veya Garson Hesabınızla Giriş Yapın</p>
     
     <input type="text" id="user-input" placeholder="Kullanıcı Adı (Örn: patron veya garson1)" class="w-full text-center bg-slate-900 border border-slate-700 rounded-2xl py-3 text-sm font-bold text-white focus:outline-none focus:ring-2 focus:ring-red-500">
     <input type="password" id="pass-input" placeholder="Şifre" class="w-full text-center bg-slate-900 border border-slate-700 rounded-2xl py-3 text-sm font-bold text-white focus:outline-none focus:ring-2 focus:ring-red-500">
     
-    <button onclick="loginServer()" class="w-full bg-red-600 hover:bg-red-700 text-white font-extrabold py-3 rounded-2xl text-xs transition shadow-lg">Giriş Yap</button>
+    <button onclick="handleLogin()" class="w-full bg-red-600 hover:bg-red-700 text-white font-extrabold py-3 rounded-2xl text-xs transition shadow-lg">Giriş Yap</button>
   </div>
 
   <!-- ANA DASHBOARD -->
@@ -148,6 +148,7 @@
     let currentUserRole = 'garson'; 
     let currentUsername = 'Garson';
 
+    // Personel Hesap Yönetimi (localStorage Tabanlı Güvenli Veritabanı)
     function getStaffAccounts() {
       let accounts = JSON.parse(localStorage.getItem('evreka_staff_accounts') || 'null');
       if (!accounts) {
@@ -210,12 +211,12 @@
       } catch (e) {}
     }
 
-    function loginServer() {
-      const usernameInput = document.getElementById('user-input').value.trim();
-      const passwordInput = document.getElementById('pass-input').value.trim();
+    function handleLogin() {
+      const uInput = document.getElementById('user-input').value.trim();
+      const pInput = document.getElementById('pass-input').value.trim();
 
       const accounts = getStaffAccounts();
-      const found = accounts.find(a => a.username.toLowerCase() === usernameInput.toLowerCase() && a.pass === passwordInput);
+      const found = accounts.find(a => a.username.toLowerCase() === uInput.toLowerCase() && a.pass === pInput);
 
       if (found) {
         currentUserRole = found.role;
@@ -305,7 +306,7 @@
       document.getElementById('new-staff-user').value = '';
       document.getElementById('new-staff-pass').value = '';
       renderStaffManagement();
-      alert('Yeni garson hesabı başarıyla eklendi ve aktif edildi!');
+      alert('Yeni garson hesabı başarıyla eklendi ve giriş için aktif edildi!');
     }
 
     function updateStaffPass(idx) {
@@ -445,14 +446,24 @@
 
     async function updateOrderStatus(id, newStatus) {
       try {
-        // Aktif oturum açan kullanıcı adını ve rolünü siparişe imz olarak ekliyoruz
-        const handledBySignature = `${currentUsername} (${currentUserRole.toUpperCase()})`;
+        // Hangi personelin onayladığını belirten imza (örn: garson1 (GARSON))
+        const staffSignature = `${currentUsername} (${currentUserRole.toUpperCase()})`;
+        
+        // Önce yerel önbellekte anında güncelleyelim ki arayüz gecikmesiz göstersin
+        const targetOrder = cachedOrders.find(o => String(o.id) === String(id));
+        if (targetOrder) {
+          targetOrder.status = newStatus;
+          targetOrder.handledBy = staffSignature;
+        }
+
         await fetch(`/api/orders/${id}/status`, { 
           method: 'PATCH', 
           headers: { 'Content-Type': 'application/json' }, 
-          body: JSON.stringify({ status: newStatus, handledBy: handledBySignature }) 
+          body: JSON.stringify({ status: newStatus, handledBy: staffSignature }) 
         });
-        fetchData();
+        
+        renderOrders();
+        updateCounts();
       } catch (e) {}
     }
 
@@ -513,8 +524,8 @@
 
         // KİM ONAYLADI / İŞLEME ALDI - SİPARİŞİN ÜST KISMINDA KÜÇÜK VE ŞIK BİR ROZET OLARAK
         const handledBadge = o.handledBy 
-          ? `<div class="bg-indigo-500/10 border border-indigo-500/30 text-indigo-300 text-[10px] font-bold px-2.5 py-1 rounded-xl mb-3 flex items-center gap-1.5"><i class="fa-solid fa-user-shield"></i> Onaylayan: <span class="text-white">${o.handledBy}</span></div>` 
-          : `<div class="bg-amber-500/10 border border-amber-500/30 text-amber-300 text-[10px] font-bold px-2.5 py-1 rounded-xl mb-3 flex items-center gap-1.5"><i class="fa-solid fa-clock"></i> Henüz onaylanmadı / İşlem bekliyor</div>`;
+          ? `<div class="bg-indigo-500/10 border border-indigo-500/30 text-indigo-300 text-[11px] font-bold px-3 py-1.5 rounded-xl mb-3.5 flex items-center gap-2"><i class="fa-solid fa-user-check text-emerald-400"></i> Onaylayan Personel: <span class="text-white">${o.handledBy}</span></div>` 
+          : `<div class="bg-amber-500/10 border border-amber-500/30 text-amber-300 text-[11px] font-bold px-3 py-1.5 rounded-xl mb-3.5 flex items-center gap-2"><i class="fa-solid fa-clock text-amber-400"></i> Bekliyor / Henüz işlem yapılmadı</div>`;
 
         if (st === 'PREPARING') {
           statusBadge = '<span class="bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-3 py-1 rounded-xl text-[11px] font-black">Mutfakta</span>';
@@ -541,7 +552,7 @@
                 <span class="text-xs font-mono font-bold text-slate-400">#${o.id}</span>
               </div>
               
-              <!-- Siparişi Onaylayan Personelin Küçük Şık Rozeti -->
+              <!-- Onaylayan Personel Bilgisi Rozeti -->
               ${handledBadge}
 
               <div class="space-y-2.5">
