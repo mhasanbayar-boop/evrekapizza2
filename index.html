@@ -279,12 +279,12 @@
             return;
           }
 
-          const localStatuses = JSON.parse(localStorage.getItem('evreka_order_statuses') || '{}');
           const allOrders = data.orders || [];
           const myOrders = allOrders.filter(o => ids.includes(String(o.id)));
 
+          // Eğer masa kapatıldıysa (Tüm siparişler PAID veya CANCELLED olduysa) oturumu temizle
           if (myOrders.length > 0 && myOrders.every(o => {
-            const st = String(localStatuses[o.id] || o.status || 'WAITING').toUpperCase();
+            const st = String(o.status || 'WAITING').toUpperCase();
             return st === 'PAID' || st === 'CANCELLED';
           })) {
             localStorage.removeItem(tableKey);
@@ -294,7 +294,7 @@
           }
 
           const activeOrders = myOrders.filter(o => {
-            const st = String(localStatuses[o.id] || o.status || 'WAITING').toUpperCase();
+            const st = String(o.status || 'WAITING').toUpperCase();
             return st !== 'PAID' && st !== 'CANCELLED';
           });
 
@@ -333,7 +333,6 @@
     function renderTrackerContent(allOrders) {
       const ids = JSON.parse(localStorage.getItem(`evreka_orders_${currentTable}`) || '[]');
       const container = document.getElementById('tracker-items-container');
-      const localStatuses = JSON.parse(localStorage.getItem('evreka_order_statuses') || '{}');
       const myOrders = allOrders.filter(o => ids.includes(String(o.id)));
 
       if (myOrders.length === 0) {
@@ -342,11 +341,10 @@
       }
 
       container.innerHTML = myOrders.map(o => {
-        const strId = String(o.id);
-        const st = String(localStatuses[strId] || o.status || 'WAITING').toUpperCase();
+        const st = String(o.status || 'WAITING').toUpperCase();
         let badge = '<span class="text-amber-400">⏳ Onay Bekliyor</span>';
         if (st === 'PREPARING') badge = '<span class="text-emerald-400">🔥 Mutfakta Hazırlanıyor</span>';
-        else if (st === 'SERVED' || st === 'SERVICED') badge = '<span class="text-indigo-400">🍽️ Masaya Servis Edildi</span>';
+        else if (st === 'SERVED') badge = '<span class="text-indigo-400">🍽️ Masaya Servis Edildi</span>';
         else if (st === 'PAID') badge = '<span class="text-emerald-300">✅ Ödeme Alındı & Kapatıldı</span>';
 
         return `
