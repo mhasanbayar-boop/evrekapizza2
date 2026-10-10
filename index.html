@@ -86,6 +86,8 @@
     <div class="px-4 overflow-x-auto no-scrollbar flex gap-2 py-1 sticky top-[65px] z-20 bg-slate-100/90 backdrop-blur-md">
       <button onclick="filterCategory('all', this)" class="cat-btn px-4 py-2 rounded-2xl bg-slate-900 text-white text-xs font-black shadow-sm whitespace-nowrap transition">Tüm Menü</button>
       <button onclick="filterCategory('pizza', this)" class="cat-btn px-4 py-2 rounded-2xl bg-white text-slate-600 border border-slate-200 text-xs font-bold whitespace-nowrap transition">Pizzalar</button>
+      <button onclick="filterCategory('burger', this)" class="cat-btn px-4 py-2 rounded-2xl bg-white text-slate-600 border border-slate-200 text-xs font-bold whitespace-nowrap transition">Burgerler</button>
+      <button onclick="filterCategory('salad', this)" class="cat-btn px-4 py-2 rounded-2xl bg-white text-slate-600 border border-slate-200 text-xs font-bold whitespace-nowrap transition">Salatalar</button>
       <button onclick="filterCategory('side', this)" class="cat-btn px-4 py-2 rounded-2xl bg-white text-slate-600 border border-slate-200 text-xs font-bold whitespace-nowrap transition">Atıştırmalıklar</button>
       <button onclick="filterCategory('beverage', this)" class="cat-btn px-4 py-2 rounded-2xl bg-white text-slate-600 border border-slate-200 text-xs font-bold whitespace-nowrap transition">İçecekler</button>
       <button onclick="filterCategory('dessert', this)" class="cat-btn px-4 py-2 rounded-2xl bg-white text-slate-600 border border-slate-200 text-xs font-bold whitespace-nowrap transition">Tatlılar</button>
@@ -168,7 +170,7 @@
     </div>
   </div>
 
-  <!-- ÜRÜN DETAY MODALI -->
+  <!-- ÜRÜN DETAY & ÖZELLEŞTİRME MODALI -->
   <div id="options-modal" class="fixed inset-0 z-50 bg-slate-950/75 backdrop-blur-sm hidden flex items-end sm:items-center justify-center p-0 sm:p-4">
     <div class="bg-white w-full max-w-md rounded-t-3xl sm:rounded-3xl max-h-[90vh] overflow-y-auto p-6 shadow-2xl flex flex-col">
       <div class="relative h-48 -mx-6 -mt-6 mb-4 overflow-hidden rounded-t-3xl bg-slate-100">
@@ -182,11 +184,19 @@
         <p id="modal-desc" class="text-xs text-slate-500 mt-1"></p>
       </div>
 
+      <!-- Boyut Seçimi -->
       <div class="mt-5" id="size-section">
         <label class="block text-xs font-extrabold text-slate-700 uppercase tracking-wider mb-2">Boyut Seçin *</label>
-        <div class="grid grid-cols-3 gap-2" id="modal-sizes"></div>
+        <div class="grid grid-cols-2 gap-2" id="modal-sizes"></div>
       </div>
 
+      <!-- Malzeme Çıkarma (İçindekiler) -->
+      <div class="mt-5" id="ingredients-section">
+        <label class="block text-xs font-extrabold text-slate-700 uppercase tracking-wider mb-1">İçindekiler (İşareti kaldırarak çıkarabilirsiniz)</label>
+        <div class="space-y-1.5 max-h-36 overflow-y-auto pr-1" id="modal-ingredients"></div>
+      </div>
+
+      <!-- Ekstra Malzeme Ekleme -->
       <div class="mt-5" id="extra-section">
         <label class="block text-xs font-extrabold text-slate-700 uppercase tracking-wider mb-2">Ekstra Malzemeler</label>
         <div class="space-y-2" id="modal-extras"></div>
@@ -194,7 +204,7 @@
 
       <div class="mt-5">
         <label class="block text-xs font-extrabold text-slate-700 uppercase tracking-wider mb-1">Garson Notu</label>
-        <input type="text" id="modal-note" maxlength="200" placeholder="Örn: Acısı bol olsun..." class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs focus:ring-2 focus:ring-red-500 focus:outline-none">
+        <input type="text" id="modal-note" maxlength="200" placeholder="Örn: Az pi̇şsi̇n, sosu bol olsun..." class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs focus:ring-2 focus:ring-red-500 focus:outline-none">
       </div>
 
       <div class="mt-6 pt-3 border-t">
@@ -207,33 +217,152 @@
   </div>
 
   <script>
+    // TÜM MENÜ (Görsellerdeki Fiyat ve İçeriklere Göre Tam Liste)[cite: 4, 5, 6, 7]
     const catalog = [
+      // --- PİZZALAR ---
       {
-        id: 'piz-01', category: 'pizza', title: 'Evreka Special Pizza', description: 'Özel mozarella peyniri, dana sucuk, mantar, mısır, zeytin.', basePrice: 280,
-        image: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=800&q=80',
-        sizes: [{ id: 'sz-s', name: 'Küçük', priceOffset: 0 }, { id: 'sz-m', name: 'Orta', priceOffset: 60 }, { id: 'sz-l', name: 'Büyük', priceOffset: 120 }],
-        extras: [{ id: 'ex-cheese', name: 'Peynir Kenar', price: 45 }]
-      },
-      {
-        id: 'piz-02', category: 'pizza', title: 'Pepperoni Lover Pizza', description: 'Bol İtalyan dilimli pepperoni sucuk ve ekstra mozarella.', basePrice: 295,
+        id: 'piz-01', category: 'pizza', title: 'Pepperoni Pizza', description: 'Mozarella/kaşar, sucuk, mantar, biber, mısır, zeytin.', basePrice: 260,
         image: 'https://images.unsplash.com/photo-1628840042765-356cda07504e?auto=format&fit=crop&w=800&q=80',
-        sizes: [{ id: 'sz-s', name: 'Küçük', priceOffset: 0 }, { id: 'sz-m', name: 'Orta', priceOffset: 65 }, { id: 'sz-l', name: 'Büyük', priceOffset: 130 }],
-        extras: [{ id: 'ex-cheese', name: 'Peynir Kenar', price: 45 }]
+        sizes: [{ id: 'sz-m', name: 'Orta Boy (Medium)', priceOffset: 0 }, { id: 'sz-j', name: 'Büyük Boy (Jumbo)', priceOffset: 70 }],
+        ingredients: ['Mozarella/Kaşar', 'Sucuk', 'Mantar', 'Biber', 'Mısır', 'Zeytin'],
+        extras: [{ id: 'ex-cheese', name: 'Ekstra Mozarella', price: 45 }, { id: 'ex-jalapeno', name: 'Jalapeno Biber', price: 25 }]
       },
       {
-        id: 'sd-01', category: 'side', title: 'Çıtır Patates Kovanı', description: 'Özel baharat çeşnili patates kızartması.', basePrice: 85,
+        id: 'piz-02', category: 'pizza', title: 'Etobur (Meat-Lovers)', description: 'Mozarella/kaşar, sucuk, salam, sosis.', basePrice: 260,
+        image: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=800&q=80',
+        sizes: [{ id: 'sz-m', name: 'Orta Boy (Medium)', priceOffset: 0 }, { id: 'sz-j', name: 'Büyük Boy (Jumbo)', priceOffset: 70 }],
+        ingredients: ['Mozarella/Kaşar', 'Sucuk', 'Salam', 'Sosis'],
+        extras: [{ id: 'ex-cheese', name: 'Ekstra Mozarella', price: 45 }]
+      },
+      {
+        id: 'piz-03', category: 'pizza', title: 'Vejetaryen (Vegetarian)', description: 'Mozarella/kaşar, mantar, biber, mısır, zeytin.', basePrice: 260,
+        image: 'https://images.unsplash.com/photo-1593560708920-61dd98c46a4e?auto=format&fit=crop&w=800&q=80',
+        sizes: [{ id: 'sz-m', name: 'Orta Boy (Medium)', priceOffset: 0 }, { id: 'sz-j', name: 'Büyük Boy (Jumbo)', priceOffset: 70 }],
+        ingredients: ['Mozarella/Kaşar', 'Mantar', 'Biber', 'Mısır', 'Zeytin'],
+        extras: [{ id: 'ex-cheese', name: 'Ekstra Peynir', price: 45 }]
+      },
+      {
+        id: 'piz-04', category: 'pizza', title: 'Bol Karışık (Mixed Meat)', description: 'Mozarella/kaşar, salam, sosis, sucuk, biber, mısır, zeytin.', basePrice: 270,
+        image: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?auto=format&fit=crop&w=800&q=80',
+        sizes: [{ id: 'sz-m', name: 'Orta Boy (Medium)', priceOffset: 0 }, { id: 'sz-j', name: 'Büyük Boy (Jumbo)', priceOffset: 70 }],
+        ingredients: ['Mozarella/Kaşar', 'Salam', 'Sosis', 'Sucuk', 'Biber', 'Mısır', 'Zeytin'],
+        extras: [{ id: 'ex-cheese', name: 'Ekstra Peynir', price: 45 }]
+      },
+      {
+        id: 'piz-05', category: 'pizza', title: 'Evreka Special Deluxe', description: 'Kaşar, mozarella, sucuk, pastırma, biber, mısır, zeytin, mantar, cheddar peyniri.', basePrice: 330,
+        image: 'https://images.unsplash.com/photo-1574071318508-1cdbab80d002?auto=format&fit=crop&w=800&q=80',
+        sizes: [{ id: 'sz-m', name: 'Orta Boy (Medium)', priceOffset: 0 }, { id: 'sz-j', name: 'Büyük Boy (Jumbo)', priceOffset: 70 }],
+        ingredients: ['Kaşar', 'Mozarella', 'Sucuk', 'Pastırma', 'Biber', 'Mısır', 'Zeytin', 'Mantar', 'Cheddar'],
+        extras: [{ id: 'ex-cheese', name: 'Ekstra Peynir', price: 45 }]
+      },
+      {
+        id: 'piz-06', category: 'pizza', title: 'Kavurmalı - Sultan Roast', description: 'Mozarella/kaşar, dana kavurma, biber.', basePrice: 320,
+        image: 'https://images.unsplash.com/photo-1534308983496-4fabb1a015ee?auto=format&fit=crop&w=800&q=80',
+        sizes: [{ id: 'sz-m', name: 'Orta Boy (Medium)', priceOffset: 0 }, { id: 'sz-j', name: 'Büyük Boy (Jumbo)', priceOffset: 70 }],
+        ingredients: ['Mozarella/Kaşar', 'Dana Kavurma', 'Biber'],
+        extras: [{ id: 'ex-cheese', name: 'Ekstra Peynir', price: 45 }]
+      },
+
+      // --- BURGERLER ---
+      {
+        id: 'burg-01', category: 'burger', title: 'Hamburger (Classic)', description: 'Susamlı burger ekmeği, 100gr dana köfte, domates, marul, turşu, karamelize soğan, özel sos.', basePrice: 260,
+        image: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=800&q=80',
+        sizes: [],
+        ingredients: ['Dana Köfte (100gr)', 'Domates', 'Marul', 'Turşu', 'Karamelize Soğan', 'Özel Sos'],
+        extras: [{ id: 'ex-cheddar', name: 'Cheddar Peyniri', price: 35 }, { id: 'ex-patates', name: 'Yandaki Patatesi Büyüt', price: 30 }]
+      },
+      {
+        id: 'burg-02', category: 'burger', title: 'Cheeseburger', description: 'Susamlı burger ekmeği, 100gr dana köfte, domates, marul, turşu, cheddar peyniri, karamelize soğan, özel sos.', basePrice: 280,
+        image: 'https://images.unsplash.com/photo-1572802419224-296b0aeee0d9?auto=format&fit=crop&w=800&q=80',
+        sizes: [],
+        ingredients: ['Dana Köfte (100gr)', 'Cheddar Peyniri', 'Domates', 'Marul', 'Turşu', 'Karamelize Soğan', 'Özel Sos'],
+        extras: [{ id: 'ex-extra-meat', name: 'Ekstra Köfte', price: 90 }]
+      },
+      {
+        id: 'burg-03', category: 'burger', title: 'Evreka Special (Signature Burger)', description: 'Susamlı burger ekmeği, 2 x 100gr dana köfte, pastırma ve sucuk, cheddar peyniri, karamelize soğan, domates, özel sos.', basePrice: 390,
+        image: 'https://images.unsplash.com/photo-1550547660-d9450f859349?auto=format&fit=crop&w=800&q=80',
+        sizes: [],
+        ingredients: ['2x Dana Köfte (200gr)', 'Pastırma', 'Sucuk', 'Cheddar Peyniri', 'Karamelize Soğan', 'Domates', 'Özel Sos'],
+        extras: [{ id: 'ex-cheddar', name: 'Ekstra Cheddar', price: 35 }]
+      },
+      {
+        id: 'burg-04', category: 'burger', title: 'Crispy Chicken Burger', description: 'Susamlı burger ekmeği, çıtır tavuk eti, domates, marul, özel sos.', basePrice: 220,
+        image: 'https://images.unsplash.com/photo-1625813506062-0aeb1d7a094b?auto=format&fit=crop&w=800&q=80',
+        sizes: [],
+        ingredients: ['Çıtır Tavuk', 'Domates', 'Marul', 'Özel Sos'],
+        extras: [{ id: 'ex-cheese', name: 'Cheddar Peyniri', price: 35 }]
+      },
+
+      // --- SALATALAR ---
+      {
+        id: 'sal-01', category: 'salad', title: 'Tavuk Göbek Salata', description: 'Marul, kornişon turşu, mısır, tavuk parçaları, mayonez, yoğurt.', basePrice: 200,
+        image: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=800&q=80',
+        sizes: [],
+        ingredients: ['Marul', 'Kornişon Turşu', 'Mısır', 'Tavuk Parçaları', 'Mayonez', 'Yoğurt'],
+        extras: []
+      },
+      {
+        id: 'sal-02', category: 'salad', title: 'Tonno Salata', description: 'Marul, soğan, maydanoz, çeri domates, kapya biber, mısır, ton balığı salatalık, limon suyu.', basePrice: 200,
+        image: 'https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=800&q=80',
+        sizes: [],
+        ingredients: ['Marul', 'Soğan', 'Maydanoz', 'Çeri Domates', 'Kapya Biber', 'Mısır', 'Ton Balığı', 'Limon Suyu'],
+        extras: []
+      },
+
+      // --- ATIŞTIRMALIKLAR ---
+      {
+        id: 'sd-01', category: 'side', title: 'Patates Cips', description: 'Özel baharatlı çıtır patates kızartması.', basePrice: 100,
         image: 'https://images.unsplash.com/photo-1576107232684-1279f3908594?auto=format&fit=crop&w=800&q=80',
-        sizes: [], extras: []
+        sizes: [], ingredients: ['Patates', 'Özel Baharat'], extras: []
       },
       {
-        id: 'bev-01', category: 'beverage', title: 'Coca-Cola Zero (330ml)', description: 'Buz gibi kutu soğuk meşrubat.', basePrice: 45,
+        id: 'sd-02', category: 'side', title: "6'lı Soğan Halkası", description: 'Çıtır kaplamalı soğan halkaları.', basePrice: 90,
+        image: 'https://images.unsplash.com/photo-1639024471283-03518883512d?auto=format&fit=crop&w=800&q=80',
+        sizes: [], ingredients: ['Soğan Halkası'], extras: []
+      },
+      {
+        id: 'sd-03', category: 'side', title: "6'lı Tavuk Nugget", description: 'Lezzetli çıtır tavuk atıştırmalığı.', basePrice: 100,
+        image: 'https://images.unsplash.com/photo-1562967914-608f82629710?auto=format&fit=crop&w=800&q=80',
+        sizes: [], ingredients: ['Tavuk Nugget'], extras: []
+      },
+
+      // --- İÇECEKLER ---
+      {
+        id: 'bev-01', category: 'beverage', title: 'Coca-Cola (330ml Kutu)', description: 'Buz gibi soğuk meşrubat.', basePrice: 70,
         image: 'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?auto=format&fit=crop&w=800&q=80',
-        sizes: [], extras: []
+        sizes: [], ingredients: ['Kutu İçecek'], extras: []
       },
       {
-        id: 'des-01', category: 'dessert', title: 'Sıcak Çikolatalı Sufle', description: 'İçi akışkan özel Belçika çikolatalı sufle.', basePrice: 110,
-        image: 'https://images.unsplash.com/photo-1606313564200-e75d5e30476c?auto=format&fit=crop&w=800&q=80',
-        sizes: [], extras: []
+        id: 'bev-02', category: 'beverage', title: 'Fanta (330ml Kutu)', description: 'Portakal aromalı gazlı içecek.', basePrice: 70,
+        image: 'https://images.unsplash.com/photo-1624552184280-9e9632bbeee9?auto=format&fit=crop&w=800&q=80',
+        sizes: [], ingredients: ['Kutu İçecek'], extras: []
+      },
+      {
+        id: 'bev-03', category: 'beverage', title: 'Ayran', description: 'Buz gibi köpüklü yayık ayranı.', basePrice: 40,
+        image: 'https://images.unsplash.com/photo-1541658016709-82535e94bc69?auto=format&fit=crop&w=800&q=80',
+        sizes: [], ingredients: ['Ayran'], extras: []
+      },
+      {
+        id: 'bev-04', category: 'beverage', title: 'Su (0.5L)', description: 'Doğal kaynak suyu.', basePrice: 25,
+        image: 'https://images.unsplash.com/photo-1548839140-29a749e1cf4d?auto=format&fit=crop&w=800&q=80',
+        sizes: [], ingredients: ['Su'], extras: []
+      },
+
+      // --- TATLILAR ---
+      {
+        id: 'des-01', category: 'dessert', title: 'Sıcak Çikolatalı Waffle', description: 'Özel Belçika çikolatası ve taze meyvelerle.', basePrice: 150,
+        image: 'https://images.unsplash.com/photo-1562376552-0d160a2f238d?auto=format&fit=crop&w=800&q=80',
+        sizes: [], ingredients: ['Waffle Hamuru', 'Çikolata', 'Meyveler'], extras: [{ id: 'ex-dondurma', name: 'Üzerine Dondurma', price: 35 }]
+      },
+      {
+        id: 'des-02', category: 'dessert', title: 'Çikolatalı Pizza (Tatlı)', description: 'Fırından yeni çıkmış sıcak çikolatalı tatlı pizza.', basePrice: 250,
+        image: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=800&q=80',
+        sizes: [], ingredients: ['Pizza Tabanı', 'Çikolata', 'Fındık/Fıstık'], extras: []
+      },
+      {
+        id: 'des-03', category: 'dessert', title: 'Sütlaç', description: 'Geleneksel fırın sütlaç.', basePrice: 150,
+        image: 'https://images.unsplash.com/photo-1541781774459-bb2af2f05b55?auto=format&fit=crop&w=800&q=80',
+        sizes: [], ingredients: ['Süt', 'Pirinç', 'Şeker'], extras: []
       }
     ];
 
@@ -242,6 +371,7 @@
     let selectedProduct = null;
     let selectedSize = null;
     let selectedExtras = [];
+    let removedIngredients = []; // Çıkarılan malzemeler
 
     document.addEventListener('DOMContentLoaded', () => {
       const urlParams = new URLSearchParams(window.location.search);
@@ -373,8 +503,8 @@
           statusBg = "bg-indigo-500/20 border-indigo-500/50 text-indigo-300 font-bold animate-pulse";
         } else if (rawStatus === 'PAID') {
           activeStep = 3;
-          statusMsg = "✅ Ödemeniz Alındı. Siparişiniz ve Masanız Kapatıldı. İyi Günler Dileriz!";
-          statusBg = "bg-emerald-600/30 border-emerald-500 text-emerald-300 font-black shadow-lg shadow-emerald-900/40";
+          statusMsg = "✅ Ödemeniz Alındı. Masanız Kapatıldı. İyi Günler Dileriz!";
+          statusBg = "bg-emerald-600/30 border-emerald-500 text-emerald-300 font-black shadow-lg";
         }
 
         const itemsHtml = (o.items || []).map(i => `
@@ -382,6 +512,8 @@
             <div>
               <span class="font-extrabold text-slate-200">${i.title}</span>
               ${i.size ? `<span class="text-red-400 font-bold ml-1">(${i.size})</span>` : ''}
+              ${i.removed && i.removed.length > 0 ? `<div class="text-[10px] text-red-400">Çıkarılan: ${i.removed.join(', ')}</div>` : ''}
+              ${i.extras && i.extras.length > 0 ? `<div class="text-[10px] text-emerald-400">Eklenen: ${i.extras.map(e=>e.name).join(', ')}</div>` : ''}
             </div>
             <span class="font-black text-white">${i.price} ₺</span>
           </div>
@@ -452,7 +584,7 @@
           </div>
           <div class="p-4 pt-0">
             <button onclick="openOptionsModal('${p.id}')" class="w-full bg-slate-100 hover:bg-red-600 hover:text-white text-slate-800 font-extrabold text-xs py-2.5 rounded-xl transition flex items-center justify-center gap-1.5">
-              <i class="fa-solid fa-plus text-[10px]"></i> Ekle
+              <i class="fa-solid fa-plus text-[10px]"></i> Ekle & Özelleştir
             </button>
           </div>
         </div>
@@ -463,25 +595,44 @@
       selectedProduct = catalog.find(p => p.id === id);
       selectedSize = selectedProduct.sizes.length > 0 ? selectedProduct.sizes[0] : null;
       selectedExtras = [];
+      removedIngredients = [];
       document.getElementById('modal-note').value = '';
       document.getElementById('modal-img').src = selectedProduct.image;
       document.getElementById('modal-title').innerText = selectedProduct.title;
       document.getElementById('modal-desc').innerText = selectedProduct.description;
 
+      // Boyutlar
       const sizeSec = document.getElementById('size-section');
       const sizesCont = document.getElementById('modal-sizes');
       if (selectedProduct.sizes.length > 0) {
         sizeSec.classList.remove('hidden');
         sizesCont.innerHTML = selectedProduct.sizes.map((s, idx) => `
-          <button onclick="selectSize('${s.id}')" id="size-btn-${s.id}" class="size-btn p-2 rounded-xl border text-left text-xs ${idx === 0 ? 'border-red-600 bg-red-50 text-red-600 font-bold' : 'border-slate-200 text-slate-600'}">
+          <button onclick="selectSize('${s.id}')" id="size-btn-${s.id}" class="size-btn p-2.5 rounded-xl border text-left text-xs ${idx === 0 ? 'border-red-600 bg-red-50 text-red-600 font-bold' : 'border-slate-200 text-slate-600'}">
             <div>${s.name}</div><div class="text-[10px] opacity-70">+${s.priceOffset} ₺</div>
           </button>
         `).join('');
       } else { sizeSec.classList.add('hidden'); }
 
+      // Malzemeler (Çıkarılabilir)
+      const ingSec = document.getElementById('ingredients-section');
+      const ingCont = document.getElementById('modal-ingredients');
+      if (selectedProduct.ingredients && selectedProduct.ingredients.length > 0) {
+        ingSec.classList.remove('hidden');
+        ingCont.innerHTML = selectedProduct.ingredients.map(ing => `
+          <label class="flex items-center justify-between p-2 rounded-xl border bg-slate-50 text-xs cursor-pointer">
+            <div class="flex items-center gap-2">
+              <input type="checkbox" checked onchange="toggleIngredient('${ing}', this)" class="rounded text-red-600 w-4 h-4">
+              <span class="font-medium text-slate-700">${ing}</span>
+            </div>
+            <span class="text-[10px] text-emerald-600 font-bold">İçerikte</span>
+          </label>
+        `).join('');
+      } else { ingSec.classList.add('hidden'); }
+
+      // Ekstra Malzemeler (Eklenebilir)
       const extraSec = document.getElementById('extra-section');
       const extrasCont = document.getElementById('modal-extras');
-      if (selectedProduct.extras.length > 0) {
+      if (selectedProduct.extras && selectedProduct.extras.length > 0) {
         extraSec.classList.remove('hidden');
         extrasCont.innerHTML = selectedProduct.extras.map(e => `
           <label class="flex items-center justify-between p-2.5 rounded-xl border bg-slate-50 text-xs cursor-pointer">
@@ -496,34 +647,56 @@
     }
 
     function closeOptionsModal() { document.getElementById('options-modal').classList.add('hidden'); }
+
     function selectSize(id) {
       selectedSize = selectedProduct.sizes.find(s => s.id === id);
-      document.querySelectorAll('.size-btn').forEach(b => b.className = "size-btn p-2 rounded-xl border text-left text-xs border-slate-200 text-slate-600");
-      document.getElementById(`size-btn-${id}`).className = "size-btn p-2 rounded-xl border text-left text-xs border-red-600 bg-red-50 text-red-600 font-bold";
+      document.querySelectorAll('.size-btn').forEach(b => b.className = "size-btn p-2.5 rounded-xl border text-left text-xs border-slate-200 text-slate-600");
+      document.getElementById(`size-btn-${id}`).className = "size-btn p-2.5 rounded-xl border text-left text-xs border-red-600 bg-red-50 text-red-600 font-bold";
       updateModalPrice();
     }
+
+    function toggleIngredient(ingName, checkbox) {
+      if (!checkbox.checked) {
+        removedIngredients.push(ingName);
+      } else {
+        removedIngredients = removedIngredients.filter(i => i !== ingName);
+      }
+    }
+
     function toggleExtra(id) {
       const extra = selectedProduct.extras.find(e => e.id === id);
       const idx = selectedExtras.findIndex(e => e.id === id);
       if (idx > -1) selectedExtras.splice(idx, 1); else selectedExtras.push(extra);
       updateModalPrice();
     }
+
     function updateModalPrice() {
       let total = selectedProduct.basePrice + (selectedSize ? selectedSize.priceOffset : 0);
       selectedExtras.forEach(e => total += e.price);
       document.getElementById('modal-total-price').innerText = `${total} ₺`;
       document.getElementById('modal-add-btn').onclick = () => { addToCart(total); closeOptionsModal(); };
     }
+
     function addToCart(totalPrice) {
-      cart.push({ id: Date.now(), title: selectedProduct.title, size: selectedSize ? selectedSize.name : null, price: totalPrice, note: document.getElementById('modal-note').value.trim() });
+      cart.push({
+        id: Date.now(),
+        title: selectedProduct.title,
+        size: selectedSize ? selectedSize.name : null,
+        removed: [...removedIngredients],
+        extras: [...selectedExtras],
+        price: totalPrice,
+        note: document.getElementById('modal-note').value.trim()
+      });
       updateCartBar();
     }
+
     function updateCartBar() {
       const total = cart.reduce((sum, i) => sum + i.price, 0);
       document.getElementById('cart-badge').innerText = cart.length;
       document.getElementById('cart-total-price').innerText = `${total} ₺`;
       renderCartDrawerItems();
     }
+
     function toggleCartDrawer() {
       if (cart.length === 0) { alert('Sepetiniz boş'); return; }
       const drawer = document.getElementById('cart-drawer');
@@ -531,23 +704,29 @@
       if (drawer.classList.contains('active')) closeCartDrawerExplicit();
       else { renderCartDrawerItems(); drawer.classList.add('active'); overlay.classList.remove('hidden'); }
     }
+
     function closeCartDrawerExplicit() {
       document.getElementById('cart-drawer').classList.remove('active');
       document.getElementById('drawer-overlay').classList.add('hidden');
     }
+
     function renderCartDrawerItems() {
       const cont = document.getElementById('cart-items-container');
       cont.innerHTML = cart.map((item, idx) => `
-        <div class="bg-slate-50 p-3 rounded-2xl border flex justify-between items-start text-xs">
-          <div>
+        <div class="bg-slate-50 p-3.5 rounded-2xl border flex justify-between items-start text-xs">
+          <div class="space-y-1">
             <h4 class="font-extrabold text-slate-900">${item.title} ${item.size ? `(${item.size})` : ''}</h4>
-            <span class="font-black text-slate-900 mt-1 inline-block">${item.price} ₺</span>
+            ${item.removed && item.removed.length > 0 ? `<div class="text-[10px] text-red-500 font-bold">Çıkarılan: ${item.removed.join(', ')}</div>` : ''}
+            ${item.extras && item.extras.length > 0 ? `<div class="text-[10px] text-emerald-600 font-bold">Ekstra: ${item.extras.map(e=>e.name).join(', ')}</div>` : ''}
+            ${item.note ? `<div class="text-[10px] text-amber-600 italic">Not: ${item.note}</div>` : ''}
+            <span class="font-black text-slate-900 inline-block pt-1">${item.price} ₺</span>
           </div>
-          <button onclick="cart.splice(${idx},1); updateCartBar();" class="text-slate-400 hover:text-red-600"><i class="fa-solid fa-trash"></i></button>
+          <button onclick="cart.splice(${idx},1); updateCartBar();" class="text-slate-400 hover:text-red-600 p-1"><i class="fa-solid fa-trash"></i></button>
         </div>
       `).join('');
       document.getElementById('cart-drawer-total').innerText = `${cart.reduce((s,i)=>s+i.price,0)} ₺`;
     }
+
     async function submitOrderToAPI() {
       if (!currentTable || cart.length === 0) return;
       const btn = document.getElementById('submit-btn');
