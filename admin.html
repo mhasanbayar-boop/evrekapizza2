@@ -11,13 +11,8 @@
 </head>
 <body class="h-full bg-slate-900 p-4">
 
-  <!-- BAĞLANTI HATA UYARISI -->
-  <div id="connection-error" class="hidden max-w-md mx-auto mt-10 bg-red-600/20 border border-red-500 text-red-300 p-4 rounded-2xl text-xs text-center font-bold mb-4">
-    ⚠️ Sunucuya bağlanamadı! Lütfen dosyayı doğrudan açmak yerine <b class="text-white">http://localhost:3000/admin</b> adresinden açtığınızdan ve terminalde <code class="bg-black px-1 py-0.5 rounded">npm start</code> komutunun çalıştığından emin olun.
-  </div>
-
   <!-- ŞİFRELİ GİRİŞ EKRANI -->
-  <div id="login-screen" class="max-w-md mx-auto mt-10 bg-slate-800 p-8 rounded-3xl border border-slate-700 shadow-2xl text-center space-y-4">
+  <div id="login-screen" class="max-w-md mx-auto mt-20 bg-slate-800 p-8 rounded-3xl border border-slate-700 shadow-2xl text-center space-y-4">
     <div class="w-16 h-16 bg-red-600/20 text-red-500 rounded-2xl flex items-center justify-center mx-auto text-2xl font-black">🔐</div>
     <h2 class="text-xl font-black">Garson / Admin Girişi</h2>
     <p class="text-xs text-slate-400">Sunucu doğrulamalı yönetim paneli.</p>
@@ -126,16 +121,6 @@
     let selectedPaymentMethod = 'Kredi Kartı';
     let localStatusOverrides = JSON.parse(localStorage.getItem('evreka_order_statuses') || '{}');
 
-    // Sayfa açıldığında sunucu bağlantısını test et
-    window.addEventListener('DOMContentLoaded', async () => {
-      try {
-        const res = await fetch('/api/orders');
-        if (!res.ok) throw new Error();
-      } catch (e) {
-        document.getElementById('connection-error').classList.remove('hidden');
-      }
-    });
-
     async function loginServer() {
       const pass = document.getElementById('pass-input').value;
       try {
@@ -179,7 +164,7 @@
 
     function updateCounts() {
       document.getElementById('count-ALL').innerText = cachedOrders.filter(o => o.status !== 'CANCELLED' && o.status !== 'PAID').length;
-      document.getElementById('count-WAITING').innerText = cachedOrders.filter(o => o.status === 'WAITING' || o.status === 'WAITING_WAITER').length;
+      document.getElementById('count-WAITING').innerText = cachedOrders.filter(o => o.status === 'WAITING' || o.status === 'WAITING_WAITER' || !o.status).length;
       document.getElementById('count-PREPARING').innerText = cachedOrders.filter(o => o.status === 'PREPARING').length;
       document.getElementById('count-SERVED').innerText = cachedOrders.filter(o => o.status === 'SERVED' || o.status === 'SERVICED' || o.status === 'DELIVERED').length;
       document.getElementById('count-PAID').innerText = cachedOrders.filter(o => o.status === 'PAID').length;
@@ -292,7 +277,7 @@
       let filtered = cachedOrders;
 
       if (currentFilter === 'WAITING') {
-        filtered = cachedOrders.filter(o => o.status === 'WAITING' || o.status === 'WAITING_WAITER');
+        filtered = cachedOrders.filter(o => o.status === 'WAITING' || o.status === 'WAITING_WAITER' || !o.status);
       } else if (currentFilter === 'PREPARING') {
         filtered = cachedOrders.filter(o => o.status === 'PREPARING');
       } else if (currentFilter === 'SERVED') {
@@ -315,19 +300,7 @@
         let statusBadge = '';
         let actionButtons = '';
 
-        if (o.status === 'WAITING' || o.status === 'WAITING_WAITER') {
-          statusBadge = '<span class="bg-amber-500/20 text-amber-400 border border-amber-500/30 px-2.5 py-1 rounded-lg text-[10px] font-black">Onay Bekliyor</span>';
-          actionButtons = `
-            <div class="grid grid-cols-2 gap-2">
-              <button onclick="updateOrderStatus('${o.id}', 'PREPARING')" class="bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs py-2.5 rounded-xl transition flex items-center justify-center gap-1 shadow-lg shadow-emerald-900/20">
-                <i class="fa-solid fa-fire"></i> Onayla (Mutfağa)
-              </button>
-              <button onclick="cancelOrder('${o.id}')" class="bg-slate-700 hover:bg-red-600/30 hover:text-red-400 text-slate-300 font-bold text-xs py-2.5 rounded-xl transition">
-                İptal Et
-              </button>
-            </div>
-          `;
-        } else if (o.status === 'PREPARING') {
+        if (o.status === 'PREPARING') {
           statusBadge = '<span class="bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-2.5 py-1 rounded-lg text-[10px] font-black">Mutfakta Hazırlanıyor</span>';
           actionButtons = `
             <button onclick="updateOrderStatus('${o.id}', 'SERVED')" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-extrabold text-xs py-2.5 rounded-xl transition flex items-center justify-center gap-1.5 shadow-lg shadow-indigo-900/30">
@@ -346,6 +319,19 @@
           actionButtons = `<div class="text-center text-xs text-slate-500 font-bold py-1">Masa Kapatıldı ✅</div>`;
         } else if (o.status === 'CANCELLED') {
           statusBadge = '<span class="bg-slate-700 text-slate-400 border border-slate-600 px-2.5 py-1 rounded-lg text-[10px] font-black">İptal Edildi</span>';
+        } else {
+          // GÜVENCELİ VARSAYILAN (FALLBACK): Durum eşleşmezse kesinlikle Onay bekliyor butonu gösterir
+          statusBadge = '<span class="bg-amber-500/20 text-amber-400 border border-amber-500/30 px-2.5 py-1 rounded-lg text-[10px] font-black">Onay Bekliyor</span>';
+          actionButtons = `
+            <div class="grid grid-cols-2 gap-2">
+              <button onclick="updateOrderStatus('${o.id}', 'PREPARING')" class="bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs py-2.5 rounded-xl transition flex items-center justify-center gap-1 shadow-lg shadow-emerald-900/20">
+                <i class="fa-solid fa-fire"></i> Onayla (Mutfağa)
+              </button>
+              <button onclick="cancelOrder('${o.id}')" class="bg-slate-700 hover:bg-red-600/30 hover:text-red-400 text-slate-300 font-bold text-xs py-2.5 rounded-xl transition">
+                İptal Et
+              </button>
+            </div>
+          `;
         }
 
         return `
