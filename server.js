@@ -18,7 +18,6 @@ let catalog = [
   { id: 'des-01', category: 'dessert', title: 'Sıcak Çikolatalı Waffle', description: 'Özel çikolata ve taze meyvelerle.', basePrice: 150, image: 'https://images.unsplash.com/photo-1562376552-0d160a2f238d?auto=format&fit=crop&w=800&q=80', sizes: [], ingredients: ['Waffle Hamuru', 'Çikolata', 'Meyve'], extras: [] }
 ];
 
-// Kullanıcı Adı ve Şifre Kontrollü Giriş
 app.post('/api/auth/login', (req, res) => {
   const { username, password } = req.body;
   if (username === 'Evrekap Pizza' && (password === '1234' || password === 'admin')) {
