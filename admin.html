@@ -11,8 +11,13 @@
 </head>
 <body class="h-full bg-slate-900 p-4">
 
+  <!-- BAĞLANTI HATA UYARISI -->
+  <div id="connection-error" class="hidden max-w-md mx-auto mt-10 bg-red-600/20 border border-red-500 text-red-300 p-4 rounded-2xl text-xs text-center font-bold mb-4">
+    ⚠️ Sunucuya bağlanamadı! Lütfen dosyayı doğrudan açmak yerine <b class="text-white">http://localhost:3000/admin</b> adresinden açtığınızdan ve terminalde <code class="bg-black px-1 py-0.5 rounded">npm start</code> komutunun çalıştığından emin olun.
+  </div>
+
   <!-- ŞİFRELİ GİRİŞ EKRANI -->
-  <div id="login-screen" class="max-w-md mx-auto mt-20 bg-slate-800 p-8 rounded-3xl border border-slate-700 shadow-2xl text-center space-y-4">
+  <div id="login-screen" class="max-w-md mx-auto mt-10 bg-slate-800 p-8 rounded-3xl border border-slate-700 shadow-2xl text-center space-y-4">
     <div class="w-16 h-16 bg-red-600/20 text-red-500 rounded-2xl flex items-center justify-center mx-auto text-2xl font-black">🔐</div>
     <h2 class="text-xl font-black">Garson / Admin Girişi</h2>
     <p class="text-xs text-slate-400">Sunucu doğrulamalı yönetim paneli.</p>
@@ -32,9 +37,6 @@
         <p class="text-xs text-slate-400 mt-0.5">Sipariş Hazırlama, Masaya Servis ve POS Ödeme Akışı</p>
       </div>
       <div class="flex items-center gap-2 flex-wrap">
-        <button onclick="playNotificationSound()" class="bg-amber-500/20 text-amber-400 hover:bg-amber-500 hover:text-black text-xs px-3 py-2 rounded-xl border border-amber-500/30 font-bold flex items-center gap-1.5 transition">
-          <i class="fa-solid fa-volume-high"></i> Ses Testi
-        </button>
         <button onclick="fetchOrdersFromServer()" class="bg-slate-800 hover:bg-slate-700 text-xs px-3 py-2 rounded-xl border border-slate-700 font-bold flex items-center gap-1.5">
           <i class="fa-solid fa-rotate"></i> Yenile
         </button>
@@ -77,7 +79,7 @@
     <div id="orders-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
   </div>
 
-  <!-- ÖDEME ALMA MODALI (POS POPUP) -->
+  <!-- ÖDEME ALMA MODALI -->
   <div id="payment-modal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
     <div class="bg-slate-800 border border-slate-700 w-full max-w-md rounded-3xl p-6 shadow-2xl space-y-5">
       <div class="flex justify-between items-center border-b border-slate-700 pb-3">
@@ -97,26 +99,21 @@
 
       <div class="space-y-3">
         <label class="block text-xs font-bold text-slate-400 uppercase">Ödeme Yöntemini Seçin</label>
-        
         <div class="grid grid-cols-2 gap-3">
-          <button onclick="selectPaymentType('Kredi Kartı')" id="btn-pay-card" class="p-4 rounded-2xl border border-indigo-500/50 bg-indigo-500/10 text-indigo-300 font-extrabold text-xs flex flex-col items-center gap-2 transition">
-            <i class="fa-solid fa-credit-card text-2xl"></i>
-            Kredi Kartı (POS)
+          <button onclick="selectPaymentType('Kredi Kartı')" id="btn-pay-card" class="p-4 rounded-2xl border-2 border-indigo-500 bg-indigo-500/20 text-indigo-300 font-black text-xs flex flex-col items-center gap-2 transition">
+            <i class="fa-solid fa-credit-card text-2xl"></i> Kredi Kartı (POS)
           </button>
-          
-          <button onclick="selectPaymentType('Nakit')" id="btn-pay-cash" class="p-4 rounded-2xl border border-emerald-500/50 bg-emerald-500/10 text-emerald-300 font-extrabold text-xs flex flex-col items-center gap-2 transition">
-            <i class="fa-solid fa-money-bill-wave text-2xl"></i>
-            Nakit Ödeme
+          <button onclick="selectPaymentType('Nakit')" id="btn-pay-cash" class="p-4 rounded-2xl border border-slate-700 bg-slate-900 text-slate-400 font-bold text-xs flex flex-col items-center gap-2 transition opacity-60">
+            <i class="fa-solid fa-money-bill-wave text-2xl"></i> Nakit Ödeme
           </button>
         </div>
       </div>
 
       <div id="pos-status-area" class="hidden bg-slate-900/90 p-3 rounded-xl border border-slate-700 text-center text-xs space-y-1">
         <span class="text-amber-400 font-bold animate-pulse block" id="pos-status-text">POS Cihazına İstek Gönderiliyor...</span>
-        <span class="text-[10px] text-slate-400 block">Lütfen kartı okutunuz veya şifre giriniz.</span>
       </div>
 
-      <button id="confirm-pay-btn" onclick="processPayment()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold py-3.5 rounded-2xl text-xs shadow-lg shadow-emerald-900/40 transition">
+      <button id="confirm-pay-btn" onclick="processPayment()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold py-3.5 rounded-2xl text-xs shadow-lg transition">
         Ödemeyi Onayla ve Masayı Kapat
       </button>
     </div>
@@ -125,30 +122,19 @@
   <script>
     let currentFilter = 'ALL';
     let cachedOrders = [];
-    let previousOrderCount = 0;
     let selectedOrderForPay = null;
     let selectedPaymentMethod = 'Kredi Kartı';
     let localStatusOverrides = JSON.parse(localStorage.getItem('evreka_order_statuses') || '{}');
 
-    function playNotificationSound() {
+    // Sayfa açıldığında sunucu bağlantısını test et
+    window.addEventListener('DOMContentLoaded', async () => {
       try {
-        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        function createTone(freq, startTime, duration) {
-          const osc = audioCtx.createOscillator();
-          const gain = audioCtx.createGain();
-          osc.type = 'sine';
-          osc.frequency.setValueAtTime(freq, audioCtx.currentTime + startTime);
-          gain.gain.setValueAtTime(0.3, audioCtx.currentTime + startTime);
-          gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + startTime + duration);
-          osc.connect(gain);
-          gain.connect(audioCtx.destination);
-          osc.start(audioCtx.currentTime + startTime);
-          osc.stop(audioCtx.currentTime + startTime + duration);
-        }
-        createTone(880, 0, 0.15);
-        createTone(1174.66, 0.18, 0.3);
-      } catch (e) {}
-    }
+        const res = await fetch('/api/orders');
+        if (!res.ok) throw new Error();
+      } catch (e) {
+        document.getElementById('connection-error').classList.remove('hidden');
+      }
+    });
 
     async function loginServer() {
       const pass = document.getElementById('pass-input').value;
@@ -162,9 +148,8 @@
         if (data.success) {
           document.getElementById('login-screen').classList.add('hidden');
           document.getElementById('dashboard').classList.remove('hidden');
-          playNotificationSound();
           fetchOrdersFromServer();
-          setInterval(fetchOrdersFromServer, 3000);
+          setInterval(fetchOrdersFromServer, 2500);
         } else {
           alert(data.error || 'Geçersiz Şifre!');
         }
@@ -185,13 +170,6 @@
             let st = String(localStatusOverrides[o.id] || o.status || 'WAITING').toUpperCase().trim();
             return { ...o, status: st };
           });
-
-          const waitingOrders = newOrders.filter(o => o.status === 'WAITING' || o.status === 'WAITING_WAITER');
-          if (waitingOrders.length > previousOrderCount) {
-            playNotificationSound();
-          }
-          previousOrderCount = waitingOrders.length;
-
           cachedOrders = newOrders;
           updateCounts();
           renderOrders();
@@ -201,25 +179,19 @@
 
     function updateCounts() {
       document.getElementById('count-ALL').innerText = cachedOrders.filter(o => o.status !== 'CANCELLED' && o.status !== 'PAID').length;
-      
-      const waiting = cachedOrders.filter(o => o.status === 'WAITING' || o.status === 'WAITING_WAITER').length;
-      const preparing = cachedOrders.filter(o => o.status === 'PREPARING').length;
-      const served = cachedOrders.filter(o => o.status === 'SERVED' || o.status === 'SERVICED' || o.status === 'DELIVERED').length;
-      const paid = cachedOrders.filter(o => o.status === 'PAID').length;
-
-      document.getElementById('count-WAITING').innerText = waiting;
-      document.getElementById('count-PREPARING').innerText = preparing;
-      document.getElementById('count-SERVED').innerText = served;
-      document.getElementById('count-PAID').innerText = paid;
+      document.getElementById('count-WAITING').innerText = cachedOrders.filter(o => o.status === 'WAITING' || o.status === 'WAITING_WAITER').length;
+      document.getElementById('count-PREPARING').innerText = cachedOrders.filter(o => o.status === 'PREPARING').length;
+      document.getElementById('count-SERVED').innerText = cachedOrders.filter(o => o.status === 'SERVED' || o.status === 'SERVICED' || o.status === 'DELIVERED').length;
+      document.getElementById('count-PAID').innerText = cachedOrders.filter(o => o.status === 'PAID').length;
 
       const toplamCiro = cachedOrders
         .filter(o => o.status === 'PAID')
         .reduce((sum, o) => sum + (Number(o.totalPrice) || 0), 0);
 
       document.getElementById('stat-ciro').innerText = `${toplamCiro.toLocaleString('tr-TR')} ₺`;
-      document.getElementById('stat-bekleyen').innerText = waiting;
-      document.getElementById('stat-mutfakta').innerText = preparing;
-      document.getElementById('stat-servis').innerText = served;
+      document.getElementById('stat-bekleyen').innerText = document.getElementById('count-WAITING').innerText;
+      document.getElementById('stat-mutfakta').innerText = document.getElementById('count-PREPARING').innerText;
+      document.getElementById('stat-servis').innerText = document.getElementById('count-SERVED').innerText;
     }
 
     function setFilter(filter) {
@@ -262,8 +234,6 @@
       document.getElementById('pay-modal-table').innerText = `${selectedOrderForPay.tableName} - Ödeme Al`;
       document.getElementById('pay-modal-id').innerText = `Sipariş #${selectedOrderForPay.id}`;
       document.getElementById('pay-modal-amount').innerText = `${selectedOrderForPay.totalPrice} ₺`;
-      
-      selectPaymentType('Kredi Kartı');
       document.getElementById('pos-status-area').classList.add('hidden');
       document.getElementById('payment-modal').classList.remove('hidden');
     }
@@ -276,7 +246,6 @@
       selectedPaymentMethod = type;
       const cardBtn = document.getElementById('btn-pay-card');
       const cashBtn = document.getElementById('btn-pay-cash');
-
       if (type === 'Kredi Kartı') {
         cardBtn.className = "p-4 rounded-2xl border-2 border-indigo-500 bg-indigo-500/20 text-indigo-300 font-black text-xs flex flex-col items-center gap-2 transition";
         cashBtn.className = "p-4 rounded-2xl border border-slate-700 bg-slate-900 text-slate-400 font-bold text-xs flex flex-col items-center gap-2 transition opacity-60";
@@ -290,7 +259,6 @@
       const btn = document.getElementById('confirm-pay-btn');
       const statusArea = document.getElementById('pos-status-area');
       const statusText = document.getElementById('pos-status-text');
-
       btn.disabled = true;
       statusArea.classList.remove('hidden');
 
