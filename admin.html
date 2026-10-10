@@ -451,22 +451,29 @@
         const targetOrder = cachedOrders.find(o => String(o.id) === String(id));
         if (targetOrder) {
           targetOrder.status = newStatus;
-          targetOrder.handledBy = staffSignature;
+          // İlk onaylayan personeli kalıcı olarak ata (sonradan değişmesin, ilk kim onayladıysa o kalsın)
+          if (!targetOrder.handledBy) {
+            targetOrder.handledBy = staffSignature;
+          }
 
-          // Aşamalı zaman damgalarını kayıt altına alalım
+          // Zaman damgalarını aşamalı kaydet
           if (!targetOrder.timeLogs) targetOrder.timeLogs = {};
           if (!targetOrder.timeLogs.created) {
             targetOrder.timeLogs.created = targetOrder.createdAt || nowTime;
           }
-          if (newStatus === 'PREPARING') targetOrder.timeLogs.preparing = nowTime;
-          if (newStatus === 'SERVED') targetOrder.timeLogs.served = nowTime;
-          if (newStatus === 'PAID') targetOrder.timeLogs.paid = nowTime;
+          if (newStatus === 'PREPARING' && !targetOrder.timeLogs.preparing) targetOrder.timeLogs.preparing = nowTime;
+          if (newStatus === 'SERVED' && !targetOrder.timeLogs.served) targetOrder.timeLogs.served = nowTime;
+          if (newStatus === 'PAID' && !targetOrder.timeLogs.paid) targetOrder.timeLogs.paid = nowTime;
         }
 
         await fetch(`/api/orders/${id}/status`, { 
           method: 'PATCH', 
           headers: { 'Content-Type': 'application/json' }, 
-          body: JSON.stringify({ status: newStatus, handledBy: staffSignature, timeLogs: targetOrder?.timeLogs }) 
+          body: JSON.stringify({ 
+            status: newStatus, 
+            handledBy: targetOrder?.handledBy, 
+            timeLogs: targetOrder?.timeLogs 
+          }) 
         });
         
         renderOrders();
@@ -529,24 +536,24 @@
           displayTableName += ' <span class="text-amber-300 text-[11px] font-bold">(- Paket Servis)</span>';
         }
 
-        // Siparişin alınma zamanı (Yoksa şu anki saat verilir)
         const orderTime = o.timeLogs && o.timeLogs.created ? o.timeLogs.created : (new Date().toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' }) + ' - ' + new Date().toLocaleDateString('tr-TR'));
 
-        // Onaylayan Personel Rozeti
+        // Kalıcı Personel Onay Rozeti (Onaylandığı andan itibaren her zaman üst kısımda görünür)
         const handledBadge = o.handledBy 
           ? `<div class="bg-indigo-500/10 border border-indigo-500/30 text-indigo-300 text-[11px] font-bold px-3 py-1.5 rounded-xl mb-3 flex items-center justify-between shadow-sm"><span class="flex items-center gap-1.5"><i class="fa-solid fa-user-check text-emerald-400"></i> Onaylayan:</span> <span class="text-white">${o.handledBy}</span></div>` 
-          : `<div class="bg-amber-500/10 border border-amber-500/30 text-amber-300 text-[11px] font-bold px-3 py-1.5 rounded-xl mb-3 flex items-center gap-2 shadow-sm"><i class="fa-solid fa-clock text-amber-400"></i> Bekliyor / İşlem yapılmadı</div>`;
+          : `<div class="bg-amber-500/10 border border-amber-500/30 text-amber-300 text-[11px] font-bold px-3 py-1.5 rounded-xl mb-3 flex items-center gap-2 shadow-sm"><i class="fa-solid fa-clock text-amber-400"></i> Onay Bekliyor</div>`;
 
-        // Eğer tamamlananlar (PAID) sekmesindeyse detaylı zaman tünelini gösterelim
+        // Tamamlananlar (Arşiv) sekmesinde detaylı zaman çizelgesi
         let timelineBox = '';
-        if (st === 'PAID' && o.timeLogs) {
+        if (st === 'PAID') {
+          const logs = o.timeLogs || {};
           timelineBox = `
-            <div class="bg-slate-900/90 border border-emerald-500/30 p-3 rounded-2xl text-[11px] space-y-1.5 mb-3 text-slate-300">
-              <div class="font-black text-emerald-400 mb-1 flex items-center gap-1.5"><i class="fa-solid fa-clock-rotate-left"></i> Zaman Çizelgesi (Log)</div>
-              <div class="flex justify-between"><span>📥 Alınma:</span> <b class="text-white">${o.timeLogs.created || '-'}</b></div>
-              <div class="flex justify-between"><span>👨‍🍳 Onaylanma:</span> <b class="text-white">${o.timeLogs.preparing || '-'}</b></div>
-              <div class="flex justify-between"><span>🛎️ Servis:</span> <b class="text-white">${o.timeLogs.served || '-'}</b></div>
-              <div class="flex justify-between"><span>💳 Ödeme/Kapanış:</span> <b class="text-emerald-400">${o.timeLogs.paid || '-'}</b></div>
+            <div class="bg-slate-900/95 border border-emerald-500/30 p-3 rounded-2xl text-[11px] space-y-1.5 mb-3 text-slate-300 shadow-inner">
+              <div class="font-black text-emerald-400 mb-1 flex items-center gap-1.5"><i class="fa-solid fa-clock-rotate-left"></i> Sipariş Zaman Çizelgesi</div>
+              <div class="flex justify-between"><span>📥 Alınma:</span> <b class="text-white">${logs.created || orderTime}</b></div>
+              <div class="flex justify-between"><span>👨‍🍳 Onaylanma:</span> <b class="text-white">${logs.preparing || '-'}</b></div>
+              <div class="flex justify-between"><span>🛎️ Servis Edilme:</span> <b class="text-white">${logs.served || '-'}</b></div>
+              <div class="flex justify-between"><span>💳 Ödeme Alınma:</span> <b class="text-emerald-400">${logs.paid || '-'}</b></div>
             </div>
           `;
         }
@@ -579,10 +586,10 @@
                 <span class="text-xs font-mono font-bold text-slate-400">#${o.id}</span>
               </div>
               
-              <!-- Personel Onay Rozeti -->
+              <!-- Kalıcı Onaylayan Personel Rozeti -->
               ${handledBadge}
 
-              <!-- Tamamlananlar İçin Detaylı Zaman Çizelgesi -->
+              <!-- Tamamlananlar / Arşiv İçin Ayrıntılı Zaman Çizelgesi -->
               ${timelineBox}
 
               <div class="space-y-2.5">
