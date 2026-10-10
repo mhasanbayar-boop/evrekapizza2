@@ -12,43 +12,39 @@
 <body class="h-full bg-slate-900 p-4">
 
   <!-- ŞİFRELİ GİRİŞ EKRANI -->
-  <div id="login-screen" class="max-w-md mx-auto mt-20 bg-slate-800 p-8 rounded-3xl border border-slate-700 shadow-2xl text-center space-y-4">
+  <div id="login-screen" class="max-w-md mx-auto mt-16 bg-slate-800 p-8 rounded-3xl border border-slate-700 shadow-2xl text-center space-y-4">
     <div class="w-16 h-16 bg-red-600/20 text-red-500 rounded-2xl flex items-center justify-center mx-auto text-2xl font-black">🔐</div>
     <h2 class="text-xl font-black">Garson / Admin Girişi</h2>
     <p class="text-xs text-slate-400">Yönetim ve Menü Paneli</p>
-    <input type="password" id="pass-input" placeholder="Yönetici Şifreniz (Varsayılan: 1234)" class="w-full text-center bg-slate-900 border border-slate-700 rounded-2xl py-3 text-sm font-bold text-white focus:outline-none focus:ring-2 focus:ring-red-500">
+    
+    <input type="text" id="user-input" value="Evrekap Pizza" placeholder="Kullanıcı Adı" class="w-full text-center bg-slate-900 border border-slate-700 rounded-2xl py-3 text-sm font-bold text-white focus:outline-none focus:ring-2 focus:ring-red-500">
+    <input type="password" id="pass-input" placeholder="Şifreniz (Varsayılan: 1234)" class="w-full text-center bg-slate-900 border border-slate-700 rounded-2xl py-3 text-sm font-bold text-white focus:outline-none focus:ring-2 focus:ring-red-500">
+    
     <button onclick="loginServer()" class="w-full bg-red-600 hover:bg-red-700 text-white font-extrabold py-3 rounded-2xl text-xs transition">Giriş Yap</button>
   </div>
 
   <!-- ANA DASHBOARD -->
   <div id="dashboard" class="max-w-6xl mx-auto hidden space-y-5">
-    
-    <!-- Üst Header & Navigasyon -->
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-4">
       <div>
-        <h1 class="text-xl font-black flex items-center gap-2">
-          <span class="w-3 h-3 rounded-full bg-emerald-500 animate-pulse"></span> Evreka Pizza Yönetim Paneli
-        </h1>
+        <h1 class="text-xl font-black flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-emerald-500 animate-pulse"></span> Evreka Pizza Yönetim Paneli</h1>
         <p class="text-xs text-slate-400 mt-0.5">Canlı Sipariş Takibi & Menü/Fiyat Yönetimi</p>
       </div>
       <div class="flex items-center gap-2 flex-wrap">
         <button onclick="switchMainTab('orders')" id="tab-btn-orders" class="bg-red-600 text-white text-xs px-4 py-2 rounded-xl font-extrabold transition">Sipariş & POS</button>
-        <button onclick="switchMainTab("menu")" id="tab-btn-menu" class="bg-slate-800 text-slate-300 hover:bg-slate-700 text-xs px-4 py-2 rounded-xl font-bold transition">Menü & Ürün Yönetimi</button>
-        <button onclick="logout()" class="bg-red-600/20 text-red-400 hover:bg-red-600 hover:text-white text-xs px-3 py-2 rounded-xl font-bold">Çıkış</button>
+        <button onclick="switchMainTab('menu')" id="tab-btn-menu" class="bg-slate-800 text-slate-300 hover:bg-slate-700 text-xs px-4 py-2 rounded-xl font-bold transition">Menü & Ürün Yönetimi</button>
+        <button onclick="logout()" class="bg-red-600/20 text-red-400 hover:bg-red-600 text-xs px-3 py-2 rounded-xl font-bold">Çıkış</button>
       </div>
     </div>
 
-    <!-- 1. BÖLÜM: SİPARİŞLER VE POS -->
+    <!-- SİPARİŞLER SEKMESİ -->
     <div id="section-orders" class="space-y-5">
-      <!-- İstatistik Bari -->
       <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
         <div class="bg-slate-800 p-3.5 rounded-2xl border border-slate-700"><span class="text-slate-400 font-bold block mb-1">Toplam Ciro</span><span class="text-lg font-black text-emerald-400" id="stat-ciro">0 ₺</span></div>
         <div class="bg-slate-800 p-3.5 rounded-2xl border border-slate-700"><span class="text-slate-400 font-bold block mb-1">Onay Bekleyen</span><span class="text-lg font-black text-amber-400" id="stat-bekleyen">0</span></div>
         <div class="bg-slate-800 p-3.5 rounded-2xl border border-slate-700"><span class="text-slate-400 font-bold block mb-1">Mutfakta</span><span class="text-lg font-black text-emerald-400" id="stat-mutfakta">0</span></div>
         <div class="bg-slate-800 p-3.5 rounded-2xl border border-slate-700"><span class="text-slate-400 font-bold block mb-1">Ödeme Bekleyen</span><span class="text-lg font-black text-indigo-400" id="stat-servis">0</span></div>
       </div>
-
-      <!-- Durum Filtreleri -->
       <div class="flex gap-2 overflow-x-auto pb-1 text-xs">
         <button onclick="setFilter('ALL')" id="filter-ALL" class="px-4 py-2 rounded-xl font-extrabold bg-red-600 text-white">Aktif Siparişler</button>
         <button onclick="setFilter('WAITING')" id="filter-WAITING" class="px-4 py-2 rounded-xl font-bold bg-slate-800 text-amber-400 border border-slate-700">Yeni Gelenler</button>
@@ -56,33 +52,24 @@
         <button onclick="setFilter('SERVED')" id="filter-SERVED" class="px-4 py-2 rounded-xl font-bold bg-slate-800 text-indigo-400 border border-slate-700">Ödeme Bekleyenler</button>
         <button onclick="setFilter('PAID')" id="filter-PAID" class="px-4 py-2 rounded-xl font-bold bg-slate-800 text-slate-400 border border-slate-700">Tamamlananlar</button>
       </div>
-
-      <!-- Sipariş Kartları -->
       <div id="orders-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
     </div>
 
-    <!-- 2. BÖLÜM: MENÜ VE ÜRÜN YÖNETİMİ -->
+    <!-- MENÜ YÖNETİMİ SEKMESİ -->
     <div id="section-menu" class="hidden space-y-6">
       <div class="bg-slate-800 p-6 rounded-3xl border border-slate-700 shadow-xl space-y-4">
         <h3 class="text-base font-black text-white flex items-center gap-2"><i class="fa-solid fa-plus-circle text-red-500"></i> Yeni Ürün Ekle</h3>
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-xs">
-          <input type="text" id="new-title" placeholder="Ürün Adı (Örn: Margarita Pizza)" class="bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-white focus:outline-none focus:ring-2 focus:ring-red-500">
-          <select id="new-category" class="bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-white focus:outline-none focus:ring-2 focus:ring-red-500">
-            <option value="pizza">Pizza</option>
-            <option value="burger">Burger</option>
-            <option value="salad">Salata</option>
-            <option value="side">Atıştırmalık</option>
-            <option value="beverage">İçecek</option>
-            <option value="dessert">Tatlı</option>
+          <input type="text" id="new-title" placeholder="Ürün Adı" class="bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-white">
+          <select id="new-category" class="bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-white">
+            <option value="pizza">Pizza</option><option value="burger">Burger</option><option value="salad">Salata</option><option value="side">Atıştırmalık</option><option value="beverage">İçecek</option><option value="dessert">Tatlı</option>
           </select>
-          <input type="number" id="new-price" placeholder="Fiyat (₺)" class="bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-white focus:outline-none focus:ring-2 focus:ring-red-500">
-          <input type="text" id="new-image" placeholder="Görsel URL (İsteğe bağlı)" class="bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-white focus:outline-none focus:ring-2 focus:ring-red-500">
+          <input type="number" id="new-price" placeholder="Fiyat (₺)" class="bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-white">
+          <input type="text" id="new-image" placeholder="Görsel URL" class="bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-white">
         </div>
-        <textarea id="new-desc" placeholder="Ürün Açıklaması / İçindekiler..." class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-xs text-white focus:outline-none focus:ring-2 focus:ring-red-500"></textarea>
+        <textarea id="new-desc" placeholder="Ürün Açıklaması..." class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-xs text-white"></textarea>
         <button onclick="addNewProduct()" class="bg-red-600 hover:bg-red-700 text-white font-extrabold text-xs px-6 py-3 rounded-xl transition shadow-lg">Ürünü Menüye Ekle</button>
       </div>
-
-      <!-- Mevcut Ürünler Listesi -->
       <div class="bg-slate-800 p-6 rounded-3xl border border-slate-700 shadow-xl space-y-4">
         <h3 class="text-base font-black text-white flex items-center gap-2"><i class="fa-solid fa-utensils text-amber-400"></i> Menüdeki Ürünler ve Fiyatlar</h3>
         <div id="admin-menu-list" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
@@ -110,16 +97,17 @@
     let localStatusOverrides = JSON.parse(localStorage.getItem('evreka_order_statuses') || '{}');
 
     async function loginServer() {
-      const pass = document.getElementById('pass-input').value;
+      const username = document.getElementById('user-input').value.trim();
+      const password = document.getElementById('pass-input').value.trim();
       try {
-        const res = await fetch('/api/auth/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ password: pass }) });
+        const res = await fetch('/api/auth/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username, password }) });
         const data = await res.json();
         if (data.success) {
           document.getElementById('login-screen').classList.add('hidden');
           document.getElementById('dashboard').classList.remove('hidden');
           fetchData();
           setInterval(fetchData, 2500);
-        } else { alert(data.error || 'Geçersiz Şifre!'); }
+        } else { alert(data.error || 'Giriş Başarısız!'); }
       } catch (err) { alert('Sunucuya bağlanılamadı.'); }
     }
 
@@ -156,10 +144,7 @@
       try {
         const res = await fetch('/api/catalog');
         const data = await res.json();
-        if (data.success) {
-          cachedCatalog = data.catalog || [];
-          renderAdminCatalog();
-        }
+        if (data.success) { cachedCatalog = data.catalog || []; renderAdminCatalog(); }
       } catch (e) {}
     }
 
@@ -169,10 +154,7 @@
         <div class="bg-slate-900 p-3.5 rounded-2xl border border-slate-700 flex items-center justify-between gap-3 text-xs">
           <div class="flex items-center gap-3">
             <img src="${item.image}" class="w-12 h-12 rounded-xl object-cover">
-            <div>
-              <h4 class="font-extrabold text-white">${item.title}</h4>
-              <span class="text-[10px] text-slate-400 uppercase">${item.category}</span>
-            </div>
+            <div><h4 class="font-extrabold text-white">${item.title}</h4><span class="text-[10px] text-slate-400 uppercase">${item.category}</span></div>
           </div>
           <div class="flex items-center gap-2">
             <input type="number" id="price-input-${item.id}" value="${item.basePrice}" class="w-20 bg-slate-800 border border-slate-700 rounded-xl px-2 py-1.5 text-amber-400 font-bold text-center">
@@ -189,46 +171,28 @@
       const basePrice = document.getElementById('new-price').value;
       const description = document.getElementById('new-desc').value.trim();
       const image = document.getElementById('new-image').value.trim();
-
       if (!title || !basePrice) { alert('Lütfen ürün adı ve fiyatı giriniz.'); return; }
-
       try {
-        const res = await fetch('/api/catalog', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ title, category, basePrice, description, image })
-        });
+        const res = await fetch('/api/catalog', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ title, category, basePrice, description, image }) });
         const data = await res.json();
         if (data.success) {
-          document.getElementById('new-title').value = '';
-          document.getElementById('new-price').value = '';
-          document.getElementById('new-desc').value = '';
-          document.getElementById('new-image').value = '';
-          fetchCatalogForAdmin();
-          alert('Ürün başarıyla eklendi!');
+          document.getElementById('new-title').value = ''; document.getElementById('new-price').value = ''; document.getElementById('new-desc').value = ''; document.getElementById('new-image').value = '';
+          fetchCatalogForAdmin(); alert('Ürün eklendi!');
         }
-      } catch (e) { alert('Hata oluştu.'); }
+      } catch (e) {}
     }
 
     async function updatePrice(id) {
       const newPrice = document.getElementById(`price-input-${id}`).value;
       try {
-        const res = await fetch(`/api/catalog/${id}/price`, {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ basePrice: newPrice })
-        });
-        const data = await res.json();
-        if (data.success) { alert('Fiyat güncellendi!'); fetchCatalogForAdmin(); }
+        await fetch(`/api/catalog/${id}/price`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ basePrice: newPrice }) });
+        alert('Fiyat güncellendi!'); fetchCatalogForAdmin();
       } catch (e) {}
     }
 
     async function deleteProduct(id) {
-      if (!confirm('Bu ürünü menüden silmek istediğinize emin misiniz?')) return;
-      try {
-        await fetch(`/api/catalog/${id}`, { method: 'DELETE' });
-        fetchCatalogForAdmin();
-      } catch (e) {}
+      if (!confirm('Silinsin mi?')) return;
+      try { await fetch(`/api/catalog/${id}`, { method: 'DELETE' }); fetchCatalogForAdmin(); } catch (e) {}
     }
 
     function updateCounts() {
@@ -238,10 +202,7 @@
       document.getElementById('stat-servis').innerText = cachedOrders.filter(o => o.status === 'SERVED' || o.status === 'SERVICED').length;
     }
 
-    function setFilter(f) {
-      currentFilter = f;
-      renderOrders();
-    }
+    function setFilter(f) { currentFilter = f; renderOrders(); }
 
     async function updateOrderStatus(id, newStatus) {
       localStatusOverrides[id] = newStatus;
@@ -261,12 +222,7 @@
       document.getElementById('payment-modal').classList.remove('hidden');
     }
     function closePaymentModal() { document.getElementById('payment-modal').classList.add('hidden'); }
-
-    async function processPayment() {
-      await updateOrderStatus(selectedOrderForPay.id, 'PAID');
-      closePaymentModal();
-    }
-
+    async function processPayment() { await updateOrderStatus(selectedOrderForPay.id, 'PAID'); closePaymentModal(); }
     async function cancelOrder(id) {
       if (!confirm('İptal edilsin mi?')) return;
       localStatusOverrides[id] = 'CANCELLED';
@@ -298,10 +254,7 @@
         return `
           <div class="bg-slate-800 border border-slate-700 rounded-3xl p-5 shadow-xl flex flex-col justify-between gap-4">
             <div>
-              <div class="flex justify-between border-b border-slate-700 pb-3 mb-3">
-                <span class="bg-red-600 text-white font-black text-xs px-3 py-1 rounded-xl">${o.tableName}</span>
-                <span class="text-xs font-mono text-slate-400">#${o.id}</span>
-              </div>
+              <div class="flex justify-between border-b border-slate-700 pb-3 mb-3"><span class="bg-red-600 text-white font-black text-xs px-3 py-1 rounded-xl">${o.tableName}</span><span class="text-xs font-mono text-slate-400">#${o.id}</span></div>
               <div class="space-y-2">${(o.items||[]).map(i=>`<div class="bg-slate-900 p-2.5 rounded-xl text-xs flex justify-between"><span>${i.title}</span><b>${i.price} ₺</b></div>`).join('')}</div>
             </div>
             <div class="border-t border-slate-700 pt-3 flex flex-col gap-3">
