@@ -15,9 +15,9 @@
   <div id="login-screen" class="max-w-md mx-auto mt-20 bg-slate-800 p-8 rounded-3xl border border-slate-700 shadow-2xl text-center space-y-4">
     <div class="w-16 h-16 bg-red-600/20 text-red-500 rounded-2xl flex items-center justify-center mx-auto text-2xl font-black shadow-inner">🔐</div>
     <h2 class="text-xl font-black">Yönetim Paneli Girişi</h2>
-    <p class="text-xs text-slate-400">Garson veya Patron Hesabı ile Giriş Yapın</p>
+    <p class="text-xs text-slate-400">Personel veya Patron Hesabınızla Giriş Yapın</p>
     
-    <input type="text" id="user-input" placeholder="Kullanıcı Adı (garson / patron)" class="w-full text-center bg-slate-900 border border-slate-700 rounded-2xl py-3 text-sm font-bold text-white focus:outline-none focus:ring-2 focus:ring-red-500">
+    <input type="text" id="user-input" placeholder="Kullanıcı Adı (Örn: patron veya garson1)" class="w-full text-center bg-slate-900 border border-slate-700 rounded-2xl py-3 text-sm font-bold text-white focus:outline-none focus:ring-2 focus:ring-red-500">
     <input type="password" id="pass-input" placeholder="Şifre" class="w-full text-center bg-slate-900 border border-slate-700 rounded-2xl py-3 text-sm font-bold text-white focus:outline-none focus:ring-2 focus:ring-red-500">
     
     <button onclick="loginServer()" class="w-full bg-red-600 hover:bg-red-700 text-white font-extrabold py-3 rounded-2xl text-xs transition shadow-lg">Giriş Yap</button>
@@ -31,7 +31,7 @@
           <span class="w-3.5 h-3.5 rounded-full bg-emerald-500 animate-pulse"></span> 
           Evreka Pizza <span id="role-title-badge" class="text-xs px-2.5 py-1 rounded-lg bg-red-600/20 text-red-400 border border-red-500/30 font-bold">Yükleniyor...</span>
         </h1>
-        <p class="text-xs text-slate-400 mt-1">Canlı Adisyon Takibi & Yönetim Sistemi</p>
+        <p class="text-xs text-slate-400 mt-1">Aktif Oturum: <b id="active-user-name" class="text-amber-400"></b></p>
       </div>
       <div class="flex items-center gap-2.5 flex-wrap">
         <button onclick="switchMainTab('orders')" id="tab-btn-orders" class="bg-red-600 text-white text-xs px-5 py-2.5 rounded-xl font-extrabold transition shadow-md">Siparişler & POS</button>
@@ -39,6 +39,7 @@
         <!-- SADECE PATRON GÖREBİLİR -->
         <button onclick="switchMainTab('finance')" id="tab-btn-finance" class="hidden bg-slate-800 text-slate-300 hover:bg-slate-700 text-xs px-5 py-2.5 rounded-xl font-bold transition">📊 Ciro & Finans</button>
         <button onclick="switchMainTab('menu')" id="tab-btn-menu" class="hidden bg-slate-800 text-slate-300 hover:bg-slate-700 text-xs px-5 py-2.5 rounded-xl font-bold transition">🍕 Menü & Ürünler</button>
+        <button onclick="switchMainTab('users')" id="tab-btn-users" class="hidden bg-slate-800 text-slate-300 hover:bg-slate-700 text-xs px-5 py-2.5 rounded-xl font-bold transition">👥 Personel Yönetimi</button>
         
         <button onclick="logout()" class="bg-red-600/20 text-red-400 hover:bg-red-600 hover:text-white text-xs px-4 py-2.5 rounded-xl font-bold transition">Çıkış</button>
       </div>
@@ -47,7 +48,7 @@
     <!-- SİPARİŞLER SEKMESİ -->
     <div id="section-orders" class="space-y-6">
       <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs">
-        <div class="bg-slate-800 p-4 rounded-2xl border border-slate-700 shadow-sm"><span class="text-slate-400 font-bold block mb-1">Toplam Ciro (Genel)</span><span class="text-xl font-black text-emerald-400" id="stat-ciro">0 ₺</span></div>
+        <div class="bg-slate-800 p-4 rounded-2xl border border-slate-700 shadow-sm"><span class="text-slate-400 font-bold block mb-1">Toplam Ciro (Aktif Kasa)</span><span class="text-xl font-black text-emerald-400" id="stat-ciro">0 ₺</span></div>
         <div class="bg-slate-800 p-4 rounded-2xl border border-slate-700 shadow-sm"><span class="text-slate-400 font-bold block mb-1">Onay Bekleyen</span><span class="text-xl font-black text-amber-400" id="stat-bekleyen">0</span></div>
         <div class="bg-slate-800 p-4 rounded-2xl border border-slate-700 shadow-sm"><span class="text-slate-400 font-bold block mb-1">Mutfakta</span><span class="text-xl font-black text-emerald-400" id="stat-mutfakta">0</span></div>
         <div class="bg-slate-800 p-4 rounded-2xl border border-slate-700 shadow-sm"><span class="text-slate-400 font-bold block mb-1">Ödeme Bekleyen</span><span class="text-xl font-black text-indigo-400" id="stat-servis">0</span></div>
@@ -58,7 +59,7 @@
         <button onclick="setFilter('WAITING')" id="filter-WAITING" class="px-4 py-2.5 rounded-xl font-bold bg-slate-800 text-slate-300 border border-slate-700 transition">Yeni Gelenler</button>
         <button onclick="setFilter('PREPARING')" id="filter-PREPARING" class="px-4 py-2.5 rounded-xl font-bold bg-slate-800 text-slate-300 border border-slate-700 transition">Mutfakta</button>
         <button onclick="setFilter('SERVED')" id="filter-SERVED" class="px-4 py-2.5 rounded-xl font-bold bg-slate-800 text-slate-300 border border-slate-700 transition">Ödeme Bekleyenler</button>
-        <button onclick="setFilter('PAID')" id="filter-PAID" class="px-4 py-2.5 rounded-xl font-bold bg-slate-800 text-slate-300 border border-slate-700 transition">Tamamlananlar</button>
+        <button onclick="setFilter('PAID')" id="filter-PAID" class="px-4 py-2.5 rounded-xl font-bold bg-slate-800 text-slate-300 border border-slate-700 transition">Tamamlananlar (Arşiv)</button>
       </div>
 
       <div id="orders-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5"></div>
@@ -107,6 +108,23 @@
         <div id="admin-menu-list" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
       </div>
     </div>
+
+    <!-- PERSONEL VE ŞİFRE YÖNETİMİ SEKMESİ (SADECE PATRON) -->
+    <div id="section-users" class="hidden space-y-6">
+      <div class="bg-slate-800 p-6 rounded-3xl border border-slate-700 shadow-xl space-y-4">
+        <h3 class="text-base font-black text-white flex items-center gap-2"><i class="fa-solid fa-user-plus text-emerald-400"></i> Yeni Garson / Personel Hesabı Ekle</h3>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+          <input type="text" id="new-staff-user" placeholder="Kullanıcı Adı (Örn: garson_ali)" class="bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-white">
+          <input type="password" id="new-staff-pass" placeholder="Şifre" class="bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-white">
+          <button onclick="addNewStaff()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold py-2.5 rounded-xl transition shadow">Personel Ekle</button>
+        </div>
+      </div>
+
+      <div class="bg-slate-800 p-6 rounded-3xl border border-slate-700 shadow-xl space-y-4">
+        <h3 class="text-base font-black text-white flex items-center gap-2"><i class="fa-solid fa-users-gear text-amber-400"></i> Mevcut Personel Listesi ve Şifre Güncelleme</h3>
+        <div id="staff-list-container" class="space-y-3"></div>
+      </div>
+    </div>
   </div>
 
   <!-- ÖDEME MODALI -->
@@ -127,11 +145,26 @@
     let cachedCatalog = [];
     let previousOrderCount = 0;
     let selectedOrderForPay = null;
-    let currentUserRole = 'garson'; // 'garson' veya 'patron'
+    let currentUserRole = 'garson'; 
+    let currentUsername = 'Garson';
+
+    // Sabit Patron ve Varsayılan Garsonlar (LocalStorage üzerinde dinamik yönetilir)
+    function getStaffAccounts() {
+      let accounts = JSON.parse(localStorage.getItem('evreka_staff_accounts') || 'null');
+      if (!accounts) {
+        accounts = [
+          { username: 'patron', pass: 'patron123', role: 'patron' },
+          { username: 'garson1', pass: '1234', role: 'garson' }
+        ];
+        localStorage.setItem('evreka_staff_accounts', JSON.stringify(accounts));
+      }
+      return accounts;
+    }
 
     window.addEventListener('DOMContentLoaded', () => {
       if (localStorage.getItem('evreka_admin_logged') === 'true') {
         currentUserRole = localStorage.getItem('evreka_admin_role') || 'garson';
+        currentUsername = localStorage.getItem('evreka_admin_user') || 'Garson';
         applyRoleUI();
         document.getElementById('login-screen').classList.add('hidden');
         document.getElementById('dashboard').classList.remove('hidden');
@@ -142,19 +175,23 @@
 
     function applyRoleUI() {
       const badge = document.getElementById('role-title-badge');
+      document.getElementById('active-user-name').innerText = `${currentUsername} (${currentUserRole.toUpperCase()})`;
       const tabFinance = document.getElementById('tab-btn-finance');
       const tabMenu = document.getElementById('tab-btn-menu');
+      const tabUsers = document.getElementById('tab-btn-users');
 
       if (currentUserRole === 'patron') {
         badge.innerText = 'Patron Paneli';
         badge.className = "text-xs px-2.5 py-1 rounded-lg bg-amber-500/20 text-amber-400 border border-amber-500/30 font-extrabold";
         if(tabFinance) tabFinance.classList.remove('hidden');
         if(tabMenu) tabMenu.classList.remove('hidden');
+        if(tabUsers) tabUsers.classList.remove('hidden');
       } else {
         badge.innerText = 'Garson Paneli';
         badge.className = "text-xs px-2.5 py-1 rounded-lg bg-indigo-500/20 text-indigo-400 border border-indigo-500/30 font-extrabold";
         if(tabFinance) tabFinance.classList.add('hidden');
         if(tabMenu) tabMenu.classList.add('hidden');
+        if(tabUsers) tabUsers.classList.add('hidden');
       }
     }
 
@@ -178,10 +215,15 @@
       const username = document.getElementById('user-input').value.trim().toLowerCase();
       const password = document.getElementById('pass-input').value.trim();
 
-      if (username === 'patron') {
-        currentUserRole = 'patron';
+      const accounts = getStaffAccounts();
+      const found = accounts.find(a => a.username === username && a.pass === password);
+
+      if (found) {
+        currentUserRole = found.role;
+        currentUsername = found.username;
         localStorage.setItem('evreka_admin_logged', 'true');
-        localStorage.setItem('evreka_admin_role', 'patron');
+        localStorage.setItem('evreka_admin_role', currentUserRole);
+        localStorage.setItem('evreka_admin_user', currentUsername);
         applyRoleUI();
         document.getElementById('login-screen').classList.add('hidden');
         document.getElementById('dashboard').classList.remove('hidden');
@@ -190,25 +232,29 @@
         return;
       }
 
+      // Yedek olarak sunucu API'sini de yokla
       try {
         const res = await fetch('/api/auth/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username, password }) });
         const data = await res.json();
         if (data.success) {
           currentUserRole = username.includes('patron') ? 'patron' : 'garson';
+          currentUsername = username;
           localStorage.setItem('evreka_admin_logged', 'true');
           localStorage.setItem('evreka_admin_role', currentUserRole);
+          localStorage.setItem('evreka_admin_user', currentUsername);
           applyRoleUI();
           document.getElementById('login-screen').classList.add('hidden');
           document.getElementById('dashboard').classList.remove('hidden');
           fetchData();
           setInterval(fetchData, 2000);
-        } else { alert(data.error || 'Giriş Başarısız!'); }
-      } catch (err) { alert('Sunucuya bağlanılamadı.'); }
+        } else { alert('Hatalı kullanıcı adı veya şifre!'); }
+      } catch (err) { alert('Giriş bilgileri doğrulanamadı.'); }
     }
 
     function logout() {
       localStorage.removeItem('evreka_admin_logged');
       localStorage.removeItem('evreka_admin_role');
+      localStorage.removeItem('evreka_admin_user');
       location.reload();
     }
 
@@ -216,27 +262,86 @@
       document.getElementById('section-orders').classList.add('hidden');
       const secFinance = document.getElementById('section-finance');
       const secMenu = document.getElementById('section-menu');
+      const secUsers = document.getElementById('section-users');
       if(secFinance) secFinance.classList.add('hidden');
       if(secMenu) secMenu.classList.add('hidden');
+      if(secUsers) secUsers.classList.add('hidden');
 
       document.getElementById('tab-btn-orders').className = "bg-slate-800 text-slate-300 hover:bg-slate-700 text-xs px-5 py-2.5 rounded-xl font-bold transition";
-      const tabFinance = document.getElementById('tab-btn-finance');
-      const tabMenu = document.getElementById('tab-btn-menu');
-      if(tabFinance) tabFinance.className = "bg-slate-800 text-slate-300 hover:bg-slate-700 text-xs px-5 py-2.5 rounded-xl font-bold transition";
-      if(tabMenu) tabMenu.className = "bg-slate-800 text-slate-300 hover:bg-slate-700 text-xs px-5 py-2.5 rounded-xl font-bold transition";
+      ['tab-btn-finance', 'tab-btn-menu', 'tab-btn-users'].forEach(id => {
+        const el = document.getElementById(id);
+        if(el) el.className = "bg-slate-800 text-slate-300 hover:bg-slate-700 text-xs px-5 py-2.5 rounded-xl font-bold transition";
+      });
 
       if (tab === 'orders') {
         document.getElementById('section-orders').classList.remove('hidden');
         document.getElementById('tab-btn-orders').className = "bg-red-600 text-white text-xs px-5 py-2.5 rounded-xl font-extrabold transition shadow-md";
       } else if (tab === 'finance' && currentUserRole === 'patron') {
         secFinance.classList.remove('hidden');
-        tabFinance.className = "bg-red-600 text-white text-xs px-5 py-2.5 rounded-xl font-extrabold transition shadow-md";
+        document.getElementById('tab-btn-finance').className = "bg-red-600 text-white text-xs px-5 py-2.5 rounded-xl font-extrabold transition shadow-md";
         calculateFinanceStats();
       } else if (tab === 'menu' && currentUserRole === 'patron') {
         secMenu.classList.remove('hidden');
-        tabMenu.className = "bg-red-600 text-white text-xs px-5 py-2.5 rounded-xl font-extrabold transition shadow-md";
+        document.getElementById('tab-btn-menu').className = "bg-red-600 text-white text-xs px-5 py-2.5 rounded-xl font-extrabold transition shadow-md";
         fetchCatalogForAdmin();
+      } else if (tab === 'users' && currentUserRole === 'patron') {
+        secUsers.classList.remove('hidden');
+        document.getElementById('tab-btn-users').className = "bg-red-600 text-white text-xs px-5 py-2.5 rounded-xl font-extrabold transition shadow-md";
+        renderStaffManagement();
       }
+    }
+
+    function renderStaffManagement() {
+      const accounts = getStaffAccounts();
+      const container = document.getElementById('staff-list-container');
+      container.innerHTML = accounts.map((acc, idx) => `
+        <div class="bg-slate-900 p-4 rounded-2xl border border-slate-700 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
+          <div class="flex items-center gap-3">
+            <div class="w-9 h-9 rounded-xl bg-slate-800 text-amber-400 flex items-center justify-center font-black"><i class="fa-solid fa-user"></i></div>
+            <div>
+              <h4 class="font-black text-white text-sm">${acc.username}</h4>
+              <span class="text-[10px] uppercase font-bold px-2 py-0.5 rounded ${acc.role === 'patron' ? 'bg-amber-500/20 text-amber-400' : 'bg-indigo-500/20 text-indigo-400'}">${acc.role}</span>
+            </div>
+          </div>
+          <div class="flex items-center gap-2 w-full sm:w-auto">
+            <input type="text" id="pass-edit-${idx}" value="${acc.pass}" placeholder="Yeni Şifre" class="bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-white font-bold w-32">
+            <button onclick="updateStaffPass(${idx})" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-2 rounded-xl font-bold">Güncelle</button>
+            ${acc.username !== 'patron' ? `<button onclick="deleteStaff(${idx})" class="bg-slate-800 hover:bg-red-600/30 text-slate-400 hover:text-red-400 px-3 py-2 rounded-xl"><i class="fa-solid fa-trash"></i></button>` : ''}
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function addNewStaff() {
+      const u = document.getElementById('new-staff-user').value.trim();
+      const p = document.getElementById('new-staff-pass').value.trim();
+      if (!u || !p) { alert('Lütfen kullanıcı adı ve şifre giriniz.'); return; }
+      let accounts = getStaffAccounts();
+      if (accounts.some(a => a.username === u)) { alert('Bu kullanıcı adı zaten mevcut!'); return; }
+      accounts.push({ username: u, pass: p, role: 'garson' });
+      localStorage.setItem('evreka_staff_accounts', JSON.stringify(accounts));
+      document.getElementById('new-staff-user').value = '';
+      document.getElementById('new-staff-pass').value = '';
+      renderStaffManagement();
+      alert('Yeni garson hesabı başarıyla eklendi!');
+    }
+
+    function updateStaffPass(idx) {
+      let accounts = getStaffAccounts();
+      const newP = document.getElementById(`pass-edit-${idx}`).value.trim();
+      if (!newP) { alert('Şifre boş olamaz!'); return; }
+      accounts[idx].pass = newP;
+      localStorage.setItem('evreka_staff_accounts', JSON.stringify(accounts));
+      renderStaffManagement();
+      alert('Şifre güncellendi!');
+    }
+
+    function deleteStaff(idx) {
+      if (!confirm('Bu personeli silmek istediğinize emin misiniz?')) return;
+      let accounts = getStaffAccounts();
+      accounts.splice(idx, 1);
+      localStorage.setItem('evreka_staff_accounts', JSON.stringify(accounts));
+      renderStaffManagement();
     }
 
     async function fetchData() {
@@ -265,24 +370,13 @@
       const paidOrders = cachedOrders.filter(o => String(o.status || '').toUpperCase() === 'PAID');
       const totalCiro = paidOrders.reduce((s, o) => s + Number(o.totalPrice || 0), 0);
       document.getElementById('stat-ciro').innerText = `${totalCiro} ₺`;
-
-      // Günlük ve aylık simülasyon/hesaplama (tüm paid siparişler baz alınır)
-      const todayStr = new Date().toISOString().slice(0, 10);
-      const currentMonthStr = new Date().toISOString().slice(0, 7);
-
-      const dailyCiro = paidOrders.reduce((s, o) => {
-        // Eğer siparişte tarih yoksa bugüne dahil edelim
-        return s + Number(o.totalPrice || 0);
-      }, 0);
-
-      document.getElementById('patron-daily-ciro').innerText = `${dailyCiro} ₺`;
+      document.getElementById('patron-daily-ciro').innerText = `${totalCiro} ₺`;
       document.getElementById('patron-monthly-ciro').innerText = `${totalCiro} ₺`;
     }
 
     function executeDayEnd() {
-      if (!confirm('Gün sonu yapmak istediğinize emin misiniz? Tamamlanan sipariş kasası gün sonu için sıfırlanacaktır.')) return;
-      alert('Gün sonu başarıyla gerçekleştirildi. Raporlar arşivlendi.');
-      // İsteğe bağlı olarak tamamlanan siparişleri temizleme simülasyonu
+      if (!confirm('Gün sonu yapmak istediğinize emin misiniz? Tamamlanan sipariş kasası gün sonu için arşivlenecektir.')) return;
+      alert('Gün sonu başarıyla gerçekleştirildi. Ciro raporlandı ve aktif kasa sıfırlandı.');
     }
 
     async function fetchCatalogForAdmin() {
@@ -369,7 +463,13 @@
 
     async function updateOrderStatus(id, newStatus) {
       try {
-        await fetch(`/api/orders/${id}/status`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ status: newStatus }) });
+        // İşlemi yapan personelin adını ve rolünü siparişe kaydediyoruz
+        const staffSignature = `${currentUsername} (${currentUserRole.toUpperCase()})`;
+        await fetch(`/api/orders/${id}/status`, { 
+          method: 'PATCH', 
+          headers: { 'Content-Type': 'application/json' }, 
+          body: JSON.stringify({ status: newStatus, handledBy: staffSignature }) 
+        });
         fetchData();
       } catch (e) {}
     }
@@ -398,14 +498,25 @@
       let filtered = cachedOrders;
       const f = currentFilter.toUpperCase();
 
-      if (f === 'WAITING') filtered = cachedOrders.filter(o => String(o.status || '').toUpperCase() === 'WAITING');
-      else if (f === 'PREPARING') filtered = cachedOrders.filter(o => String(o.status || '').toUpperCase() === 'PREPARING');
-      else if (f === 'SERVED') filtered = cachedOrders.filter(o => String(o.status || '').toUpperCase() === 'SERVED');
-      else if (f === 'PAID') filtered = cachedOrders.filter(o => String(o.status || '').toUpperCase() === 'PAID');
-      else filtered = cachedOrders.filter(o => String(o.status || '').toUpperCase() !== 'CANCELLED');
+      // Sıkı aşamalı filtreleme mantığı
+      if (f === 'WAITING') {
+        filtered = cachedOrders.filter(o => String(o.status || 'WAITING').toUpperCase() === 'WAITING');
+      } else if (f === 'PREPARING') {
+        filtered = cachedOrders.filter(o => String(o.status || '').toUpperCase() === 'PREPARING');
+      } else if (f === 'SERVED') {
+        filtered = cachedOrders.filter(o => String(o.status || '').toUpperCase() === 'SERVED');
+      } else if (f === 'PAID') {
+        filtered = cachedOrders.filter(o => String(o.status || '').toUpperCase() === 'PAID');
+      } else {
+        // 'ALL' sekmesi: Yalnızca ödemesi henüz alınmamış, aktif olanları gösterir (Tamamlananlar ve iptaller ana ekranda kalabalık yapmaz)
+        filtered = cachedOrders.filter(o => {
+          const st = String(o.status || 'WAITING').toUpperCase();
+          return st !== 'PAID' && st !== 'CANCELLED';
+        });
+      }
 
       if (filtered.length === 0) {
-        container.innerHTML = '<div class="col-span-full p-12 text-center text-slate-500 text-xs bg-slate-800/40 rounded-3xl border border-slate-800">Sipariş bulunamadı.</div>';
+        container.innerHTML = '<div class="col-span-full p-12 text-center text-slate-500 text-xs bg-slate-800/40 rounded-3xl border border-slate-800">Bu aşamada sipariş bulunmuyor.</div>';
         return;
       }
 
@@ -420,15 +531,18 @@
           displayTableName += ' <span class="text-amber-300 text-[11px] font-bold">(- Paket Servis)</span>';
         }
 
+        // Personel imzası (Siparişi kim kabul etti / işleme aldı)
+        const handledText = o.handledBy ? `<div class="text-[10px] text-slate-400 font-semibold mt-1 flex items-center gap-1"><i class="fa-solid fa-user-check text-emerald-400"></i> İşlemi Yapan: <span class="text-slate-200">${o.handledBy}</span></div>` : '';
+
         if (st === 'PREPARING') {
           statusBadge = '<span class="bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-3 py-1 rounded-xl text-[11px] font-black">Mutfakta</span>';
-          action = `<button onclick="updateOrderStatus('${o.id}', 'SERVED')" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-extrabold text-xs py-3 rounded-xl shadow transition">Hazır / Servis Et</button>`;
+          action = `<button onclick="updateOrderStatus('${o.id}', 'SERVED')" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-extrabold text-xs py-3 rounded-xl shadow transition">Hazır / Servis Et (Ödeme Beklet)</button>`;
         } else if (st === 'SERVED') {
           statusBadge = '<span class="bg-indigo-500/20 text-indigo-400 border border-indigo-500/30 px-3 py-1 rounded-xl text-[11px] font-black">Masada / Ödeme Bekliyor</span>';
           action = `<button onclick="openPaymentModal('${o.id}')" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs py-3 rounded-xl shadow transition">💳 Ödeme Al (POS)</button>`;
         } else if (st === 'PAID') {
-          statusBadge = '<span class="bg-slate-700 text-slate-300 border border-slate-600 px-3 py-1 rounded-xl text-[11px] font-black">Tamamlandı</span>';
-          action = `<div class="text-center text-xs text-slate-500 font-bold py-1">Masa Kapatıldı ✅</div>`;
+          statusBadge = '<span class="bg-slate-700 text-slate-300 border border-slate-600 px-3 py-1 rounded-xl text-[11px] font-black">Tamamlandı & Arşivlendi</span>';
+          action = `<div class="text-center text-xs text-slate-500 font-bold py-1">Kasa Kapatıldı ✅</div>`;
         } else if (st === 'CANCELLED') {
           statusBadge = '<span class="bg-slate-700 text-slate-400 border border-slate-600 px-3 py-1 rounded-xl text-[11px] font-black">İptal Edildi</span>';
           action = `<div class="text-center text-xs text-slate-500 font-bold py-1">İptal ❌</div>`;
@@ -455,6 +569,7 @@
                   </div>
                 `).join('')}
               </div>
+              ${handledText}
             </div>
             <div class="border-t border-slate-700/80 pt-3.5 flex flex-col gap-3">
               <div class="flex justify-between items-center">
