@@ -13,7 +13,7 @@
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     .cart-drawer, .tracker-drawer { transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1); transform: translateY(100%); }
     .cart-drawer.active, .tracker-drawer.active { transform: translateY(0); }
-    #sticky-header-wrapper { transition: transform 0.3s ease-in-out; }
+    #sticky-header-wrapper { transition: transform 0.25s ease-in-out; }
   </style>
 </head>
 <body class="h-full text-slate-800 bg-slate-100 flex flex-col antialiased">
@@ -26,7 +26,7 @@
     </div>
   </div>
 
-  <!-- AKILLI ÜST BÖLÜM (Aşağı inince gizlenir, yukarı çıkınca beliriş yapar) -->
+  <!-- AKILLI ÜST BÖLÜM (Hemen yukarı kaydırmada anında beliriş yapar) -->
   <div id="sticky-header-wrapper" class="sticky top-0 z-40 w-full shadow-xl">
     <header class="bg-slate-900 text-white border-b border-slate-800">
       <div class="max-w-xl mx-auto px-4 py-3 flex items-center justify-between">
@@ -146,17 +146,17 @@
     let selectedSize = null;
     let currentCategory = 'all';
 
-    // Kaydırma Yönü Algılama (Scroll-up Reveal)
+    // Hassas Kaydırma Yönü Algılama (Scroll-up Reveal - Çok Hızlı Tepki Verir)
     let lastScrollY = window.pageYOffset;
     const headerWrapper = document.getElementById('sticky-header-wrapper');
 
     window.addEventListener('scroll', () => {
       let currentScrollY = window.pageYOffset;
-      if (currentScrollY > lastScrollY && currentScrollY > 100) {
+      if (currentScrollY > lastScrollY && currentScrollY > 60) {
         // Aşağı kaydırırken gizle
         headerWrapper.style.transform = 'translateY(-100%)';
-      } else {
-        // Yukarı kaydırırken göster
+      } else if (currentScrollY < lastScrollY || currentScrollY <= 20) {
+        // Yukarı kaydırır kaydırmaz veya en üstteyken anında göster
         headerWrapper.style.transform = 'translateY(0)';
       }
       lastScrollY = currentScrollY;
