@@ -124,6 +124,36 @@
         <div class="grid grid-cols-2 gap-2" id="modal-sizes"></div>
       </div>
 
+      <!-- 1. ZORUNLU SEÇENEK: Menü Tercihi (Sadece Pizza ve Burger için) -->
+      <div class="mt-5 hidden" id="menu-choice-section">
+        <label class="block text-xs font-extrabold text-slate-700 uppercase mb-2">Menü Tercihi (Zorunlu) *</label>
+        <div class="grid grid-cols-2 gap-2">
+          <button type="button" onclick="setMenuChoice('yes')" id="menu-btn-yes" class="menu-choice-btn p-2.5 rounded-xl border text-left text-xs border-slate-200 transition">
+            <div class="font-bold">Menü İstiyorum</div>
+            <div class="text-[10px] text-red-600 font-extrabold">+80 ₺ (Kola + Patates)</div>
+          </button>
+          <button type="button" onclick="setMenuChoice('no')" id="menu-btn-no" class="menu-choice-btn p-2.5 rounded-xl border text-left text-xs border-slate-200 transition">
+            <div class="font-bold">Menü İstemiyorum</div>
+            <div class="text-[10px] opacity-70">+0 ₺</div>
+          </button>
+        </div>
+      </div>
+
+      <!-- 2. ZORUNLU SEÇENEK: Paket Tercihi (Menü İstemiyorum denilirse açılır) -->
+      <div class="mt-4 hidden" id="package-choice-section">
+        <label class="block text-xs font-extrabold text-slate-700 uppercase mb-2">Paket Seçimi (Zorunlu) *</label>
+        <div class="grid grid-cols-2 gap-2">
+          <button type="button" onclick="setPackageChoice('yes')" id="pkg-btn-yes" class="pkg-choice-btn p-2.5 rounded-xl border text-left text-xs border-slate-200 transition">
+            <div class="font-bold">Paket Olsun</div>
+            <div class="text-[10px] text-red-600 font-extrabold">+120 ₺ (Kola + Patates)</div>
+          </button>
+          <button type="button" onclick="setPackageChoice('no')" id="pkg-btn-no" class="pkg-choice-btn p-2.5 rounded-xl border text-left text-xs border-slate-200 transition">
+            <div class="font-bold">Paket İstemiyorum</div>
+            <div class="text-[10px] opacity-70">+0 ₺</div>
+          </button>
+        </div>
+      </div>
+
       <div class="mt-5">
         <label class="block text-xs font-extrabold text-slate-700 uppercase mb-1">Garson Notu</label>
         <input type="text" id="modal-note" placeholder="Örn: Sosu bol olsun..." class="w-full bg-slate-50 border rounded-xl px-3 py-2 text-xs">
@@ -143,6 +173,8 @@
     let cart = [];
     let selectedProduct = null;
     let selectedSize = null;
+    let menuChoice = null;
+    let packageChoice = null;
     let currentCategory = 'all';
 
     document.addEventListener('DOMContentLoaded', async () => {
@@ -197,6 +229,9 @@
       selectedProduct = catalog.find(p => String(p.id) === String(id));
       if (!selectedProduct) return;
       selectedSize = selectedProduct.sizes && selectedProduct.sizes.length > 0 ? selectedProduct.sizes[0] : null;
+      menuChoice = null;
+      packageChoice = null;
+
       document.getElementById('modal-note').value = '';
       document.getElementById('modal-img').src = selectedProduct.image;
       document.getElementById('modal-title').innerText = selectedProduct.title;
@@ -207,46 +242,122 @@
       if (selectedProduct.sizes && selectedProduct.sizes.length > 0) {
         sizeSec.classList.remove('hidden');
         sizesCont.innerHTML = selectedProduct.sizes.map((s, idx) => `
-          <button onclick="selectSize('${s.id}')" id="size-btn-${s.id}" class="size-btn p-2 rounded-xl border text-left text-xs ${idx === 0 ? 'border-red-600 bg-red-50 text-red-600 font-bold' : 'border-slate-200'}">
+          <button type="button" onclick="selectSize('${s.id}')" id="size-btn-${s.id}" class="size-btn p-2 rounded-xl border text-left text-xs ${idx === 0 ? 'border-red-600 bg-red-50 text-red-600 font-bold' : 'border-slate-200'}">
             <div>${s.name}</div><div class="text-[10px] opacity-70">+${s.priceOffset} ₺</div>
           </button>
         `).join('');
       } else { sizeSec.classList.add('hidden'); }
+
+      const isPizzaOrBurger = selectedProduct.category === 'pizza' || selectedProduct.category === 'burger';
+      const menuSec = document.getElementById('menu-choice-section');
+      const pkgSec = document.getElementById('package-choice-section');
+      pkgSec.classList.add('hidden');
+
+      if (isPizzaOrBurger) {
+        menuSec.classList.remove('hidden');
+        setMenuChoice('no'); // Varsayılan olarak menü istemiyorum seçili gelsin
+      } else {
+        menuSec.classList.add('hidden');
+      }
 
       updateModalPrice();
       document.getElementById('options-modal').classList.remove('hidden');
     }
 
     function closeOptionsModal() { document.getElementById('options-modal').classList.add('hidden'); }
+
     function selectSize(id) {
       selectedSize = selectedProduct.sizes.find(s => s.id === id);
       document.querySelectorAll('.size-btn').forEach(b => b.className = "size-btn p-2 rounded-xl border text-left text-xs border-slate-200");
       document.getElementById(`size-btn-${id}`).className = "size-btn p-2 rounded-xl border text-left text-xs border-red-600 bg-red-50 text-red-600 font-bold";
       updateModalPrice();
     }
+
+    function setMenuChoice(choice) {
+      menuChoice = choice;
+      const pkgSec = document.getElementById('package-choice-section');
+
+      document.querySelectorAll('.menu-choice-btn').forEach(b => {
+        b.className = "menu-choice-btn p-2.5 rounded-xl border text-left text-xs border-slate-200 transition";
+      });
+      document.getElementById(`menu-btn-${choice}`).className = "menu-choice-btn p-2.5 rounded-xl border text-left text-xs border-red-600 bg-red-50 text-red-600 font-bold transition";
+
+      if (choice === 'no') {
+        pkgSec.classList.remove('hidden');
+        setPackageChoice('no'); // Varsayılan paket istemiyorum
+      } else {
+        pkgSec.classList.add('hidden');
+        packageChoice = null;
+      }
+      updateModalPrice();
+    }
+
+    function setPackageChoice(choice) {
+      packageChoice = choice;
+      document.querySelectorAll('.pkg-choice-btn').forEach(b => {
+        b.className = "pkg-choice-btn p-2.5 rounded-xl border text-left text-xs border-slate-200 transition";
+      });
+      document.getElementById(`pkg-btn-${choice}`).className = "pkg-choice-btn p-2.5 rounded-xl border text-left text-xs border-red-600 bg-red-50 text-red-600 font-bold transition";
+      updateModalPrice();
+    }
+
     function updateModalPrice() {
       let total = selectedProduct.basePrice + (selectedSize ? selectedSize.priceOffset : 0);
+      if (menuChoice === 'yes') {
+        total += 80;
+      } else if (menuChoice === 'no' && packageChoice === 'yes') {
+        total += 120;
+      }
+
       document.getElementById('modal-total-price').innerText = `${total} ₺`;
-      document.getElementById('modal-add-btn').onclick = () => { addToCart(total); closeOptionsModal(); };
+      document.getElementById('modal-add-btn').onclick = () => {
+        const isPizzaOrBurger = selectedProduct.category === 'pizza' || selectedProduct.category === 'burger';
+        if (isPizzaOrBurger && !menuChoice) {
+          alert('Lütfen menü tercihinizi seçiniz.');
+          return;
+        }
+        if (isPizzaOrBurger && menuChoice === 'no' && !packageChoice) {
+          alert('Lütfen paket seçiminizi yapınız.');
+          return;
+        }
+        addToCart(total);
+        closeOptionsModal();
+      };
     }
+
     function addToCart(totalPrice) {
-      cart.push({ id: Date.now(), title: selectedProduct.title, size: selectedSize ? selectedSize.name : null, price: totalPrice, note: document.getElementById('modal-note').value.trim() });
+      let details = [];
+      if (selectedSize) details.push(selectedSize.name);
+      if (menuChoice === 'yes') details.push('Menü (+80 ₺)');
+      else if (menuChoice === 'no' && packageChoice === 'yes') details.push('Paket (+120 ₺)');
+
+      cart.push({
+        id: Date.now(),
+        title: selectedProduct.title,
+        size: details.length > 0 ? details.join(', ') : null,
+        price: totalPrice,
+        note: document.getElementById('modal-note').value.trim()
+      });
       updateCartBar();
     }
+
     function updateCartBar() {
       document.getElementById('cart-badge').innerText = cart.length;
       document.getElementById('cart-total-price').innerText = `${cart.reduce((s,i)=>s+i.price,0)} ₺`;
       renderCartDrawerItems();
     }
+
     function toggleCartDrawer() {
       if (cart.length === 0) { alert('Sepetiniz boş'); return; }
       document.getElementById('cart-drawer').classList.toggle('active');
       document.getElementById('drawer-overlay').classList.toggle('hidden');
     }
+
     function closeCartDrawerExplicit() {
       document.getElementById('cart-drawer').classList.remove('active');
       document.getElementById('drawer-overlay').classList.add('hidden');
     }
+
     function renderCartDrawerItems() {
       document.getElementById('cart-items-container').innerHTML = cart.map((item, idx) => `
         <div class="bg-slate-50 p-3 rounded-2xl border flex justify-between items-start text-xs">
