@@ -211,11 +211,11 @@
     }
 
     function loginServer() {
-      const usernameInput = document.getElementById('user-input').value.trim().toLowerCase();
+      const usernameInput = document.getElementById('user-input').value.trim();
       const passwordInput = document.getElementById('pass-input').value.trim();
 
       const accounts = getStaffAccounts();
-      const found = accounts.find(a => a.username.toLowerCase() === usernameInput && a.pass === passwordInput);
+      const found = accounts.find(a => a.username.toLowerCase() === usernameInput.toLowerCase() && a.pass === passwordInput);
 
       if (found) {
         currentUserRole = found.role;
@@ -305,7 +305,7 @@
       document.getElementById('new-staff-user').value = '';
       document.getElementById('new-staff-pass').value = '';
       renderStaffManagement();
-      alert('Yeni garson hesabı başarıyla eklendi!');
+      alert('Yeni garson hesabı başarıyla eklendi ve aktif edildi!');
     }
 
     function updateStaffPass(idx) {
@@ -445,11 +445,12 @@
 
     async function updateOrderStatus(id, newStatus) {
       try {
-        const staffSignature = `${currentUsername} (${currentUserRole.toUpperCase()})`;
+        // Aktif oturum açan kullanıcı adını ve rolünü siparişe imz olarak ekliyoruz
+        const handledBySignature = `${currentUsername} (${currentUserRole.toUpperCase()})`;
         await fetch(`/api/orders/${id}/status`, { 
           method: 'PATCH', 
           headers: { 'Content-Type': 'application/json' }, 
-          body: JSON.stringify({ status: newStatus, handledBy: staffSignature }) 
+          body: JSON.stringify({ status: newStatus, handledBy: handledBySignature }) 
         });
         fetchData();
       } catch (e) {}
@@ -510,8 +511,10 @@
           displayTableName += ' <span class="text-amber-300 text-[11px] font-bold">(- Paket Servis)</span>';
         }
 
-        // Hangi garson/personel tarafından işleme alındığını net olarak gösteriyoruz
-        const handledText = o.handledBy ? `<div class="text-[11px] text-slate-300 font-bold mt-2 pt-2 border-t border-slate-700/60 flex items-center gap-1.5"><i class="fa-solid fa-user-check text-emerald-400"></i> İşlemi Onaylayan: <span class="text-amber-400">${o.handledBy}</span></div>` : '';
+        // KİM ONAYLADI / İŞLEME ALDI - SİPARİŞİN ÜST KISMINDA KÜÇÜK VE ŞIK BİR ROZET OLARAK
+        const handledBadge = o.handledBy 
+          ? `<div class="bg-indigo-500/10 border border-indigo-500/30 text-indigo-300 text-[10px] font-bold px-2.5 py-1 rounded-xl mb-3 flex items-center gap-1.5"><i class="fa-solid fa-user-shield"></i> Onaylayan: <span class="text-white">${o.handledBy}</span></div>` 
+          : `<div class="bg-amber-500/10 border border-amber-500/30 text-amber-300 text-[10px] font-bold px-2.5 py-1 rounded-xl mb-3 flex items-center gap-1.5"><i class="fa-solid fa-clock"></i> Henüz onaylanmadı / İşlem bekliyor</div>`;
 
         if (st === 'PREPARING') {
           statusBadge = '<span class="bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-3 py-1 rounded-xl text-[11px] font-black">Mutfakta</span>';
@@ -533,10 +536,14 @@
         return `
           <div class="bg-slate-800 border border-slate-700 rounded-3xl p-5 shadow-xl flex flex-col justify-between gap-4">
             <div>
-              <div class="flex justify-between items-center border-b border-slate-700/80 pb-3 mb-3.5">
+              <div class="flex justify-between items-center border-b border-slate-700/80 pb-3 mb-3">
                 <span class="bg-red-600 text-white font-black text-xs px-3.5 py-1.5 rounded-xl shadow-sm">${displayTableName}</span>
                 <span class="text-xs font-mono font-bold text-slate-400">#${o.id}</span>
               </div>
+              
+              <!-- Siparişi Onaylayan Personelin Küçük Şık Rozeti -->
+              ${handledBadge}
+
               <div class="space-y-2.5">
                 ${(o.items||[]).map(i=>`
                   <div class="bg-slate-900/90 p-3 rounded-2xl border border-slate-700/50 text-xs space-y-1">
@@ -548,7 +555,6 @@
                   </div>
                 `).join('')}
               </div>
-              ${handledText}
             </div>
             <div class="border-t border-slate-700/80 pt-3.5 flex flex-col gap-3">
               <div class="flex justify-between items-center">
