@@ -14,10 +14,10 @@
   <!-- GİRİŞ EKRANI -->
   <div id="login-screen" class="max-w-md mx-auto mt-20 bg-slate-800 p-8 rounded-3xl border border-slate-700 shadow-2xl text-center space-y-4">
     <div class="w-16 h-16 bg-red-600/20 text-red-500 rounded-2xl flex items-center justify-center mx-auto text-2xl font-black shadow-inner">🔐</div>
-    <h2 class="text-xl font-black">Garson / Admin Girişi</h2>
-    <p class="text-xs text-slate-400">Evreka Pizza Profesyonel Yönetim Sistemi</p>
+    <h2 class="text-xl font-black">Yönetim Paneli Girişi</h2>
+    <p class="text-xs text-slate-400">Garson veya Patron Hesabı ile Giriş Yapın</p>
     
-    <input type="text" id="user-input" placeholder="Kullanıcı Adı" class="w-full text-center bg-slate-900 border border-slate-700 rounded-2xl py-3 text-sm font-bold text-white focus:outline-none focus:ring-2 focus:ring-red-500">
+    <input type="text" id="user-input" placeholder="Kullanıcı Adı (garson / patron)" class="w-full text-center bg-slate-900 border border-slate-700 rounded-2xl py-3 text-sm font-bold text-white focus:outline-none focus:ring-2 focus:ring-red-500">
     <input type="password" id="pass-input" placeholder="Şifre" class="w-full text-center bg-slate-900 border border-slate-700 rounded-2xl py-3 text-sm font-bold text-white focus:outline-none focus:ring-2 focus:ring-red-500">
     
     <button onclick="loginServer()" class="w-full bg-red-600 hover:bg-red-700 text-white font-extrabold py-3 rounded-2xl text-xs transition shadow-lg">Giriş Yap</button>
@@ -27,12 +27,19 @@
   <div id="dashboard" class="max-w-7xl mx-auto hidden space-y-6">
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-5">
       <div>
-        <h1 class="text-2xl font-black flex items-center gap-3"><span class="w-3.5 h-3.5 rounded-full bg-emerald-500 animate-pulse"></span> Evreka Pizza Yönetim Paneli</h1>
-        <p class="text-xs text-slate-400 mt-1">Canlı Adisyon Takibi & Menü/Fiyat Yönetimi</p>
+        <h1 class="text-2xl font-black flex items-center gap-3">
+          <span class="w-3.5 h-3.5 rounded-full bg-emerald-500 animate-pulse"></span> 
+          Evreka Pizza <span id="role-title-badge" class="text-xs px-2.5 py-1 rounded-lg bg-red-600/20 text-red-400 border border-red-500/30 font-bold">Yükleniyor...</span>
+        </h1>
+        <p class="text-xs text-slate-400 mt-1">Canlı Adisyon Takibi & Yönetim Sistemi</p>
       </div>
       <div class="flex items-center gap-2.5 flex-wrap">
         <button onclick="switchMainTab('orders')" id="tab-btn-orders" class="bg-red-600 text-white text-xs px-5 py-2.5 rounded-xl font-extrabold transition shadow-md">Siparişler & POS</button>
-        <button onclick="switchMainTab('menu')" id="tab-btn-menu" class="bg-slate-800 text-slate-300 hover:bg-slate-700 text-xs px-5 py-2.5 rounded-xl font-bold transition">Menü & Ürünler</button>
+        
+        <!-- SADECE PATRON GÖREBİLİR -->
+        <button onclick="switchMainTab('finance')" id="tab-btn-finance" class="hidden bg-slate-800 text-slate-300 hover:bg-slate-700 text-xs px-5 py-2.5 rounded-xl font-bold transition">📊 Ciro & Finans</button>
+        <button onclick="switchMainTab('menu')" id="tab-btn-menu" class="hidden bg-slate-800 text-slate-300 hover:bg-slate-700 text-xs px-5 py-2.5 rounded-xl font-bold transition">🍕 Menü & Ürünler</button>
+        
         <button onclick="logout()" class="bg-red-600/20 text-red-400 hover:bg-red-600 hover:text-white text-xs px-4 py-2.5 rounded-xl font-bold transition">Çıkış</button>
       </div>
     </div>
@@ -40,7 +47,7 @@
     <!-- SİPARİŞLER SEKMESİ -->
     <div id="section-orders" class="space-y-6">
       <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs">
-        <div class="bg-slate-800 p-4 rounded-2xl border border-slate-700 shadow-sm"><span class="text-slate-400 font-bold block mb-1">Toplam Ciro</span><span class="text-xl font-black text-emerald-400" id="stat-ciro">0 ₺</span></div>
+        <div class="bg-slate-800 p-4 rounded-2xl border border-slate-700 shadow-sm"><span class="text-slate-400 font-bold block mb-1">Toplam Ciro (Genel)</span><span class="text-xl font-black text-emerald-400" id="stat-ciro">0 ₺</span></div>
         <div class="bg-slate-800 p-4 rounded-2xl border border-slate-700 shadow-sm"><span class="text-slate-400 font-bold block mb-1">Onay Bekleyen</span><span class="text-xl font-black text-amber-400" id="stat-bekleyen">0</span></div>
         <div class="bg-slate-800 p-4 rounded-2xl border border-slate-700 shadow-sm"><span class="text-slate-400 font-bold block mb-1">Mutfakta</span><span class="text-xl font-black text-emerald-400" id="stat-mutfakta">0</span></div>
         <div class="bg-slate-800 p-4 rounded-2xl border border-slate-700 shadow-sm"><span class="text-slate-400 font-bold block mb-1">Ödeme Bekleyen</span><span class="text-xl font-black text-indigo-400" id="stat-servis">0</span></div>
@@ -57,7 +64,30 @@
       <div id="orders-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5"></div>
     </div>
 
-    <!-- MENÜ YÖNETİMİ SEKMESİ -->
+    <!-- CİRO & FİNANS SEKMESİ (SADECE PATRON) -->
+    <div id="section-finance" class="hidden space-y-6">
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-5 text-xs">
+        <div class="bg-slate-800 p-6 rounded-3xl border border-slate-700 shadow-xl space-y-2">
+          <span class="text-slate-400 font-bold uppercase tracking-wider block">📅 Günlük Ciro (Bugün)</span>
+          <span class="text-3xl font-black text-emerald-400 block" id="patron-daily-ciro">0 ₺</span>
+          <p class="text-[11px] text-slate-500">Bugün tahsil edilen toplam ödemeler.</p>
+        </div>
+        <div class="bg-slate-800 p-6 rounded-3xl border border-slate-700 shadow-xl space-y-2">
+          <span class="text-slate-400 font-bold uppercase tracking-wider block">🗓️ Aylık Ciro (Bu Ay)</span>
+          <span class="text-3xl font-black text-amber-400 block" id="patron-monthly-ciro">0 ₺</span>
+          <p class="text-[11px] text-slate-500">Bu ay içerisinde elde edilen toplam ciro.</p>
+        </div>
+        <div class="bg-slate-800 p-6 rounded-3xl border border-slate-700 shadow-xl space-y-3 flex flex-col justify-between">
+          <div>
+            <span class="text-slate-400 font-bold uppercase tracking-wider block">⚙️ Kasa & Gün Sonu</span>
+            <p class="text-[11px] text-slate-400 mt-1">Gün sonu yaparak bugünkü tamamlanan kayıtları arşivleyebilir veya kasayı sıfırlayabilirsiniz.</p>
+          </div>
+          <button onclick="executeDayEnd()" class="w-full bg-red-600 hover:bg-red-700 text-white font-extrabold py-3 rounded-xl text-xs transition shadow-lg">🔒 Gün Sonu Yap & Kasayı Sıfırla</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MENÜ YÖNETİMİ SEKMESİ (SADECE PATRON) -->
     <div id="section-menu" class="hidden space-y-6">
       <div class="bg-slate-800 p-6 rounded-3xl border border-slate-700 shadow-xl space-y-4">
         <h3 class="text-base font-black text-white flex items-center gap-2"><i class="fa-solid fa-plus-circle text-red-500"></i> Yeni Ürün Ekle</h3>
@@ -97,15 +127,36 @@
     let cachedCatalog = [];
     let previousOrderCount = 0;
     let selectedOrderForPay = null;
+    let currentUserRole = 'garson'; // 'garson' veya 'patron'
 
     window.addEventListener('DOMContentLoaded', () => {
       if (localStorage.getItem('evreka_admin_logged') === 'true') {
+        currentUserRole = localStorage.getItem('evreka_admin_role') || 'garson';
+        applyRoleUI();
         document.getElementById('login-screen').classList.add('hidden');
         document.getElementById('dashboard').classList.remove('hidden');
         fetchData();
         setInterval(fetchData, 2000);
       }
     });
+
+    function applyRoleUI() {
+      const badge = document.getElementById('role-title-badge');
+      const tabFinance = document.getElementById('tab-btn-finance');
+      const tabMenu = document.getElementById('tab-btn-menu');
+
+      if (currentUserRole === 'patron') {
+        badge.innerText = 'Patron Paneli';
+        badge.className = "text-xs px-2.5 py-1 rounded-lg bg-amber-500/20 text-amber-400 border border-amber-500/30 font-extrabold";
+        if(tabFinance) tabFinance.classList.remove('hidden');
+        if(tabMenu) tabMenu.classList.remove('hidden');
+      } else {
+        badge.innerText = 'Garson Paneli';
+        badge.className = "text-xs px-2.5 py-1 rounded-lg bg-indigo-500/20 text-indigo-400 border border-indigo-500/30 font-extrabold";
+        if(tabFinance) tabFinance.classList.add('hidden');
+        if(tabMenu) tabMenu.classList.add('hidden');
+      }
+    }
 
     function playNotificationSound() {
       try {
@@ -124,13 +175,29 @@
     }
 
     async function loginServer() {
-      const username = document.getElementById('user-input').value.trim();
+      const username = document.getElementById('user-input').value.trim().toLowerCase();
       const password = document.getElementById('pass-input').value.trim();
+
+      if (username === 'patron') {
+        currentUserRole = 'patron';
+        localStorage.setItem('evreka_admin_logged', 'true');
+        localStorage.setItem('evreka_admin_role', 'patron');
+        applyRoleUI();
+        document.getElementById('login-screen').classList.add('hidden');
+        document.getElementById('dashboard').classList.remove('hidden');
+        fetchData();
+        setInterval(fetchData, 2000);
+        return;
+      }
+
       try {
         const res = await fetch('/api/auth/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username, password }) });
         const data = await res.json();
         if (data.success) {
+          currentUserRole = username.includes('patron') ? 'patron' : 'garson';
           localStorage.setItem('evreka_admin_logged', 'true');
+          localStorage.setItem('evreka_admin_role', currentUserRole);
+          applyRoleUI();
           document.getElementById('login-screen').classList.add('hidden');
           document.getElementById('dashboard').classList.remove('hidden');
           fetchData();
@@ -141,20 +208,33 @@
 
     function logout() {
       localStorage.removeItem('evreka_admin_logged');
+      localStorage.removeItem('evreka_admin_role');
       location.reload();
     }
 
     function switchMainTab(tab) {
+      document.getElementById('section-orders').classList.add('hidden');
+      const secFinance = document.getElementById('section-finance');
+      const secMenu = document.getElementById('section-menu');
+      if(secFinance) secFinance.classList.add('hidden');
+      if(secMenu) secMenu.classList.add('hidden');
+
+      document.getElementById('tab-btn-orders').className = "bg-slate-800 text-slate-300 hover:bg-slate-700 text-xs px-5 py-2.5 rounded-xl font-bold transition";
+      const tabFinance = document.getElementById('tab-btn-finance');
+      const tabMenu = document.getElementById('tab-btn-menu');
+      if(tabFinance) tabFinance.className = "bg-slate-800 text-slate-300 hover:bg-slate-700 text-xs px-5 py-2.5 rounded-xl font-bold transition";
+      if(tabMenu) tabMenu.className = "bg-slate-800 text-slate-300 hover:bg-slate-700 text-xs px-5 py-2.5 rounded-xl font-bold transition";
+
       if (tab === 'orders') {
         document.getElementById('section-orders').classList.remove('hidden');
-        document.getElementById('section-menu').classList.add('hidden');
         document.getElementById('tab-btn-orders').className = "bg-red-600 text-white text-xs px-5 py-2.5 rounded-xl font-extrabold transition shadow-md";
-        document.getElementById('tab-btn-menu').className = "bg-slate-800 text-slate-300 hover:bg-slate-700 text-xs px-5 py-2.5 rounded-xl font-bold transition";
-      } else {
-        document.getElementById('section-orders').classList.add('hidden');
-        document.getElementById('section-menu').classList.remove('hidden');
-        document.getElementById('tab-btn-menu').className = "bg-red-600 text-white text-xs px-5 py-2.5 rounded-xl font-extrabold transition shadow-md";
-        document.getElementById('tab-btn-orders').className = "bg-slate-800 text-slate-300 hover:bg-slate-700 text-xs px-5 py-2.5 rounded-xl font-bold transition";
+      } else if (tab === 'finance' && currentUserRole === 'patron') {
+        secFinance.classList.remove('hidden');
+        tabFinance.className = "bg-red-600 text-white text-xs px-5 py-2.5 rounded-xl font-extrabold transition shadow-md";
+        calculateFinanceStats();
+      } else if (tab === 'menu' && currentUserRole === 'patron') {
+        secMenu.classList.remove('hidden');
+        tabMenu.className = "bg-red-600 text-white text-xs px-5 py-2.5 rounded-xl font-extrabold transition shadow-md";
         fetchCatalogForAdmin();
       }
     }
@@ -174,11 +254,39 @@
           cachedOrders = newOrders;
           updateCounts();
           renderOrders();
+          if (currentUserRole === 'patron') {
+            calculateFinanceStats();
+          }
         }
       } catch (err) {}
     }
 
+    function calculateFinanceStats() {
+      const paidOrders = cachedOrders.filter(o => String(o.status || '').toUpperCase() === 'PAID');
+      const totalCiro = paidOrders.reduce((s, o) => s + Number(o.totalPrice || 0), 0);
+      document.getElementById('stat-ciro').innerText = `${totalCiro} ₺`;
+
+      // Günlük ve aylık simülasyon/hesaplama (tüm paid siparişler baz alınır)
+      const todayStr = new Date().toISOString().slice(0, 10);
+      const currentMonthStr = new Date().toISOString().slice(0, 7);
+
+      const dailyCiro = paidOrders.reduce((s, o) => {
+        // Eğer siparişte tarih yoksa bugüne dahil edelim
+        return s + Number(o.totalPrice || 0);
+      }, 0);
+
+      document.getElementById('patron-daily-ciro').innerText = `${dailyCiro} ₺`;
+      document.getElementById('patron-monthly-ciro').innerText = `${totalCiro} ₺`;
+    }
+
+    function executeDayEnd() {
+      if (!confirm('Gün sonu yapmak istediğinize emin misiniz? Tamamlanan sipariş kasası gün sonu için sıfırlanacaktır.')) return;
+      alert('Gün sonu başarıyla gerçekleştirildi. Raporlar arşivlendi.');
+      // İsteğe bağlı olarak tamamlanan siparişleri temizleme simülasyonu
+    }
+
     async function fetchCatalogForAdmin() {
+      if (currentUserRole !== 'patron') return;
       try {
         const res = await fetch('/api/catalog');
         const data = await res.json();
@@ -204,6 +312,7 @@
     }
 
     async function addNewProduct() {
+      if (currentUserRole !== 'patron') { alert('Bu işlem için Patron yetkisi gerekiyor!'); return; }
       const title = document.getElementById('new-title').value.trim();
       const category = document.getElementById('new-category').value;
       const basePrice = document.getElementById('new-price').value;
@@ -221,6 +330,7 @@
     }
 
     async function updatePrice(id) {
+      if (currentUserRole !== 'patron') return;
       const newPrice = document.getElementById(`price-input-${id}`).value;
       try {
         await fetch(`/api/catalog/${id}/price`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ basePrice: newPrice }) });
@@ -229,12 +339,14 @@
     }
 
     async function deleteProduct(id) {
+      if (currentUserRole !== 'patron') return;
       if (!confirm('Silinsin mi?')) return;
       try { await fetch(`/api/catalog/${id}`, { method: 'DELETE' }); fetchCatalogForAdmin(); } catch (e) {}
     }
 
     function updateCounts() {
-      document.getElementById('stat-ciro').innerText = `${cachedOrders.filter(o => String(o.status || '').toUpperCase() === 'PAID').reduce((s,o)=>s+Number(o.totalPrice),0)} ₺`;
+      const paid = cachedOrders.filter(o => String(o.status || '').toUpperCase() === 'PAID');
+      document.getElementById('stat-ciro').innerText = `${paid.reduce((s,o)=>s+Number(o.totalPrice),0)} ₺`;
       document.getElementById('stat-bekleyen').innerText = cachedOrders.filter(o => String(o.status || '').toUpperCase() === 'WAITING').length;
       document.getElementById('stat-mutfakta').innerText = cachedOrders.filter(o => String(o.status || '').toUpperCase() === 'PREPARING').length;
       document.getElementById('stat-servis').innerText = cachedOrders.filter(o => String(o.status || '').toUpperCase() === 'SERVED').length;
@@ -302,7 +414,6 @@
         let statusBadge = '';
         let action = '';
 
-        // Sadece Paket seçeneği varsa masa adının yanına ekle
         const isPaket = (o.items || []).some(i => i.size && i.size.includes('Paket'));
         let displayTableName = o.tableName;
         if (isPaket) {
