@@ -46,11 +46,11 @@
         <div class="bg-slate-800 p-3.5 rounded-2xl border border-slate-700"><span class="text-slate-400 font-bold block mb-1">Ödeme Bekleyen</span><span class="text-lg font-black text-indigo-400" id="stat-servis">0</span></div>
       </div>
       <div class="flex gap-2 overflow-x-auto pb-1 text-xs">
-        <button onclick="setFilter('ALL')" id="filter-ALL" class="px-4 py-2 rounded-xl font-extrabold bg-red-600 text-white">Aktif Siparişler</button>
-        <button onclick="setFilter('WAITING')" id="filter-WAITING" class="px-4 py-2 rounded-xl font-bold bg-slate-800 text-amber-400 border border-slate-700">Yeni Gelenler</button>
-        <button onclick="setFilter('PREPARING')" id="filter-PREPARING" class="px-4 py-2 rounded-xl font-bold bg-slate-800 text-emerald-400 border border-slate-700">Mutfakta</button>
-        <button onclick="setFilter('SERVED')" id="filter-SERVED" class="px-4 py-2 rounded-xl font-bold bg-slate-800 text-indigo-400 border border-slate-700">Ödeme Bekleyenler</button>
-        <button onclick="setFilter('PAID')" id="filter-PAID" class="px-4 py-2 rounded-xl font-bold bg-slate-800 text-slate-400 border border-slate-700">Tamamlananlar</button>
+        <button onclick="setFilter('ALL')" id="filter-ALL" class="px-4 py-2 rounded-xl font-extrabold bg-red-600 text-white transition">Aktif Siparişler</button>
+        <button onclick="setFilter('WAITING')" id="filter-WAITING" class="px-4 py-2 rounded-xl font-bold bg-slate-800 text-slate-300 border border-slate-700 transition">Yeni Gelenler</button>
+        <button onclick="setFilter('PREPARING')" id="filter-PREPARING" class="px-4 py-2 rounded-xl font-bold bg-slate-800 text-slate-300 border border-slate-700 transition">Mutfakta</button>
+        <button onclick="setFilter('SERVED')" id="filter-SERVED" class="px-4 py-2 rounded-xl font-bold bg-slate-800 text-slate-300 border border-slate-700 transition">Ödeme Bekleyenler</button>
+        <button onclick="setFilter('PAID')" id="filter-PAID" class="px-4 py-2 rounded-xl font-bold bg-slate-800 text-slate-300 border border-slate-700 transition">Tamamlananlar</button>
       </div>
       <div id="orders-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
     </div>
@@ -197,12 +197,26 @@
 
     function updateCounts() {
       document.getElementById('stat-ciro').innerText = `${cachedOrders.filter(o => o.status === 'PAID').reduce((s,o)=>s+Number(o.totalPrice),0)} ₺`;
-      document.getElementById('stat-bekleyen').innerText = cachedOrders.filter(o => o.status === 'WAITING' || o.status === 'WAITING_WAITER').length;
+      document.getElementById('stat-bekleyen').innerText = cachedOrders.filter(o => o.status === 'WAITING' || o.status === 'WAITING_WAITER' || !o.status).length;
       document.getElementById('stat-mutfakta').innerText = cachedOrders.filter(o => o.status === 'PREPARING').length;
-      document.getElementById('stat-servis').innerText = cachedOrders.filter(o => o.status === 'SERVED' || o.status === 'SERVICED').length;
+      document.getElementById('stat-servis').innerText = cachedOrders.filter(o => o.status === 'SERVED' || o.status === 'SERVICED' || o.status === 'DELIVERED').length;
     }
 
-    function setFilter(f) { currentFilter = f; renderOrders(); }
+    function setFilter(f) {
+      currentFilter = f;
+      // Sekme ışıklandırma mantığı
+      ['ALL', 'WAITING', 'PREPARING', 'SERVED', 'PAID'].forEach(key => {
+        const btn = document.getElementById(`filter-${key}`);
+        if (btn) {
+          if (key === f) {
+            btn.className = "px-4 py-2 rounded-xl font-extrabold bg-red-600 text-white transition shadow-md";
+          } else {
+            btn.className = "px-4 py-2 rounded-xl font-bold bg-slate-800 text-slate-300 border border-slate-700 transition";
+          }
+        }
+      });
+      renderOrders();
+    }
 
     async function updateOrderStatus(id, newStatus) {
       localStatusOverrides[id] = newStatus;
@@ -233,11 +247,11 @@
     function renderOrders() {
       const container = document.getElementById('orders-container');
       let filtered = cachedOrders;
-      if (currentFilter === 'WAITING') filtered = cachedOrders.filter(o => o.status === 'WAITING' || o.status === 'WAITING_WAITER');
+      if (currentFilter === 'WAITING') filtered = cachedOrders.filter(o => o.status === 'WAITING' || o.status === 'WAITING_WAITER' || !o.status);
       else if (currentFilter === 'PREPARING') filtered = cachedOrders.filter(o => o.status === 'PREPARING');
-      else if (currentFilter === 'SERVED') filtered = cachedOrders.filter(o => o.status === 'SERVED' || o.status === 'SERVICED');
+      else if (currentFilter === 'SERVED') filtered = cachedOrders.filter(o => o.status === 'SERVED' || o.status === 'SERVICED' || o.status === 'DELIVERED');
       else if (currentFilter === 'PAID') filtered = cachedOrders.filter(o => o.status === 'PAID');
-      else filtered = cachedOrders.filter(o => o.status !== 'CANCELLED' && o.status !== 'PAID');
+      else filtered = cachedOrders.filter(o => o.status !== 'CANCELLED');
 
       if (filtered.length === 0) {
         container.innerHTML = '<div class="col-span-full p-12 text-center text-slate-500 text-xs bg-slate-800/40 rounded-3xl border border-slate-800">Sipariş bulunamadı.</div>';
@@ -245,20 +259,40 @@
       }
 
       container.innerHTML = [...filtered].reverse().map(o => {
+        let statusBadge = '';
         let action = '';
-        if (o.status === 'WAITING' || o.status === 'WAITING_WAITER') action = `<div class="grid grid-cols-2 gap-2"><button onclick="updateOrderStatus('${o.id}', 'PREPARING')" class="bg-emerald-600 text-white font-extrabold text-xs py-2.5 rounded-xl">Onay (Mutfağa)</button><button onclick="cancelOrder('${o.id}')" class="bg-slate-700 text-slate-300 font-bold text-xs py-2.5 rounded-xl">İptal</button></div>`;
-        else if (o.status === 'PREPARING') action = `<button onclick="updateOrderStatus('${o.id}', 'SERVED')" class="w-full bg-indigo-600 text-white font-extrabold text-xs py-2.5 rounded-xl">Hazır / Servis Et</button>`;
-        else if (o.status === 'SERVED') action = `<button onclick="openPaymentModal('${o.id}')" class="w-full bg-emerald-600 text-white font-extrabold text-xs py-2.5 rounded-xl">Ödeme Al (POS)</button>`;
-        else action = `<div class="text-center text-xs text-slate-500 font-bold">Kapandı ✅</div>`;
+
+        if (o.status === 'PREPARING') {
+          statusBadge = '<span class="bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-2.5 py-1 rounded-lg text-[10px] font-black">Mutfakta</span>';
+          action = `<button onclick="updateOrderStatus('${o.id}', 'SERVED')" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-extrabold text-xs py-2.5 rounded-xl shadow">Hazır / Servis Et</button>`;
+        } else if (o.status === 'SERVED' || o.status === 'SERVICED' || o.status === 'DELIVERED') {
+          statusBadge = '<span class="bg-indigo-500/20 text-indigo-400 border border-indigo-500/30 px-2.5 py-1 rounded-lg text-[10px] font-black">Masada / Ödeme Bekliyor</span>';
+          action = `<button onclick="openPaymentModal('${o.id}')" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs py-2.5 rounded-xl shadow">Ödeme Al (POS)</button>`;
+        } else if (o.status === 'PAID') {
+          statusBadge = '<span class="bg-slate-700 text-slate-300 border border-slate-600 px-2.5 py-1 rounded-lg text-[10px] font-black">Tamamlandı</span>';
+          action = `<div class="text-center text-xs text-slate-500 font-bold">Kapandı ✅</div>`;
+        } else if (o.status === 'CANCELLED') {
+          statusBadge = '<span class="bg-slate-700 text-slate-400 border border-slate-600 px-2.5 py-1 rounded-lg text-[10px] font-black">İptal Edildi</span>';
+          action = `<div class="text-center text-xs text-slate-500 font-bold">İptal ❌</div>`;
+        } else {
+          statusBadge = '<span class="bg-amber-500/20 text-amber-400 border border-amber-500/30 px-2.5 py-1 rounded-lg text-[10px] font-black">Onay Bekliyor</span>';
+          action = `<div class="grid grid-cols-2 gap-2"><button onclick="updateOrderStatus('${o.id}', 'PREPARING')" class="bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs py-2.5 rounded-xl shadow">Onay (Mutfağa)</button><button onclick="cancelOrder('${o.id}')" class="bg-slate-700 hover:bg-red-600/30 text-slate-300 font-bold text-xs py-2.5 rounded-xl">İptal</button></div>`;
+        }
 
         return `
           <div class="bg-slate-800 border border-slate-700 rounded-3xl p-5 shadow-xl flex flex-col justify-between gap-4">
             <div>
-              <div class="flex justify-between border-b border-slate-700 pb-3 mb-3"><span class="bg-red-600 text-white font-black text-xs px-3 py-1 rounded-xl">${o.tableName}</span><span class="text-xs font-mono text-slate-400">#${o.id}</span></div>
-              <div class="space-y-2">${(o.items||[]).map(i=>`<div class="bg-slate-900 p-2.5 rounded-xl text-xs flex justify-between"><span>${i.title}</span><b>${i.price} ₺</b></div>`).join('')}</div>
+              <div class="flex justify-between items-center border-b border-slate-700 pb-3 mb-3">
+                <span class="bg-red-600 text-white font-black text-xs px-3 py-1 rounded-xl">${o.tableName}</span>
+                <span class="text-xs font-mono text-slate-400">#${o.id}</span>
+              </div>
+              <div class="space-y-2">${(o.items||[]).map(i=>`<div class="bg-slate-900 p-2.5 rounded-xl text-xs flex justify-between items-center"><span>${i.title}${i.size?`(${i.size})`:''}</span><b class="text-white">${i.price} ₺</b></div>`).join('')}</div>
             </div>
             <div class="border-t border-slate-700 pt-3 flex flex-col gap-3">
-              <div class="flex justify-between items-center"><span class="text-xs text-slate-400">Toplam:</span><span class="text-lg font-black text-amber-400">${o.totalPrice} ₺</span></div>
+              <div class="flex justify-between items-center">
+                ${statusBadge}
+                <div class="text-right"><span class="text-[10px] text-slate-400 block uppercase font-bold">Toplam</span><span class="text-lg font-black text-amber-400">${o.totalPrice} ₺</span></div>
+              </div>
               ${action}
             </div>
           </div>
