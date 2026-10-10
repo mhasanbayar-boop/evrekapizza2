@@ -17,8 +17,8 @@
     <h2 class="text-xl font-black">Garson / Admin Girişi</h2>
     <p class="text-xs text-slate-400">Yönetim ve Menü Paneli</p>
     
-    <input type="text" id="user-input" value="Evrekap Pizza" placeholder="Kullanıcı Adı" class="w-full text-center bg-slate-900 border border-slate-700 rounded-2xl py-3 text-sm font-bold text-white focus:outline-none focus:ring-2 focus:ring-red-500">
-    <input type="password" id="pass-input" placeholder="Şifreniz (Varsayılan: 1234)" class="w-full text-center bg-slate-900 border border-slate-700 rounded-2xl py-3 text-sm font-bold text-white focus:outline-none focus:ring-2 focus:ring-red-500">
+    <input type="text" id="user-input" placeholder="Kullanıcı Adı" class="w-full text-center bg-slate-900 border border-slate-700 rounded-2xl py-3 text-sm font-bold text-white focus:outline-none focus:ring-2 focus:ring-red-500">
+    <input type="password" id="pass-input" placeholder="Şifre" class="w-full text-center bg-slate-900 border border-slate-700 rounded-2xl py-3 text-sm font-bold text-white focus:outline-none focus:ring-2 focus:ring-red-500">
     
     <button onclick="loginServer()" class="w-full bg-red-600 hover:bg-red-700 text-white font-extrabold py-3 rounded-2xl text-xs transition">Giriş Yap</button>
   </div>
@@ -93,8 +93,34 @@
     let currentFilter = 'ALL';
     let cachedOrders = [];
     let cachedCatalog = [];
+    let previousOrderCount = 0;
     let selectedOrderForPay = null;
     let localStatusOverrides = JSON.parse(localStorage.getItem('evreka_order_statuses') || '{}');
+
+    window.addEventListener('DOMContentLoaded', () => {
+      if (localStorage.getItem('evreka_admin_logged') === 'true') {
+        document.getElementById('login-screen').classList.add('hidden');
+        document.getElementById('dashboard').classList.remove('hidden');
+        fetchData();
+        setInterval(fetchData, 2000);
+      }
+    });
+
+    function playNotificationSound() {
+      try {
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        function tone(freq, start, dur) {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.frequency.setValueAtTime(freq, audioCtx.currentTime + start);
+          gain.gain.setValueAtTime(0.3, audioCtx.currentTime + start);
+          gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + start + dur);
+          osc.connect(gain); gain.connect(audioCtx.destination);
+          osc.start(audioCtx.currentTime + start); osc.stop(audioCtx.currentTime + start + dur);
+        }
+        tone(880, 0, 0.15); tone(1174.66, 0.18, 0.3);
+      } catch (e) {}
+    }
 
     async function loginServer() {
       const username = document.getElementById('user-input').value.trim();
@@ -103,6 +129,7 @@
         const res = await fetch('/api/auth/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username, password }) });
         const data = await res.json();
         if (data.success) {
+          localStorage.setItem('evreka_admin_logged', 'true');
           document.getElementById('login-screen').classList.add('hidden');
           document.getElementById('dashboard').classList.remove('hidden');
           fetchData();
@@ -111,7 +138,10 @@
       } catch (err) { alert('Sunucuya bağlanılamadı.'); }
     }
 
-    function logout() { location.reload(); }
+    function logout() {
+      localStorage.removeItem('evreka_admin_logged');
+      location.reload();
+    }
 
     function switchMainTab(tab) {
       if (tab === 'orders') {
@@ -133,7 +163,15 @@
         const res = await fetch('/api/orders');
         const data = await res.json();
         if (data.success) {
-          cachedOrders = (data.orders || []).map(o => ({ ...o, status: String(localStatusOverrides[o.id] || o.status || 'WAITING').toUpperCase().trim() }));
+          const newOrders = (data.orders || []).map(o => ({ ...o, status: String(localStatusOverrides[o.id] || o.status || 'WAITING').toUpperCase().trim() }));
+          
+          const waitingCount = newOrders.filter(o => o.status === 'WAITING' || o.status === 'WAITING_WAITER').length;
+          if (waitingCount > previousOrderCount) {
+            playNotificationSound();
+          }
+          previousOrderCount = waitingCount;
+
+          cachedOrders = newOrders;
           updateCounts();
           renderOrders();
         }
@@ -204,7 +242,6 @@
 
     function setFilter(f) {
       currentFilter = f;
-      // Sekme ışıklandırma mantığı
       ['ALL', 'WAITING', 'PREPARING', 'SERVED', 'PAID'].forEach(key => {
         const btn = document.getElementById(`filter-${key}`);
         if (btn) {
@@ -267,16 +304,16 @@
           action = `<button onclick="updateOrderStatus('${o.id}', 'SERVED')" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-extrabold text-xs py-2.5 rounded-xl shadow">Hazır / Servis Et</button>`;
         } else if (o.status === 'SERVED' || o.status === 'SERVICED' || o.status === 'DELIVERED') {
           statusBadge = '<span class="bg-indigo-500/20 text-indigo-400 border border-indigo-500/30 px-2.5 py-1 rounded-lg text-[10px] font-black">Masada / Ödeme Bekliyor</span>';
-          action = `<button onclick="openPaymentModal('${o.id}')" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs py-2.5 rounded-xl shadow">Ödeme Al (POS)</button>`;
+          action = `<button onclick="openPaymentModal('${o.id}')" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs py-2.5 rounded-xl shadow">💳 Ödeme Al (POS)</button>`;
         } else if (o.status === 'PAID') {
           statusBadge = '<span class="bg-slate-700 text-slate-300 border border-slate-600 px-2.5 py-1 rounded-lg text-[10px] font-black">Tamamlandı</span>';
-          action = `<div class="text-center text-xs text-slate-500 font-bold">Kapandı ✅</div>`;
+          action = `<div class="text-center text-xs text-slate-500 font-bold">Masa Kapatıldı ✅</div>`;
         } else if (o.status === 'CANCELLED') {
           statusBadge = '<span class="bg-slate-700 text-slate-400 border border-slate-600 px-2.5 py-1 rounded-lg text-[10px] font-black">İptal Edildi</span>';
           action = `<div class="text-center text-xs text-slate-500 font-bold">İptal ❌</div>`;
         } else {
           statusBadge = '<span class="bg-amber-500/20 text-amber-400 border border-amber-500/30 px-2.5 py-1 rounded-lg text-[10px] font-black">Onay Bekliyor</span>';
-          action = `<div class="grid grid-cols-2 gap-2"><button onclick="updateOrderStatus('${o.id}', 'PREPARING')" class="bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs py-2.5 rounded-xl shadow">Onay (Mutfağa)</button><button onclick="cancelOrder('${o.id}')" class="bg-slate-700 hover:bg-red-600/30 text-slate-300 font-bold text-xs py-2.5 rounded-xl">İptal</button></div>`;
+          action = `<div class="grid grid-cols-2 gap-2"><button onclick="updateOrderStatus('${o.id}', 'PREPARING')" class="bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs py-2.5 rounded-xl shadow">Onay (Mutfağa)</button><button onclick="cancelOrder('${o.id}')" class="bg-slate-700 hover:bg-red-600/30 text-slate-300 font-bold text-xs py-2.5 rounded-xl">İptal Et</button></div>`;
         }
 
         return `
