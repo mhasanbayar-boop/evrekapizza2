@@ -156,8 +156,8 @@
     let selectedSizePrice = 0;
     let selectedSizeName = '';
 
-    // SAYFA YÜKLENİR YÜKLENMEZ ÇALIŞACAK ANA FONKSİYON
-    window.addEventListener('DOMContentLoaded', () => {
+    // SAYFA AÇILDIĞI AN ANINDA ÇALIŞIR
+    (function initApp() {
       const params = new URLSearchParams(window.location.search);
       currentTable = params.get('masa') || params.get('table') || localStorage.getItem('evreka_table') || 'Masa-1';
       localStorage.setItem('evreka_table', currentTable);
@@ -168,11 +168,11 @@
       fetchServerCatalog();
       checkOrders();
       setInterval(checkOrders, 2000);
-    });
+    })();
 
     async function fetchServerCatalog() {
       try {
-        const res = await fetch('/api/catalog');[cite: 1]
+        const res = await fetch('/api/catalog');
         const data = await res.json();
         
         let rawList = [];
@@ -369,7 +369,7 @@
 
       let orderId = Date.now();
       try {
-        const res = await fetch('/api/orders', {[cite: 1]
+        const res = await fetch('/api/orders', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload)
@@ -414,7 +414,7 @@
       }
 
       try {
-        const res = await fetch('/api/orders');[cite: 1]
+        const res = await fetch('/api/orders');
         const data = await res.json();
         
         let orderList = [];
@@ -451,7 +451,7 @@
       }
 
       try {
-        const res = await fetch('/api/orders');[cite: 1]
+        const res = await fetch('/api/orders');
         const data = await res.json();
         
         let orderList = [];
