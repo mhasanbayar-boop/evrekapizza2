@@ -232,7 +232,7 @@
   </div>
 
   <script>
-    // VARSAYILAN KATEGORİ VE ÜRÜNLER (Asla boş kalmaz, anında görünür)
+    // VARSAYILAN SAĞLAM KATALOG (Asla boş kalmaz, API hatalarında dahi anında yüklenir)
     let catalog = [
       { id: 'p1', title: 'Pepperoni Pizza', category: 'pizza', basePrice: 260, description: 'Mozzarella, yoğun sucuk dilimleri, özel domates sosu', image: 'https://images.unsplash.com/photo-1628840042765-356cda07504e?w=500', sizes: [{ id: 's1', name: 'Orta Boy', priceOffset: 0 }, { id: 's2', name: 'Büyük Boy', priceOffset: 70 }] },
       { id: 'p2', title: 'Margherita Pizza', category: 'pizza', basePrice: 240, description: 'Taze mozzarella, fesleğen yaprakları, sızma zeytinyağı', image: 'https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=500', sizes: [{ id: 's1', name: 'Orta Boy', priceOffset: 0 }, { id: 's2', name: 'Büyük Boy', priceOffset: 60 }] },
@@ -270,6 +270,20 @@
       { name: 'Coca-Cola (330ml Kutu)', type: 'kutu', extraPrice: 20 }
     ];
 
+    // SUNUCUDAN GELEN VERİLERİ HER FORMATTA UYUMLU HALE GETİRME (Normalizasyon)
+    function normalizeCatalog(rawList) {
+      if (!Array.isArray(rawList)) return catalog;
+      return rawList.map(p => ({
+        id: p.id || Math.random().toString(),
+        title: p.title || p.name || 'Ürün',
+        category: p.category || 'pizza',
+        basePrice: Number(p.basePrice || p.price || 250),
+        description: p.description || '',
+        image: p.image || 'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=500',
+        sizes: Array.isArray(p.sizes) ? p.sizes : []
+      }));
+    }
+
     document.addEventListener('DOMContentLoaded', () => {
       const urlParams = new URLSearchParams(window.location.search);
       let masaParam = urlParams.get('masa') || urlParams.get('table') || urlParams.get('m');
@@ -285,11 +299,11 @@
       document.getElementById('active-table-display').innerText = currentTable;
       document.getElementById('cart-drawer-table-display').innerHTML = `<i class="fa-solid fa-lock text-[10px]"></i> ${currentTable}`;
 
-      // Varsayılan verilerle hemen render et
+      // Ekranı hemen render et
       renderProducts('all');
       renderCampaigns();
 
-      // Arkadan API verilerini çekmeye çalış (Başarılı olursa günceller)
+      // Arkadan API verilerini çekmeye çalış
       loadMenuFromAPI();
       loadCampaignsFromAPI();
 
@@ -302,7 +316,7 @@
         const res = await fetch('/api/catalog');[cite: 1]
         const data = await res.json();
         if (data.success && Array.isArray(data.catalog) && data.catalog.length > 0) {
-          catalog = data.catalog;
+          catalog = normalizeCatalog(data.catalog);
           renderProducts('all');
         }
       } catch (e) {}
@@ -312,7 +326,7 @@
       try {
         const res = await fetch('/api/campaigns');[cite: 1]
         const data = await res.json();
-        if (data.success && Array.isArray(data.campaigns)) {
+        if (data.success && Array.isArray(data.campaigns) && data.campaigns.length > 0) {
           campaigns = data.campaigns;
           renderCampaigns();
         }
@@ -465,7 +479,6 @@
       }
     }
 
-    // Ödeme alındığında veya sipariş kapandığında müşteri ekranından tamamen temizlenir
     async function checkActiveOrdersMini() {
       if (!currentTable) return;
       let orderIds = getTableOrderIds();
@@ -532,7 +545,6 @@
         return;
       }
 
-      // Ürün kartları belirgin sınırlı (border border-slate-200) ve şık beyaz tasarımlıdır
       container.innerHTML = filtered.map(p => `
         <div onclick="openOptionsModal('${p.id}')" class="bg-white rounded-3xl p-3.5 border border-slate-200 shadow-sm hover:shadow-md transition flex gap-3.5 cursor-pointer group">
           <img src="${p.image}" class="w-24 h-24 rounded-2xl object-cover flex-shrink-0 group-hover:scale-105 transition">
