@@ -121,11 +121,19 @@
         <p id="modal-desc" class="text-xs text-slate-500 mt-1"></p>
       </div>
 
+      <!-- BOYUT SEÇİMİ -->
       <div id="modal-sizes-box">
         <label class="block text-xs font-black text-slate-700 uppercase mb-2">Boyut Seçin *</label>
         <div id="modal-sizes" class="grid grid-cols-2 gap-2"></div>
       </div>
 
+      <!-- ÇIKARILABİLİR MALZEMELER (DİNAMİK) -->
+      <div id="removable-ingredients-section" class="hidden bg-amber-50/50 border border-amber-200 rounded-2xl p-3.5 space-y-2">
+        <label class="block text-[11px] font-black text-amber-800 uppercase tracking-wider">İstemediğiniz Malzemeleri İşaretleyin (Çıkarılır)</label>
+        <div id="ingredients-checkboxes" class="flex flex-wrap gap-1.5"></div>
+      </div>
+
+      <!-- SERVİS / MENÜ / PAKET -->
       <div id="service-options-section" class="hidden">
         <label class="block text-xs font-black text-slate-700 uppercase mb-2">Servis ve Menü Seçenekleri *</label>
         <div class="grid grid-cols-3 gap-2">
@@ -185,6 +193,7 @@
 
     let catalog = [];
     let campaigns = [];
+    let excludedIngredients = new Set();
 
     let availableMenuDrinks = [
       { name: 'ColaTurka / Sarıyer (200ml Şişe)', extraPrice: 0 },
@@ -221,7 +230,6 @@
       return status || 'GARSON ONAYI BEKLİYOR';
     }
 
-    // SAYFA AÇILDIĞI AN SUNUCUDAN KATALOG VE KAMPANYALARI ÇEK
     (async function initApp() {
       try {
         const params = new URLSearchParams(window.location.search);
@@ -233,7 +241,6 @@
         await loadServerData();
         checkOrders();
 
-        // Her 2 saniyede bir sunucudan güncel menüyü ve siparişleri çek (Anlık Yansıma)
         setInterval(() => {
           loadServerData(true);
           checkOrders();
@@ -252,7 +259,6 @@
       }
     })();
 
-    // SERVER_2.JS ENDPOINTLERİNDEN /api/catalog VE /api/campaigns VERİLERİNİ ÇEKME
     async function loadServerData(isSilent = false) {
       try {
         const [catRes, campRes] = await Promise.all([
@@ -318,6 +324,7 @@
       document.getElementById('modal-note').value = '';
 
       document.getElementById('modal-sizes-box').classList.add('hidden');
+      document.getElementById('removable-ingredients-section').classList.add('hidden');
       document.getElementById('service-options-section').classList.add('hidden');
       document.getElementById('campaign-options-section').classList.remove('hidden');
 
@@ -461,6 +468,7 @@
       selectedSizeName = '';
       selectedServiceType = 'normal';
       selectedMenuDrink = availableMenuDrinks[0];
+      excludedIngredients.clear(); // Yeni açılışta sıfırla
 
       document.getElementById('modal-img').src = prod.image || 'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=300';
       document.getElementById('modal-title').innerText = prod.title;
@@ -468,6 +476,27 @@
       document.getElementById('modal-note').value = '';
 
       document.getElementById('campaign-options-section').classList.add('hidden');
+
+      // Ürün açıklamasından malzemeleri ayıkla ve çıkarılabilir butonlar oluştur
+      const removableBox = document.getElementById('removable-ingredients-section');
+      const checkboxesContainer = document.getElementById('ingredients-checkboxes');
+      
+      if (prod.description && prod.description.includes(',')) {
+        const ingredients = prod.description.split(',').map(i => i.trim()).filter(Boolean);
+        if (ingredients.length > 1) {
+          removableBox.classList.remove('hidden');
+          checkboxesContainer.innerHTML = ingredients.map(ing => `
+            <button onclick="toggleExcludeIngredient('${ing}', this)" type="button" class="px-3 py-1.5 rounded-xl border border-slate-200 bg-white text-slate-700 text-xs font-bold transition flex items-center gap-1.5">
+              <i class="fa-solid fa-check text-[10px] text-emerald-600 ing-icon"></i>
+              <span>${ing}</span>
+            </button>
+          `).join('');
+        } else {
+          removableBox.classList.add('hidden');
+        }
+      } else {
+        removableBox.classList.add('hidden');
+      }
 
       const sizesBox = document.getElementById('modal-sizes-box');
       const sizesContainer = document.getElementById('modal-sizes');
@@ -511,6 +540,20 @@
       document.getElementById('modal').classList.remove('hidden');
     }
     window.openModal = openModal;
+
+    function toggleExcludeIngredient(ingName, btn) {
+      const icon = btn.querySelector('.ing-icon');
+      if (excludedIngredients.has(ingName)) {
+        excludedIngredients.delete(ingName);
+        btn.className = "px-3 py-1.5 rounded-xl border border-slate-200 bg-white text-slate-700 text-xs font-bold transition flex items-center gap-1.5";
+        icon.className = "fa-solid fa-check text-[10px] text-emerald-600 ing-icon";
+      } else {
+        excludedIngredients.add(ingName);
+        btn.className = "px-3 py-1.5 rounded-xl border border-red-300 bg-red-50 text-red-700 text-xs font-bold transition flex items-center gap-1.5 line-through opacity-75";
+        icon.className = "fa-solid fa-xmark text-[10px] text-red-600 ing-icon";
+      }
+    }
+    window.toggleExcludeIngredient = toggleExcludeIngredient;
 
     function selectSize(price, name, btn) {
       selectedSizePrice = price;
@@ -650,6 +693,12 @@
         }
       }
 
+      // Çıkarılan malzemeleri varyant açıklamasına ekle
+      if (excludedIngredients.size > 0) {
+        const excludedStr = Array.from(excludedIngredients).join(', ');
+        variantDesc += ` <span class="text-red-600 font-bold block text-[10px]">Hariç: ${excludedStr}</span>`;
+      }
+
       cart.push({
         id: Date.now(),
         title: activeProduct.title,
@@ -735,7 +784,6 @@
           safeSetItem(`orders_data_${currentTable}`, JSON.stringify(orders));
         }
       } catch (e) {
-        // Fallback local
         let orders = getLocalOrders();
         const fallbackOrder = {
           id: Date.now().toString().slice(-6),
