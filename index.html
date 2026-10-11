@@ -57,7 +57,7 @@
       <p class="text-xs text-white/90 mt-1">Masadan QR kod ile kolayca sipariş verin.</p>
     </div>
 
-    <!-- KAMPANYALAR BANNER ALANI -->
+    <!-- KAMPANYALAR ALANI -->
     <div id="campaigns-container" class="space-y-3"></div>
 
     <!-- Kategori Butonları -->
@@ -133,7 +133,7 @@
         <div id="modal-sizes" class="grid grid-cols-2 gap-2"></div>
       </div>
 
-      <!-- SERVİS / MENÜ / PAKET SEÇENEKLERİ (Sadece Pizza ve Burger) -->
+      <!-- SERVİS / MENÜ / PAKET (Sadece Pizza ve Burgerlerde Görünür) -->
       <div id="service-options-section" class="hidden">
         <label class="block text-xs font-black text-slate-700 uppercase mb-2">Servis ve Menü Seçenekleri *</label>
         <div class="grid grid-cols-3 gap-2">
@@ -182,6 +182,7 @@
   </div>
 
   <script>
+    // KESİN GARANTİ KATALOG VE KAMPANYALAR
     let catalog = [
       { id: '1', title: 'Pepperoni Pizza', category: 'pizza', price: 260, description: 'Mozzarella, yoğun sucuk dilimleri, özel domates sosu', image: 'https://images.unsplash.com/photo-1628840042765-356cda07504e?w=500', sizes: [{name: 'Orta Boy', price: 0}, {name: 'Büyük Boy', price: 70}] },
       { id: '2', title: 'Margherita Pizza', category: 'pizza', price: 240, description: 'Taze mozzarella, fesleğen yaprakları', image: 'https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=500', sizes: [{name: 'Orta Boy', price: 0}, {name: 'Büyük Boy', price: 60}] },
@@ -221,7 +222,7 @@
     let selectedCampPizza = null;
     let selectedCampaignDrink = availableMenuDrinks[0];
 
-    // SAYFA AÇILDIĞI AN BAŞLAT
+    // SAYFA AÇILDIĞI AN ANINDA RENDER ET
     (function initApp() {
       const params = new URLSearchParams(window.location.search);
       currentTable = params.get('masa') || params.get('table') || localStorage.getItem('evreka_table') || 'Masa-1';
@@ -231,6 +232,8 @@
 
       renderProducts('all');
       renderCampaigns();
+      
+      // Arka planda sunucudan verileri güncellemeye çalış
       fetchServerCatalog();
       checkOrders();
       setInterval(checkOrders, 2000);
@@ -336,7 +339,7 @@
         </div>
       `;
 
-      updateCampaignModalTotal();
+      updateModalPrice();
       document.getElementById('modal').classList.remove('hidden');
     }
     window.openCampaignModal = openCampaignModal;
@@ -351,7 +354,7 @@
           b.className = "camp-piz-btn p-2 rounded-xl border text-left text-[11px] border-slate-200 text-slate-600";
         }
       });
-      updateCampaignModalTotal();
+      updateModalPrice();
     }
     window.selectCampPizza = selectCampPizza;
 
@@ -366,15 +369,10 @@
             b.className = "camp-drink-btn p-2 rounded-xl border text-left text-[11px] border-slate-200 text-slate-600";
           }
         });
-        updateCampaignModalTotal();
+        updateModalPrice();
       }
     }
     window.selectCampDrinkByName = selectCampDrinkByName;
-
-    function updateCampaignModalTotal() {
-      let total = 320 + selectedCampaignDrink.extraPrice;
-      document.getElementById('modal-price').innerText = `${total} ₺`;
-    }
 
     function filterCat(cat, btn) {
       document.querySelectorAll('.cat-btn').forEach(b => {
@@ -535,7 +533,8 @@
 
     function updateModalPrice() {
       if (isCampaignModal) {
-        updateCampaignModalTotal();
+        let total = 320 + selectedCampaignDrink.extraPrice;
+        document.getElementById('modal-price').innerText = `${total} ₺`;
         return;
       }
       if (!activeProduct) return;
