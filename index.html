@@ -182,7 +182,6 @@
   </div>
 
   <script>
-    // GÜVENLİ STORAGE YARDIMCILARI
     function safeGetItem(key) {
       try { return localStorage.getItem(key); } catch (e) { return null; }
     }
@@ -190,7 +189,7 @@
       try { localStorage.setItem(key, val); } catch (e) {}
     }
 
-    // SERVER.JS FULL MENÜ KATALOĞU
+    // EKSİKSİZ FULL MENÜ KATALOĞU
     let catalog = [
       { id: '1', title: 'Pepperoni Pizza', category: 'pizza', price: 260, description: 'Mozzarella, yoğun sucuk dilimleri, özel domates sosu', image: 'https://images.unsplash.com/photo-1628840042765-356cda07504e?w=500', sizes: [{name: 'Orta Boy', price: 0}, {name: 'Büyük Boy', price: 70}] },
       { id: '2', title: 'Margherita Pizza', category: 'pizza', price: 240, description: 'Taze mozzarella, fesleğen yaprakları', image: 'https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=500', sizes: [{name: 'Orta Boy', price: 0}, {name: 'Büyük Boy', price: 60}] },
@@ -210,10 +209,10 @@
       { id: '13', title: 'Çıtır Tavuk Parçaları (6 Adet)', category: 'side', price: 150, description: 'Özel baharatlı kemiksiz tavuk lokmaları', image: 'https://images.unsplash.com/photo-1562967914-608f82629710?w=500' },
       
       { id: '14', title: 'Coca-Cola (330ml)', category: 'beverage', price: 60, description: 'Soğuk kutu içecek', image: 'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=500' },
-      { id: '15', title: 'Fanta (330ml)', category: 'beverage', portakal: true, price: 60, description: 'Portakallı gazlı içecek', image: 'https://images.unsplash.com/photo-1624552184280-9e963caebeee?w=500' },
+      { id: '15', title: 'Fanta (330ml)', category: 'beverage', price: 60, description: 'Portakallı gazlı içecek', image: 'https://images.unsplash.com/photo-1624552184280-9e963caebeee?w=500' },
       { id: '16', title: 'Sprite (330ml)', category: 'beverage', price: 60, description: 'Limon aromalı gazlı içecek', image: 'https://images.unsplash.com/photo-1625772299848-391b6a87d7b3?w=500' },
       { id: '17', title: 'Ayran (300ml)', category: 'beverage', price: 40, description: 'Köpüklü yayık ayranı', image: 'https://images.unsplash.com/photo-1541658016709-82535e94bc69?w=500' },
-      { id: '18', title: 'Soğuk Çay (Şeftali / Limon)', category: 'beverage', price: 50, description: 'Ferahlatıcı buzlu çay', image: 'https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=500' },
+      { id: '18', title: 'Soğuk Çay', category: 'beverage', price: 50, description: 'Ferahlatıcı buzlu çay', image: 'https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=500' },
       { id: '19', title: 'Su (500ml)', category: 'beverage', price: 25, description: 'Doğal kaynak suyu', image: 'https://images.unsplash.com/photo-1548839140-29a749e1cf4d?w=500' },
       
       { id: '20', title: 'Çikolatalı Sufle', category: 'dessert', price: 150, description: 'Sıcak akışkan çikolatalı sufle', image: 'https://images.unsplash.com/photo-1606313564200-e75d5e30476c?w=500' },
@@ -261,6 +260,7 @@
         renderProducts('all');
         renderCampaigns();
         checkOrders();
+        setInterval(checkOrders, 3000);
       } catch (err) {
         console.error("Init Error:", err);
       }
@@ -655,6 +655,7 @@
     }
     window.openTracker = openTracker;
 
+    // GÜÇLENDİRİLMİŞ İKİ YÖNLÜ SİPARİŞ VE HESAP SENKRONİZASYONU
     function getLocalOrders() {
       const data = safeGetItem(`orders_data_${currentTable}`);
       return data ? JSON.parse(data) : [];
@@ -669,12 +670,15 @@
       const newOrder = {
         id: Date.now().toString().slice(-6),
         table: currentTable,
+        tableName: currentTable,
         items: [...cart],
+        totalPrice: cart.reduce((sum, i) => sum + i.price, 0),
         total: cart.reduce((sum, i) => sum + i.price, 0),
         status: 'HAZIRLANIYOR',
         time: new Date().toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })
       };
 
+      // Sunucuya kaydetmeyi dene
       try {
         await fetch('/api/orders', {
           method: 'POST',
@@ -683,6 +687,7 @@
         });
       } catch (e) {}
 
+      // Yerel hafızaya (hesaba) anında kaydet
       let orders = getLocalOrders();
       orders.push(newOrder);
       safeSetItem(`orders_data_${currentTable}`, JSON.stringify(orders));
@@ -698,13 +703,31 @@
     }
     window.sendOrder = sendOrder;
 
-    function checkOrders() {
-      const orders = getLocalOrders();
+    async function checkOrders() {
+      let orders = getLocalOrders();
+
+      // Sunucudan da çekmeyi dene
+      try {
+        const res = await fetch('/api/orders');
+        const data = await res.json();
+        let serverOrders = [];
+        if (Array.isArray(data)) serverOrders = data;
+        else if (data.orders && Array.isArray(data.orders)) serverOrders = data.orders;
+        
+        // Masaya ait sunucu siparişlerini yerel ile birleştir
+        const tableServerOrders = serverOrders.filter(o => String(o.table || o.tableName) === String(currentTable));
+        if (tableServerOrders.length > 0) {
+          // Birleştirme (ID çakışmasını önle)
+          orders = tableServerOrders;
+          safeSetItem(`orders_data_${currentTable}`, JSON.stringify(orders));
+        }
+      } catch (e) {}
+
       const banner = document.getElementById('tracker-banner');
       if (banner) {
         if (orders.length > 0) {
           banner.classList.remove('hidden');
-          document.getElementById('tracker-banner-text').innerText = `${orders.length} Aktif Siparişiniz Var`;
+          document.getElementById('tracker-banner-text').innerText = `${orders.length} Aktif Siparişiniz Hesabınızda Var`;
         } else {
           banner.classList.add('hidden');
         }
@@ -723,8 +746,8 @@
       container.innerHTML = orders.map((o) => `
         <div class="bg-slate-800 border border-slate-700 rounded-2xl p-4 space-y-3">
           <div class="flex justify-between items-center text-xs font-bold text-amber-400 border-b border-slate-700 pb-2">
-            <span>Sipariş #${o.id} (${o.time || ''})</span>
-            <span class="px-2.5 py-0.5 rounded-lg bg-amber-500/20 text-amber-300">${o.status}</span>
+            <span>Sipariş #${o.id || '---'} (${o.time || ''})</span>
+            <span class="px-2.5 py-0.5 rounded-lg bg-amber-500/20 text-amber-300">${o.status || 'HAZIRLANIYOR'}</span>
           </div>
           <div class="space-y-1.5 text-xs">
             ${(o.items || []).map(i => `
@@ -736,7 +759,7 @@
           </div>
           <div class="pt-2 border-t border-slate-700/60 flex justify-between items-center text-xs">
             <span class="text-slate-400 font-medium">Toplam Tutar:</span>
-            <span class="text-amber-400 font-black">${o.total} ₺</span>
+            <span class="text-amber-400 font-black">${o.total || o.totalPrice || 0} ₺</span>
           </div>
         </div>
       `).join('');
