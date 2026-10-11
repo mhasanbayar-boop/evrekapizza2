@@ -190,15 +190,34 @@
       try { localStorage.setItem(key, val); } catch (e) {}
     }
 
-    // KESİN GARANTİ KATALOG VE KAMPANYALAR
+    // SERVER.JS FULL MENÜ KATALOĞU
     let catalog = [
       { id: '1', title: 'Pepperoni Pizza', category: 'pizza', price: 260, description: 'Mozzarella, yoğun sucuk dilimleri, özel domates sosu', image: 'https://images.unsplash.com/photo-1628840042765-356cda07504e?w=500', sizes: [{name: 'Orta Boy', price: 0}, {name: 'Büyük Boy', price: 70}] },
       { id: '2', title: 'Margherita Pizza', category: 'pizza', price: 240, description: 'Taze mozzarella, fesleğen yaprakları', image: 'https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=500', sizes: [{name: 'Orta Boy', price: 0}, {name: 'Büyük Boy', price: 60}] },
-      { id: '3', title: 'Cheeseburger', category: 'burger', price: 260, description: '150gr dana köfte, cheddar peyniri, karamelize soğan', image: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=500' },
-      { id: '4', title: 'Sezar Salatası', category: 'salad', price: 190, description: 'Izgara tavuk dilimleri, marul, kruton, sezar sos', image: 'https://images.unsplash.com/photo-1550304943-4f24f54ddde9?w=500' },
-      { id: '5', title: 'Patates Kızartması', category: 'side', price: 110, description: 'Çıtır patates, özel baharatlar ile', image: 'https://images.unsplash.com/photo-1573080496219-bb080dd4f877?w=500' },
-      { id: '6', title: 'Coca-Cola (330ml)', category: 'beverage', price: 60, description: 'Soğuk kutu içecek', image: 'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=500' },
-      { id: '7', title: 'Çikolatalı Sufle', category: 'dessert', price: 150, description: 'Sıcak akışkan çikolatalı sufle', image: 'https://images.unsplash.com/photo-1606313564200-e75d5e30476c?w=500' }
+      { id: '3', title: 'Barbekü Tavuklu Pizza', category: 'pizza', price: 280, description: 'Mozzarella, barbekü soslu tavuk parçaları, mantar, mısır', image: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=500', sizes: [{name: 'Orta Boy', price: 0}, {name: 'Büyük Boy', price: 75}] },
+      { id: '4', title: 'Dört Peynirli Pizza', category: 'pizza', price: 290, description: 'Mozzarella, cheddar, tulum, gorgonzola', image: 'https://images.unsplash.com/photo-1541745537411-b8046dc6d66c?w=500', sizes: [{name: 'Orta Boy', price: 0}, {name: 'Büyük Boy', price: 80}] },
+      { id: '5', title: 'Karışık Evreka Pizza', category: 'pizza', price: 300, description: 'Sucuk, sosis, mantar, mısır, zeytin, biber', image: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=500', sizes: [{name: 'Orta Boy', price: 0}, {name: 'Büyük Boy', price: 85}] },
+      
+      { id: '6', title: 'Cheeseburger', category: 'burger', price: 260, description: '150gr dana köfte, cheddar peyniri, karamelize soğan', image: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=500' },
+      { id: '7', title: 'Double Burger', category: 'burger', price: 320, description: 'İki adet 150gr dana köfte, çift kat cheddar, özel sos', image: 'https://images.unsplash.com/photo-1586190848861-99aa4a171e90?w=500' },
+      { id: '8', title: 'Tavuk Burger', category: 'burger', price: 230, description: 'Çıtır tavuk göğsü, marul, mayonez ve turşu', image: 'https://images.unsplash.com/photo-1625813506062-0aeb1d7a094b?w=500' },
+      
+      { id: '9', title: 'Sezar Salatası', category: 'salad', price: 190, description: 'Izgara tavuk dilimleri, marul, kruton, sezar sos', image: 'https://images.unsplash.com/photo-1550304943-4f24f54ddde9?w=500' },
+      { id: '10', title: 'Akdeniz Salatası', category: 'salad', price: 170, description: 'Beyaz peynir, zeytin, domates, salatalık, zeytinyağı sos', image: 'https://images.unsplash.com/photo-1540420773420-3366772f4999?w=500' },
+      
+      { id: '11', title: 'Patates Kızartması', category: 'side', price: 110, description: 'Çıtır patates, özel baharatlar ile', image: 'https://images.unsplash.com/photo-1573080496219-bb080dd4f877?w=500' },
+      { id: '12', title: 'Soğan Halkası (8 Adet)', category: 'side', price: 120, description: 'Çıtır kaplamalı soğan halkaları ve sos eşliğinde', image: 'https://images.unsplash.com/photo-1639024471283-03518883512d?w=500' },
+      { id: '13', title: 'Çıtır Tavuk Parçaları (6 Adet)', category: 'side', price: 150, description: 'Özel baharatlı kemiksiz tavuk lokmaları', image: 'https://images.unsplash.com/photo-1562967914-608f82629710?w=500' },
+      
+      { id: '14', title: 'Coca-Cola (330ml)', category: 'beverage', price: 60, description: 'Soğuk kutu içecek', image: 'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=500' },
+      { id: '15', title: 'Fanta (330ml)', category: 'beverage', portakal: true, price: 60, description: 'Portakallı gazlı içecek', image: 'https://images.unsplash.com/photo-1624552184280-9e963caebeee?w=500' },
+      { id: '16', title: 'Sprite (330ml)', category: 'beverage', price: 60, description: 'Limon aromalı gazlı içecek', image: 'https://images.unsplash.com/photo-1625772299848-391b6a87d7b3?w=500' },
+      { id: '17', title: 'Ayran (300ml)', category: 'beverage', price: 40, description: 'Köpüklü yayık ayranı', image: 'https://images.unsplash.com/photo-1541658016709-82535e94bc69?w=500' },
+      { id: '18', title: 'Soğuk Çay (Şeftali / Limon)', category: 'beverage', price: 50, description: 'Ferahlatıcı buzlu çay', image: 'https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=500' },
+      { id: '19', title: 'Su (500ml)', category: 'beverage', price: 25, description: 'Doğal kaynak suyu', image: 'https://images.unsplash.com/photo-1548839140-29a749e1cf4d?w=500' },
+      
+      { id: '20', title: 'Çikolatalı Sufle', category: 'dessert', price: 150, description: 'Sıcak akışkan çikolatalı sufle', image: 'https://images.unsplash.com/photo-1606313564200-e75d5e30476c?w=500' },
+      { id: '21', title: 'Tiramisu', category: 'dessert', price: 160, description: 'İtalyan usulü espresso soslu mascarpone tatlısı', image: 'https://images.unsplash.com/photo-1571877227200-a0d98ea607e9?w=500' }
     ];
 
     let campaigns = [
@@ -241,6 +260,7 @@
 
         renderProducts('all');
         renderCampaigns();
+        checkOrders();
       } catch (err) {
         console.error("Init Error:", err);
       }
@@ -635,57 +655,93 @@
     }
     window.openTracker = openTracker;
 
+    function getLocalOrders() {
+      const data = safeGetItem(`orders_data_${currentTable}`);
+      return data ? JSON.parse(data) : [];
+    }
+
     async function sendOrder() {
       if (cart.length === 0) return;
       const btn = document.getElementById('send-btn');
       btn.disabled = true;
       btn.innerText = "Gönderiliyor...";
 
-      const payload = {
-        tableName: currentTable,
+      const newOrder = {
+        id: Date.now().toString().slice(-6),
         table: currentTable,
-        items: cart.map(i => ({ title: i.title, size: i.size, price: i.price, note: i.note })),
-        totalPrice: cart.reduce((sum, i) => sum + i.price, 0),
-        total: cart.reduce((sum, i) => sum + i.price, 0)
+        items: [...cart],
+        total: cart.reduce((sum, i) => sum + i.price, 0),
+        status: 'HAZIRLANIYOR',
+        time: new Date().toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })
       };
 
-      let orderId = Date.now();
       try {
-        const res = await fetch('/api/orders', {
+        await fetch('/api/orders', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
+          body: JSON.stringify(newOrder)
         });
-        const data = await res.json();
-        if (data.success && (data.order || data.id)) {
-          orderId = data.order?.id || data.order?._id || data.id || Date.now();
-        } else if (data.id || data._id) {
-          orderId = data.id || data._id;
-        }
-      } catch (e) {} finally {
-        saveOrderIdLocally(orderId);
-        cart = [];
-        updateCartUI();
-        toggleCart();
-        btn.disabled = false;
-        btn.innerText = "Garsona Siparişi Gönder";
-        openTracker();
-      }
+      } catch (e) {}
+
+      let orders = getLocalOrders();
+      orders.push(newOrder);
+      safeSetItem(`orders_data_${currentTable}`, JSON.stringify(orders));
+
+      cart = [];
+      updateCartUI();
+      toggleCart();
+      btn.disabled = false;
+      btn.innerText = "Garsona Siparişi Gönder";
+
+      checkOrders();
+      openTracker();
     }
     window.sendOrder = sendOrder;
 
-    function getLocalOrders() {
-      const list = safeGetItem(`orders_${currentTable}`);
-      return list ? JSON.parse(list) : [];
-    }
-
-    function saveOrderIdLocally(id) {
-      let list = getLocalOrders();
-      if (!list.includes(String(id))) {
-        list.push(String(id));
-        safeSetItem(`orders_${currentTable}`, JSON.stringify(list));
+    function checkOrders() {
+      const orders = getLocalOrders();
+      const banner = document.getElementById('tracker-banner');
+      if (banner) {
+        if (orders.length > 0) {
+          banner.classList.remove('hidden');
+          document.getElementById('tracker-banner-text').innerText = `${orders.length} Aktif Siparişiniz Var`;
+        } else {
+          banner.classList.add('hidden');
+        }
       }
     }
+
+    function renderTrackerOrders() {
+      const container = document.getElementById('tracker-items');
+      const orders = getLocalOrders();
+
+      if (orders.length === 0) {
+        container.innerHTML = `<div class="py-12 text-center text-slate-400 text-xs">Aktif siparişiniz bulunmuyor.</div>`;
+        return;
+      }
+
+      container.innerHTML = orders.map((o) => `
+        <div class="bg-slate-800 border border-slate-700 rounded-2xl p-4 space-y-3">
+          <div class="flex justify-between items-center text-xs font-bold text-amber-400 border-b border-slate-700 pb-2">
+            <span>Sipariş #${o.id} (${o.time || ''})</span>
+            <span class="px-2.5 py-0.5 rounded-lg bg-amber-500/20 text-amber-300">${o.status}</span>
+          </div>
+          <div class="space-y-1.5 text-xs">
+            ${(o.items || []).map(i => `
+              <div class="flex justify-between text-slate-300">
+                <span>${i.title}${i.size ? '(' + i.size + ')' : ''}</span>
+                <span class="font-bold text-white">${i.price} ₺</span>
+              </div>
+            `).join('')}
+          </div>
+          <div class="pt-2 border-t border-slate-700/60 flex justify-between items-center text-xs">
+            <span class="text-slate-400 font-medium">Toplam Tutar:</span>
+            <span class="text-amber-400 font-black">${o.total} ₺</span>
+          </div>
+        </div>
+      `).join('');
+    }
+    window.renderTrackerOrders = renderTrackerOrders;
   </script>
 </body>
 </html>
