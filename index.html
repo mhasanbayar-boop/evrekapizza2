@@ -195,33 +195,10 @@
       try { localStorage.setItem(key, val); } catch (e) {}
     }
 
+    // YEDEK KATALOG (Sunucuya ulaşılamazsa veya boş dönerse kullanılır)
     let catalog = [
       { id: '1', title: 'Pepperoni Pizza', category: 'pizza', price: 260, description: 'Mozzarella, yoğun sucuk dilimleri, özel domates sosu', image: 'https://images.unsplash.com/photo-1628840042765-356cda07504e?w=500', sizes: [{name: 'Orta Boy', price: 0}, {name: 'Büyük Boy', price: 70}] },
-      { id: '2', title: 'Margherita Pizza', category: 'pizza', price: 240, description: 'Taze mozzarella, fesleğen yaprakları', image: 'https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=500', sizes: [{name: 'Orta Boy', price: 0}, {name: 'Büyük Boy', price: 60}] },
-      { id: '3', title: 'Barbekü Tavuklu Pizza', category: 'pizza', price: 280, description: 'Mozzarella, barbekü soslu tavuk parçaları, mantar, mısır', image: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=500', sizes: [{name: 'Orta Boy', price: 0}, {name: 'Büyük Boy', price: 75}] },
-      { id: '4', title: 'Dört Peynirli Pizza', category: 'pizza', price: 290, description: 'Mozzarella, cheddar, tulum, gorgonzola', image: 'https://images.unsplash.com/photo-1541745537411-b8046dc6d66c?w=500', sizes: [{name: 'Orta Boy', price: 0}, {name: 'Büyük Boy', price: 80}] },
-      { id: '5', title: 'Karışık Evreka Pizza', category: 'pizza', price: 300, description: 'Sucuk, sosis, mantar, mısır, zeytin, biber', image: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=500', sizes: [{name: 'Orta Boy', price: 0}, {name: 'Büyük Boy', price: 85}] },
-      
-      { id: '6', title: 'Cheeseburger', category: 'burger', price: 260, description: '150gr dana köfte, cheddar peyniri, karamelize soğan', image: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=500' },
-      { id: '7', title: 'Double Burger', category: 'burger', price: 320, description: 'İki adet 150gr dana köfte, çift kat cheddar, özel sos', image: 'https://images.unsplash.com/photo-1586190848861-99aa4a171e90?w=500' },
-      { id: '8', title: 'Tavuk Burger', category: 'burger', price: 230, description: 'Çıtır tavuk göğsü, marul, mayonez ve turşu', image: 'https://images.unsplash.com/photo-1625813506062-0aeb1d7a094b?w=500' },
-      
-      { id: '9', title: 'Sezar Salatası', category: 'salad', price: 190, description: 'Izgara tavuk dilimleri, marul, kruton, sezar sos', image: 'https://images.unsplash.com/photo-1550304943-4f24f54ddde9?w=500' },
-      { id: '10', title: 'Akdeniz Salatası', category: 'salad', price: 170, description: 'Beyaz peynir, zeytin, domates, salatalık, zeytinyağı sos', image: 'https://images.unsplash.com/photo-1540420773420-3366772f4999?w=500' },
-      
-      { id: '11', title: 'Patates Kızartması', category: 'side', price: 110, description: 'Çıtır patates, özel baharatlar ile', image: 'https://images.unsplash.com/photo-1573080496219-bb080dd4f877?w=500' },
-      { id: '12', title: 'Soğan Halkası (8 Adet)', category: 'side', price: 120, description: 'Çıtır kaplamalı soğan halkaları ve sos eşliğinde', image: 'https://images.unsplash.com/photo-1639024471283-03518883512d?w=500' },
-      { id: '13', title: 'Çıtır Tavuk Parçaları (6 Adet)', category: 'side', price: 150, description: 'Özel baharatlı kemiksiz tavuk lokmaları', image: 'https://images.unsplash.com/photo-1562967914-608f82629710?w=500' },
-      
-      { id: '14', title: 'Coca-Cola (330ml)', category: 'beverage', price: 60, description: 'Soğuk kutu içecek', image: 'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=500' },
-      { id: '15', title: 'Fanta (330ml)', category: 'beverage', price: 60, description: 'Portakallı gazlı içecek', image: 'https://images.unsplash.com/photo-1624552184280-9e963caebeee?w=500' },
-      { id: '16', title: 'Sprite (330ml)', category: 'beverage', price: 60, description: 'Limon aromalı gazlı içecek', image: 'https://images.unsplash.com/photo-1625772299848-391b6a87d7b3?w=500' },
-      { id: '17', title: 'Ayran (300ml)', category: 'beverage', price: 40, description: 'Köpüklü yayık ayranı', image: 'https://images.unsplash.com/photo-1541658016709-82535e94bc69?w=500' },
-      { id: '18', title: 'Soğuk Çay', category: 'beverage', price: 50, description: 'Ferahlatıcı buzlu çay', image: 'https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=500' },
-      { id: '19', title: 'Su (500ml)', category: 'beverage', price: 25, description: 'Doğal kaynak suyu', image: 'https://images.unsplash.com/photo-1548839140-29a749e1cf4d?w=500' },
-      
-      { id: '20', title: 'Çikolatalı Sufle', category: 'dessert', price: 150, description: 'Sıcak akışkan çikolatalı sufle', image: 'https://images.unsplash.com/photo-1606313564200-e75d5e30476c?w=500' },
-      { id: '21', title: 'Tiramisu', category: 'dessert', price: 160, description: 'İtalyan usulü espresso soslu mascarpone tatlısı', image: 'https://images.unsplash.com/photo-1571877227200-a0d98ea607e9?w=500' }
+      { id: '2', title: 'Margherita Pizza', category: 'pizza', price: 240, description: 'Taze mozzarella, fesleğen yaprakları', image: 'https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=500', sizes: [{name: 'Orta Boy', price: 0}, {name: 'Büyük Boy', price: 60}] }
     ];
 
     let campaigns = [
@@ -253,7 +230,6 @@
     let selectedCampPizza = null;
     let selectedCampaignDrink = availableMenuDrinks[0];
 
-    // DURUM ÇEVİRİ YARDIMCISI (İngilizce/Diğer terimleri Türkçeye çevirir)
     function translateStatus(status) {
       const st = String(status || '').toUpperCase().trim();
       if (st.includes('PREPARING') || st === 'HAZIRLANIYOR') return 'HAZIRLANIYOR';
@@ -264,8 +240,8 @@
       return status || 'GARSON ONAYI BEKLİYOR';
     }
 
-    // SAYFA AÇILDIĞI AN ANINDA RENDER ET VE ANLIK SENKRONİZASYON BAŞLAT
-    (function initApp() {
+    // SAYFA AÇILDIĞI AN SUNUCUDAN ÜRÜNLERİ ÇEK VE SENKRONİZASYONU BAŞLAT
+    (async function initApp() {
       try {
         const params = new URLSearchParams(window.location.search);
         currentTable = params.get('masa') || params.get('table') || safeGetItem('evreka_table') || 'Masa-1';
@@ -273,11 +249,15 @@
         const badge = document.getElementById('table-badge');
         if (badge) badge.innerText = currentTable;
 
-        renderProducts('all');
+        await loadProductsFromServer();
         renderCampaigns();
         checkOrders();
 
-        setInterval(checkOrders, 1000);
+        // Ürünleri ve siparişleri anlık güncellemek için döngü
+        setInterval(() => {
+          loadProductsFromServer(true); // Arka planda sessizce ürünleri güncelle
+          checkOrders();
+        }, 2000);
 
         window.addEventListener('storage', (e) => {
           if (e.key === `orders_data_${currentTable}` || e.key?.startsWith('orders_data_')) {
@@ -289,8 +269,28 @@
         });
       } catch (err) {
         console.error("Init Error:", err);
+        renderProducts('all');
       }
     })();
+
+    // PATRON PANELİNDEKİ DEĞİŞİKLİKLERİ ANINDA ÇEKEN FONKSİYON
+    async function loadProductsFromServer(isSilent = false) {
+      try {
+        const res = await fetch('/api/products'); // Sunucu ürün rotası
+        const data = await res.json();
+        let fetchedProducts = [];
+        if (Array.isArray(data)) fetchedProducts = data;
+        else if (data.products && Array.isArray(data.products)) fetchedProducts = data.products;
+        else if (data.data && Array.isArray(data.data)) fetchedProducts = data.data;
+
+        if (fetchedProducts.length > 0) {
+          catalog = fetchedProducts;
+          renderProducts(document.querySelector('.cat-btn.bg-slate-900')?.getAttribute('onclick')?.match(/'([^']+)'/)?.[1] || 'all');
+        }
+      } catch (e) {
+        if (!isSilent) renderProducts('all');
+      }
+    }
 
     function renderCampaigns() {
       const container = document.getElementById('campaigns-container');
@@ -444,11 +444,11 @@
 
       grid.innerHTML = filtered.map(p => `
         <div onclick="openModal('${p.id}')" class="bg-white rounded-3xl p-3.5 border border-slate-200 shadow-sm hover:shadow-md transition flex gap-3.5 cursor-pointer">
-          <img src="${p.image}" class="w-24 h-24 rounded-2xl object-cover flex-shrink-0">
+          <img src="${p.image || 'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=500'}" class="w-24 h-24 rounded-2xl object-cover flex-shrink-0">
           <div class="flex-1 flex flex-col justify-between">
             <div>
               <h3 class="font-black text-slate-900 text-sm leading-snug">${p.title}</h3>
-              <p class="text-[11px] text-slate-500 mt-1 line-clamp-2">${p.description}</p>
+              <p class="text-[11px] text-slate-500 mt-1 line-clamp-2">${p.description || ''}</p>
             </div>
             <div class="flex items-center justify-between mt-2">
               <span class="text-xs font-black text-red-600">${p.price} ₺</span>
@@ -473,9 +473,9 @@
       selectedServiceType = 'normal';
       selectedMenuDrink = availableMenuDrinks[0];
 
-      document.getElementById('modal-img').src = prod.image;
+      document.getElementById('modal-img').src = prod.image || 'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=500';
       document.getElementById('modal-title').innerText = prod.title;
-      document.getElementById('modal-desc').innerText = prod.description;
+      document.getElementById('modal-desc').innerText = prod.description || '';
       document.getElementById('modal-note').value = '';
 
       document.getElementById('campaign-options-section').classList.add('hidden');
