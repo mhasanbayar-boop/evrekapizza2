@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="tr" class="h-full bg-slate-950">
+<html lang="tr" class="h-full bg-slate-100">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -18,7 +18,7 @@
     .cart-drawer.active, .tracker-drawer.active { transform: translateY(0); }
   </style>
 </head>
-<body class="h-full text-slate-100 bg-slate-950 flex flex-col antialiased">
+<body class="h-full text-slate-800 bg-slate-100 flex flex-col antialiased">
 
   <!-- ÜST BAR -->
   <header class="bg-slate-900 text-white sticky top-0 z-40 shadow-xl border-b border-slate-800">
@@ -35,13 +35,13 @@
 
       <div id="table-display-badge" class="bg-emerald-600/20 text-emerald-400 font-extrabold text-xs px-3.5 py-2 rounded-2xl border border-emerald-500/40 flex items-center gap-2 shadow-inner">
         <i class="fa-solid fa-lock text-[10px]"></i>
-        <span id="active-table-display">Masa Yükleniyor...</span>
+        <span id="active-table-display">Masa-1</span>
       </div>
     </div>
   </header>
 
   <!-- CANLI TAKİP BARI -->
-  <div id="mini-tracker-banner" class="hidden bg-slate-900 border-b border-slate-800 px-4 py-2.5 sticky top-[57px] z-30 shadow-lg">
+  <div id="mini-tracker-banner" class="hidden bg-slate-900 border-b border-slate-800 px-4 py-2.5 sticky top-[57px] z-30 shadow-lg text-white">
     <div class="max-w-6xl mx-auto flex items-center justify-between">
       <div class="flex items-center gap-2 text-xs">
         <span class="relative flex h-2.5 w-2.5">
@@ -73,22 +73,22 @@
     </div>
 
     <!-- Kategori Filtreleri -->
-    <div class="px-4 overflow-x-auto no-scrollbar flex gap-2 py-2 sticky top-[65px] z-20 bg-slate-950/90 backdrop-blur-md border-b border-slate-900">
-      <button onclick="filterCategory('all', this)" class="cat-btn px-4 py-2 rounded-2xl bg-red-600 text-white text-xs font-black shadow-sm whitespace-nowrap transition">Tüm Menü</button>
-      <button onclick="filterCategory('pizza', this)" class="cat-btn px-4 py-2 rounded-2xl bg-slate-900 text-slate-300 border border-slate-800 text-xs font-bold whitespace-nowrap transition">Pizzalar</button>
-      <button onclick="filterCategory('burger', this)" class="cat-btn px-4 py-2 rounded-2xl bg-slate-900 text-slate-300 border border-slate-800 text-xs font-bold whitespace-nowrap transition">Burgerler</button>
-      <button onclick="filterCategory('salad', this)" class="cat-btn px-4 py-2 rounded-2xl bg-slate-900 text-slate-300 border border-slate-800 text-xs font-bold whitespace-nowrap transition">Salatalar</button>
-      <button onclick="filterCategory('side', this)" class="cat-btn px-4 py-2 rounded-2xl bg-slate-900 text-slate-300 border border-slate-800 text-xs font-bold whitespace-nowrap transition">Atıştırmalıklar</button>
-      <button onclick="filterCategory('beverage', this)" class="cat-btn px-4 py-2 rounded-2xl bg-slate-900 text-slate-300 border border-slate-800 text-xs font-bold whitespace-nowrap transition">İçecekler</button>
-      <button onclick="filterCategory('dessert', this)" class="cat-btn px-4 py-2 rounded-2xl bg-slate-900 text-slate-300 border border-slate-800 text-xs font-bold whitespace-nowrap transition">Tatlılar</button>
+    <div class="px-4 overflow-x-auto no-scrollbar flex gap-2 py-2 sticky top-[65px] z-20 bg-slate-100/95 backdrop-blur-md border-b border-slate-200">
+      <button onclick="filterCategory('all', this)" class="cat-btn px-4 py-2 rounded-2xl bg-slate-900 text-white text-xs font-black shadow-sm whitespace-nowrap transition">Tüm Menü</button>
+      <button onclick="filterCategory('pizza', this)" class="cat-btn px-4 py-2 rounded-2xl bg-white text-slate-600 border border-slate-200 text-xs font-bold whitespace-nowrap transition">Pizzalar</button>
+      <button onclick="filterCategory('burger', this)" class="cat-btn px-4 py-2 rounded-2xl bg-white text-slate-600 border border-slate-200 text-xs font-bold whitespace-nowrap transition">Burgerler</button>
+      <button onclick="filterCategory('salad', this)" class="cat-btn px-4 py-2 rounded-2xl bg-white text-slate-600 border border-slate-200 text-xs font-bold whitespace-nowrap transition">Salatalar</button>
+      <button onclick="filterCategory('side', this)" class="cat-btn px-4 py-2 rounded-2xl bg-white text-slate-600 border border-slate-200 text-xs font-bold whitespace-nowrap transition">Atıştırmalıklar</button>
+      <button onclick="filterCategory('beverage', this)" class="cat-btn px-4 py-2 rounded-2xl bg-white text-slate-600 border border-slate-200 text-xs font-bold whitespace-nowrap transition">İçecekler</button>
+      <button onclick="filterCategory('dessert', this)" class="cat-btn px-4 py-2 rounded-2xl bg-white text-slate-600 border border-slate-200 text-xs font-bold whitespace-nowrap transition">Tatlılar</button>
     </div>
 
-    <!-- ÜRÜN LİSTESİ -->
+    <!-- ÜRÜN LİSTESİ (Belirgin Sınırlı, Şık Beyaz Kartlar) -->
     <div class="px-4 mt-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4" id="product-list"></div>
   </main>
 
   <!-- YÜZEN SEPET BARI -->
-  <div id="cart-bar" class="fixed bottom-0 left-0 right-0 z-40 p-4 bg-gradient-to-t from-slate-950 via-slate-950/90 to-transparent">
+  <div id="cart-bar" class="fixed bottom-0 left-0 right-0 z-40 p-4 bg-gradient-to-t from-slate-100 via-slate-100/90 to-transparent">
     <div class="max-w-6xl mx-auto">
       <button onclick="toggleCartDrawer()" class="w-full bg-gradient-to-r from-red-600 to-amber-600 text-white font-extrabold py-3.5 px-6 rounded-2xl shadow-xl flex items-center justify-between transition">
         <div class="flex items-center gap-3">
@@ -102,23 +102,23 @@
 
   <!-- SEPET ÇEKMECESİ -->
   <div id="drawer-overlay" onclick="closeCartDrawerExplicit()" class="fixed inset-0 bg-slate-950/70 backdrop-blur-sm z-50 hidden"></div>
-  <div id="cart-drawer" class="cart-drawer fixed bottom-0 right-0 left-0 sm:left-auto sm:top-0 sm:w-96 bg-slate-900 text-white z-50 rounded-t-3xl sm:rounded-l-3xl max-h-[85vh] flex flex-col shadow-2xl border-l border-slate-800">
-    <div class="p-5 border-b border-slate-800 flex justify-between items-center bg-slate-950/50 rounded-t-3xl">
+  <div id="cart-drawer" class="cart-drawer fixed bottom-0 right-0 left-0 sm:left-auto sm:top-0 sm:w-96 bg-white z-50 rounded-t-3xl sm:rounded-l-3xl max-h-[85vh] flex flex-col shadow-2xl">
+    <div class="p-5 border-b border-slate-100 flex justify-between items-center bg-slate-50/50 rounded-t-3xl">
       <div>
-        <h3 class="text-lg font-black text-white">Sipariş Özetiniz</h3>
-        <p class="text-xs text-emerald-400 font-extrabold flex items-center gap-1" id="cart-drawer-table-display">
-          <i class="fa-solid fa-lock text-[10px]"></i> Masa Yükleniyor...
+        <h3 class="text-lg font-black text-slate-900">Sipariş Özetiniz</h3>
+        <p class="text-xs text-emerald-600 font-extrabold flex items-center gap-1" id="cart-drawer-table-display">
+          <i class="fa-solid fa-lock text-[10px]"></i> Masa-1
         </p>
       </div>
-      <button onclick="closeCartDrawerExplicit()" class="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center text-slate-300">
+      <button onclick="closeCartDrawerExplicit()" class="w-8 h-8 rounded-full bg-slate-200/60 flex items-center justify-center text-slate-600">
         <i class="fa-solid fa-xmark"></i>
       </button>
     </div>
     <div id="cart-items-container" class="flex-1 overflow-y-auto p-5 space-y-3"></div>
-    <div class="p-5 border-t border-slate-800 bg-slate-950/80 space-y-3">
+    <div class="p-5 border-t border-slate-100 bg-slate-50/80 space-y-3">
       <div class="flex justify-between items-center text-sm">
-        <span class="text-slate-400 font-bold">Toplam Tutar:</span>
-        <span id="cart-drawer-total" class="text-2xl font-black text-red-500">0 ₺</span>
+        <span class="text-slate-500 font-bold">Toplam Tutar:</span>
+        <span id="cart-drawer-total" class="text-2xl font-black text-red-600">0 ₺</span>
       </div>
       <button id="submit-btn" onclick="submitOrderToAPI()" class="w-full bg-red-600 hover:bg-red-700 text-white font-extrabold py-3.5 rounded-2xl text-sm flex items-center justify-center gap-2 shadow-lg">
         <i class="fa-solid fa-paper-plane"></i> Garsona Siparişi Gönder
@@ -143,17 +143,17 @@
 
   <!-- SİPARİŞ BAŞARI MODALI -->
   <div id="order-success-modal" class="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md hidden flex items-center justify-center p-4">
-    <div class="bg-slate-900 border border-slate-800 w-full max-w-sm rounded-3xl p-6 shadow-2xl text-center space-y-5">
-      <div class="w-16 h-16 bg-emerald-500/20 text-emerald-400 rounded-2xl flex items-center justify-center mx-auto text-3xl border border-emerald-500/30">
+    <div class="bg-white border border-slate-200 w-full max-w-sm rounded-3xl p-6 shadow-2xl text-center space-y-5">
+      <div class="w-16 h-16 bg-emerald-500/20 text-emerald-600 rounded-2xl flex items-center justify-center mx-auto text-3xl border border-emerald-500/30">
         <i class="fa-solid fa-check animate-bounce"></i>
       </div>
       <div>
-        <h3 class="text-xl font-black text-white">Siparişiniz Alındı!</h3>
-        <p class="text-xs text-slate-400 mt-1">Siparişiniz mutfağımıza iletildi.</p>
+        <h3 class="text-xl font-black text-slate-900">Siparişiniz Alındı!</h3>
+        <p class="text-xs text-slate-500 mt-1">Siparişiniz mutfağımıza iletildi.</p>
       </div>
-      <div class="bg-slate-800/80 p-3 rounded-2xl border border-slate-700 text-xs flex justify-between items-center font-bold">
-        <span class="text-slate-400">Atanan Masa:</span>
-        <span class="text-amber-400" id="success-modal-table">Masa -</span>
+      <div class="bg-slate-100 p-3 rounded-2xl border border-slate-200 text-xs flex justify-between items-center font-bold">
+        <span class="text-slate-500">Atanan Masa:</span>
+        <span class="text-red-600" id="success-modal-table">Masa-1</span>
       </div>
       <button onclick="closeSuccessModalAndOpenTracker()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold py-3.5 rounded-2xl text-xs flex items-center justify-center gap-2">
         <i class="fa-solid fa-clock-rotate-left"></i> Canlı Takip Ekranını Aç ➔
@@ -163,49 +163,49 @@
 
   <!-- ÜRÜN / KAMPANYA DETAY MODALI -->
   <div id="options-modal" class="fixed inset-0 z-50 bg-slate-950/75 backdrop-blur-sm hidden flex items-end sm:items-center justify-center p-0 sm:p-4">
-    <div class="bg-slate-900 border border-slate-800 text-white w-full max-w-md rounded-t-3xl sm:rounded-3xl max-h-[90vh] overflow-y-auto p-6 shadow-2xl flex flex-col">
-      <div class="relative h-48 -mx-6 -mt-6 mb-4 overflow-hidden rounded-t-3xl bg-slate-800">
+    <div class="bg-white w-full max-w-md rounded-t-3xl sm:rounded-3xl max-h-[90vh] overflow-y-auto p-6 shadow-2xl flex flex-col">
+      <div class="relative h-48 -mx-6 -mt-6 mb-4 overflow-hidden rounded-t-3xl bg-slate-100">
         <img id="modal-img" src="" alt="" class="w-full h-full object-cover">
         <button onclick="closeOptionsModal()" class="absolute top-4 right-4 w-9 h-9 rounded-full bg-black/50 text-white flex items-center justify-center">
           <i class="fa-solid fa-xmark"></i>
         </button>
       </div>
       <div>
-        <h3 id="modal-title" class="text-xl font-black text-white"></h3>
-        <p id="modal-desc" class="text-xs text-slate-400 mt-1"></p>
+        <h3 id="modal-title" class="text-xl font-black text-slate-900"></h3>
+        <p id="modal-desc" class="text-xs text-slate-500 mt-1"></p>
       </div>
 
       <!-- BOYUT SEÇİMİ -->
       <div class="mt-5" id="size-section">
-        <label class="block text-xs font-extrabold text-slate-300 uppercase tracking-wider mb-2" id="modal-size-label">Boyut Seçin *</label>
+        <label class="block text-xs font-extrabold text-slate-700 uppercase tracking-wider mb-2" id="modal-size-label">Boyut Seçin *</label>
         <div class="grid grid-cols-2 gap-2" id="modal-sizes"></div>
       </div>
 
       <!-- SERVİS / MENÜ / PAKET SEÇENEKLERİ (PİZZA & BURGER İÇİN) -->
       <div class="mt-5 hidden" id="service-options-section">
-        <label class="block text-xs font-extrabold text-slate-300 uppercase tracking-wider mb-2">Servis ve Menü Seçenekleri *</label>
+        <label class="block text-xs font-extrabold text-slate-700 uppercase tracking-wider mb-2">Servis ve Menü Seçenekleri *</label>
         <div class="grid grid-cols-3 gap-2" id="service-options-container">
-          <button onclick="selectServiceType('normal')" id="srv-normal" class="srv-btn p-2.5 rounded-xl border text-left text-xs border-red-500 bg-red-600/20 text-red-400 font-bold">
+          <button onclick="selectServiceType('normal')" id="srv-normal" class="srv-btn p-2.5 rounded-xl border text-left text-xs border-red-600 bg-red-50 text-red-600 font-bold">
             <div>Normal</div>
             <div class="text-[10px] opacity-70">+0 ₺</div>
           </button>
-          <button onclick="selectServiceType('menu')" id="srv-menu" class="srv-btn p-2.5 rounded-xl border text-left text-xs border-slate-700 text-slate-400">
+          <button onclick="selectServiceType('menu')" id="srv-menu" class="srv-btn p-2.5 rounded-xl border text-left text-xs border-slate-200 text-slate-600">
             <div>Menü (+80 ₺)</div>
             <div class="text-[10px] opacity-70">Patates + İçecek</div>
           </button>
-          <button onclick="selectServiceType('paket')" id="srv-paket" class="srv-btn p-2.5 rounded-xl border text-left text-xs border-slate-700 text-slate-400">
+          <button onclick="selectServiceType('paket')" id="srv-paket" class="srv-btn p-2.5 rounded-xl border text-left text-xs border-slate-200 text-slate-600">
             <div>Paket (+120 ₺)</div>
             <div class="text-[10px] opacity-70">Patates + İçecek</div>
           </button>
         </div>
 
         <!-- MENÜ VEYA PAKET SEÇİLDİĞİNDE ÇIKACAK İÇECEK VE PATATES BİLGİSİ -->
-        <div id="menu-details-box" class="mt-3 hidden bg-slate-950 border border-slate-800 rounded-2xl p-3.5 space-y-3">
-          <div class="text-xs font-bold text-emerald-400 flex items-center gap-1.5">
+        <div id="menu-details-box" class="mt-3 hidden bg-slate-50 border border-slate-200 rounded-2xl p-3.5 space-y-3">
+          <div class="text-xs font-bold text-emerald-700 flex items-center gap-1.5">
             <i class="fa-solid fa-circle-check"></i> Zorunlu: Orta Boy Patates Kızartması dahildir.
           </div>
           <div>
-            <label class="block text-[11px] font-extrabold text-slate-300 uppercase tracking-wider mb-1.5">İçecek Seçin *</label>
+            <label class="block text-[11px] font-extrabold text-slate-700 uppercase tracking-wider mb-1.5">İçecek Seçin *</label>
             <div class="grid grid-cols-2 gap-2" id="menu-drinks-container"></div>
           </div>
         </div>
@@ -213,18 +213,18 @@
 
       <!-- KAMPANYA SEÇENEKLERİ -->
       <div class="mt-5 hidden" id="campaign-options-section">
-        <label class="block text-xs font-extrabold text-slate-300 uppercase tracking-wider mb-2">Kampanya Seçenekleri *</label>
+        <label class="block text-xs font-extrabold text-slate-700 uppercase tracking-wider mb-2">Kampanya Seçenekleri *</label>
         <div id="modal-campaign-options" class="space-y-3"></div>
       </div>
 
       <!-- NOT -->
       <div class="mt-5">
-        <label class="block text-xs font-extrabold text-slate-300 uppercase tracking-wider mb-1">Garson Notu</label>
-        <input type="text" id="modal-note" maxlength="200" placeholder="Örn: Acısı bol olsun..." class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:ring-2 focus:ring-red-500 focus:outline-none">
+        <label class="block text-xs font-extrabold text-slate-700 uppercase tracking-wider mb-1">Garson Notu</label>
+        <input type="text" id="modal-note" maxlength="200" placeholder="Örn: Acısı bol olsun..." class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs focus:ring-2 focus:ring-red-500 focus:outline-none">
       </div>
 
-      <div class="mt-6 pt-3 border-t border-slate-800">
-        <button id="modal-add-btn" class="w-full bg-red-600 hover:bg-red-700 text-white font-extrabold py-3.5 rounded-2xl text-sm flex items-center justify-between px-6 shadow-lg">
+      <div class="mt-6 pt-3 border-t border-slate-100">
+        <button id="modal-add-btn" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-extrabold py-3.5 rounded-2xl text-sm flex items-center justify-between px-6 shadow-lg">
           <span>Sepete Ekle</span>
           <span id="modal-total-price" class="text-amber-400">0 ₺</span>
         </button>
@@ -234,7 +234,7 @@
 
   <script>
     let catalog = [];
-    let currentTable = null;
+    let currentTable = 'Masa-1';
     let cart = [];
     let campaigns = [];
     let selectedProduct = null;
@@ -293,6 +293,12 @@
           return;
         }
       } catch (e) {}
+      
+      // Fallback Menü (server.js ile tam uyumlu)
+      catalog = [
+        { id: 'c1', title: 'Pepperoni', category: 'pizza', basePrice: 260, description: 'Mozzarella, kaşar, sucuk, mantar, biber, mısır, zeytin', image: 'https://images.unsplash.com/photo-1628840042765-356cda07504e?w=300', sizes: [{ id: 'medium', name: 'Orta Boy (Medium)', priceOffset: 0 }, { id: 'jumbo', name: 'Büyük Boy (Jumbo)', priceOffset: 70 }] },
+        { id: 'b1', title: 'Hamburger (Classic)', category: 'burger', basePrice: 260, description: 'Susamlı ekmek, 100gr dana köfte, domates, marul, turşu, karamelize soğan, özel sos', image: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=300' }
+      ];
       renderProducts('all');
     }
 
@@ -362,10 +368,10 @@
       if (pizzas.length > 0) {
         pizzaSelectorHtml = `
           <div class="mb-3">
-            <label class="block text-[11px] font-extrabold text-slate-300 uppercase tracking-wider mb-1.5">Pizza Seçin *</label>
+            <label class="block text-[11px] font-extrabold text-slate-700 uppercase tracking-wider mb-1.5">Pizza Seçin *</label>
             <div class="grid grid-cols-2 gap-2 max-h-40 overflow-y-auto" id="camp-pizza-container">
               ${pizzas.map((p, idx) => `
-                <button onclick="selectCampPizza('${p.id}')" type="button" id="camp-piz-${p.id}" class="camp-piz-btn p-2 rounded-xl border text-left text-[11px] ${idx === 0 ? 'border-red-500 bg-red-600/20 text-red-400 font-bold' : 'border-slate-800 bg-slate-950 text-slate-300'}">
+                <button onclick="selectCampPizza('${p.id}')" type="button" id="camp-piz-${p.id}" class="camp-piz-btn p-2 rounded-xl border text-left text-[11px] ${idx === 0 ? 'border-red-600 bg-red-50 text-red-600 font-bold' : 'border-slate-200 text-slate-600'}">
                   <div class="truncate">${p.title}</div>
                 </button>
               `).join('')}
@@ -375,14 +381,14 @@
       }
 
       document.getElementById('modal-campaign-options').innerHTML = pizzaSelectorHtml + `
-        <div class="text-xs font-bold text-emerald-400 flex items-center gap-1.5 mb-2">
+        <div class="text-xs font-bold text-emerald-700 flex items-center gap-1.5 mb-2">
           <i class="fa-solid fa-circle-check"></i> Zorunlu: Orta Boy Patates Kızartması dahildir.
         </div>
         <div>
-          <label class="block text-[11px] font-extrabold text-slate-300 uppercase tracking-wider mb-1.5">İçecek Seçin *</label>
+          <label class="block text-[11px] font-extrabold text-slate-700 uppercase tracking-wider mb-1.5">İçecek Seçin *</label>
           <div class="grid grid-cols-2 gap-2 max-h-40 overflow-y-auto" id="camp-drinks-container">
             ${availableMenuDrinks.map((d, idx) => `
-              <button onclick="selectCampDrinkByName('${d.name}')" type="button" id="camp-drink-${idx}" class="camp-drink-btn p-2 rounded-xl border text-left text-[11px] ${idx === 0 ? 'border-red-500 bg-red-600/20 text-red-400 font-bold' : 'border-slate-800 bg-slate-950 text-slate-300'}">
+              <button onclick="selectCampDrinkByName('${d.name}')" type="button" id="camp-drink-${idx}" class="camp-drink-btn p-2 rounded-xl border text-left text-[11px] ${idx === 0 ? 'border-red-600 bg-red-50 text-red-600 font-bold' : 'border-slate-200 text-slate-600'}">
                 <div class="truncate">${d.name}</div>
                 <div class="text-[10px] opacity-70">${d.extraPrice > 0 ? `+${d.extraPrice} ₺` : 'Fiyata Dahil'}</div>
               </button>
@@ -401,9 +407,9 @@
       selectedCampPizza = pizzas.find(p => String(p.id) === String(pizzaId));
       document.querySelectorAll('.camp-piz-btn').forEach(b => {
         if (b.id === `camp-piz-${pizzaId}`) {
-          b.className = "camp-piz-btn p-2 rounded-xl border text-left text-[11px] border-red-500 bg-red-600/20 text-red-400 font-bold";
+          b.className = "camp-piz-btn p-2 rounded-xl border text-left text-[11px] border-red-600 bg-red-50 text-red-600 font-bold";
         } else {
-          b.className = "camp-piz-btn p-2 rounded-xl border text-left text-[11px] border-slate-800 bg-slate-950 text-slate-300";
+          b.className = "camp-piz-btn p-2 rounded-xl border text-left text-[11px] border-slate-200 text-slate-600";
         }
       });
       updateCampaignModalTotal();
@@ -415,9 +421,9 @@
         selectedCampaignDrink = found;
         document.querySelectorAll('.camp-drink-btn').forEach(b => {
           if (b.innerText.includes(name)) {
-            b.className = "camp-drink-btn p-2 rounded-xl border text-left text-[11px] border-red-500 bg-red-600/20 text-red-400 font-bold";
+            b.className = "camp-drink-btn p-2 rounded-xl border text-left text-[11px] border-red-600 bg-red-50 text-red-600 font-bold";
           } else {
-            b.className = "camp-drink-btn p-2 rounded-xl border text-left text-[11px] border-slate-800 bg-slate-950 text-slate-300";
+            b.className = "camp-drink-btn p-2 rounded-xl border text-left text-[11px] border-slate-200 text-slate-600";
           }
         });
         updateCampaignModalTotal();
@@ -459,7 +465,7 @@
       }
     }
 
-    // Ödeme alındığında veya kapandığında siparişleri müşteri localStorage'ından temizler
+    // Ödeme alındığında veya sipariş kapandığında müşteri ekranından tamamen temizlenir
     async function checkActiveOrdersMini() {
       if (!currentTable) return;
       let orderIds = getTableOrderIds();
@@ -477,7 +483,6 @@
         }
       } catch (e) {}
 
-      // PAID veya CANCELLED olan siparişleri yerel tablodan temizliyoruz
       const activeOrderIds = orderIds.filter(id => {
         const found = allOrders.find(o => String(o.id) === String(id));
         if (!found) return true;
@@ -512,9 +517,9 @@
 
     function filterCategory(cat, btn) {
       document.querySelectorAll('.cat-btn').forEach(b => {
-        b.className = "cat-btn px-4 py-2 rounded-2xl bg-slate-900 text-slate-300 border border-slate-800 text-xs font-bold whitespace-nowrap transition";
+        b.className = "cat-btn px-4 py-2 rounded-2xl bg-white text-slate-600 border border-slate-200 text-xs font-bold whitespace-nowrap transition";
       });
-      btn.className = "cat-btn px-4 py-2 rounded-2xl bg-red-600 text-white text-xs font-black shadow-sm whitespace-nowrap transition";
+      btn.className = "cat-btn px-4 py-2 rounded-2xl bg-slate-900 text-white text-xs font-black shadow-sm whitespace-nowrap transition";
       renderProducts(cat);
     }
 
@@ -523,21 +528,22 @@
       const filtered = category === 'all' ? catalog : catalog.filter(p => String(p.category || '').toLowerCase() === String(category).toLowerCase());
 
       if (filtered.length === 0) {
-        container.innerHTML = `<div class="col-span-full py-12 text-center text-slate-500 text-xs">Bu kategoride ürün bulunamadı.</div>`;
+        container.innerHTML = `<div class="col-span-full py-12 text-center text-slate-400 text-xs">Bu kategoride ürün bulunamadı.</div>`;
         return;
       }
 
+      // Ürün kartları belirgin sınırlı (border-slate-200) ve şık beyaz tasarımlıdır
       container.innerHTML = filtered.map(p => `
-        <div onclick="openOptionsModal('${p.id}')" class="bg-slate-900 rounded-3xl p-3.5 border border-slate-800 shadow-sm hover:border-slate-700 transition flex gap-3.5 cursor-pointer group">
+        <div onclick="openOptionsModal('${p.id}')" class="bg-white rounded-3xl p-3.5 border border-slate-200 shadow-sm hover:shadow-md transition flex gap-3.5 cursor-pointer group">
           <img src="${p.image}" class="w-24 h-24 rounded-2xl object-cover flex-shrink-0 group-hover:scale-105 transition">
           <div class="flex-1 flex flex-col justify-between py-0.5">
             <div>
-              <h3 class="font-extrabold text-white text-sm leading-snug">${p.title}</h3>
-              <p class="text-[11px] text-slate-400 mt-1 line-clamp-2">${p.description || ''}</p>
+              <h3 class="font-extrabold text-slate-900 text-sm leading-snug">${p.title}</h3>
+              <p class="text-[11px] text-slate-500 mt-1 line-clamp-2">${p.description || ''}</p>
             </div>
             <div class="flex items-center justify-between mt-2">
-              <span class="text-xs font-black text-amber-400">${p.basePrice} ₺</span>
-              <div class="w-8 h-8 rounded-xl bg-slate-800 group-hover:bg-red-600 group-hover:text-white text-slate-300 flex items-center justify-center transition">
+              <span class="text-xs font-black text-red-600">${p.basePrice} ₺</span>
+              <div class="w-8 h-8 rounded-xl bg-slate-100 group-hover:bg-red-600 group-hover:text-white text-slate-700 flex items-center justify-center transition">
                 <i class="fa-solid fa-plus text-xs"></i>
               </div>
             </div>
@@ -570,7 +576,7 @@
       if (prod.sizes && prod.sizes.length > 0) {
         sizeSec.classList.remove('hidden');
         document.getElementById('modal-sizes').innerHTML = prod.sizes.map((sz, idx) => `
-          <button onclick="selectSize('${sz.id}')" id="sz-btn-${sz.id}" class="sz-btn p-2.5 rounded-xl border text-left text-xs ${idx === 0 ? 'border-red-500 bg-red-600/20 text-red-400 font-bold' : 'border-slate-800 bg-slate-950 text-slate-300'}">
+          <button onclick="selectSize('${sz.id}')" id="sz-btn-${sz.id}" class="sz-btn p-2.5 rounded-xl border text-left text-xs ${idx === 0 ? 'border-red-600 bg-red-50 text-red-600 font-bold' : 'border-slate-200 text-slate-600'}">
             <div>${sz.name}</div>
             <div class="text-[10px] opacity-70">+${sz.priceOffset} ₺</div>
           </button>
@@ -599,9 +605,9 @@
       selectedSize = selectedProduct.sizes.find(s => s.id === sizeId);
       document.querySelectorAll('.sz-btn').forEach(b => {
         if (b.id === `sz-btn-${sizeId}`) {
-          b.className = "sz-btn p-2.5 rounded-xl border text-left text-xs border-red-500 bg-red-600/20 text-red-400 font-bold";
+          b.className = "sz-btn p-2.5 rounded-xl border text-left text-xs border-red-600 bg-red-50 text-red-600 font-bold";
         } else {
-          b.className = "sz-btn p-2.5 rounded-xl border text-left text-xs border-slate-800 bg-slate-950 text-slate-300";
+          b.className = "sz-btn p-2.5 rounded-xl border text-left text-xs border-slate-200 text-slate-600";
         }
       });
       updateModalTotal();
@@ -617,9 +623,9 @@
       ['normal', 'menu', 'paket'].forEach(t => {
         const btn = document.getElementById(`srv-${t}`);
         if (t === selectedServiceType) {
-          btn.className = "srv-btn p-2.5 rounded-xl border text-left text-xs border-red-500 bg-red-600/20 text-red-400 font-bold";
+          btn.className = "srv-btn p-2.5 rounded-xl border text-left text-xs border-red-600 bg-red-50 text-red-600 font-bold";
         } else {
-          btn.className = "srv-btn p-2.5 rounded-xl border text-left text-xs border-slate-800 bg-slate-950 text-slate-300";
+          btn.className = "srv-btn p-2.5 rounded-xl border text-left text-xs border-slate-200 text-slate-600";
         }
       });
 
@@ -637,7 +643,7 @@
       container.innerHTML = availableMenuDrinks.map((d) => {
         const isSelected = selectedMenuDrink.name === d.name;
         return `
-          <button onclick="selectMenuDrinkByName('${d.name}')" type="button" class="menu-drink-btn p-2 rounded-xl border text-left text-[11px] ${isSelected ? 'border-red-500 bg-red-600/20 text-red-400 font-bold' : 'border-slate-800 bg-slate-950 text-slate-300'}">
+          <button onclick="selectMenuDrinkByName('${d.name}')" type="button" class="menu-drink-btn p-2 rounded-xl border text-left text-[11px] ${isSelected ? 'border-red-600 bg-red-50 text-red-600 font-bold' : 'border-slate-200 text-slate-600'}">
             <div class="truncate">${d.name}</div>
             <div class="text-[10px] opacity-70">${d.extraPrice > 0 ? `+${d.extraPrice} ₺` : 'Fiyata Dahil'}</div>
           </button>
@@ -734,19 +740,19 @@
     function renderCartItems() {
       const container = document.getElementById('cart-items-container');
       if (cart.length === 0) {
-        container.innerHTML = `<div class="py-12 text-center text-slate-500 text-xs">Sepetiniz boş. Lezzetli ürünler eklemeye başlayın!</div>`;
+        container.innerHTML = `<div class="py-12 text-center text-slate-400 text-xs">Sepetiniz boş. Lezzetli ürünler eklemeye başlayın!</div>`;
         return;
       }
 
       container.innerHTML = cart.map((item, idx) => `
-        <div class="bg-slate-950 border border-slate-800 p-3.5 rounded-2xl flex items-center justify-between gap-3">
+        <div class="bg-slate-50 border border-slate-200 p-3.5 rounded-2xl flex items-center justify-between gap-3">
           <div class="flex-1">
-            <h4 class="font-extrabold text-white text-xs">${item.title}</h4>
-            <p class="text-[11px] text-slate-400 mt-0.5">${item.size || ''}</p>
-            ${item.note ? `<p class="text-[10px] text-amber-400 font-semibold mt-1"><i class="fa-solid fa-note-sticky"></i> ${item.note}</p>` : ''}
-            <div class="text-xs font-black text-red-500 mt-1.5">${item.price} ₺</div>
+            <h4 class="font-extrabold text-slate-900 text-xs">${item.title}</h4>
+            <p class="text-[11px] text-slate-500 mt-0.5">${item.size || ''}</p>
+            ${item.note ? `<p class="text-[10px] text-amber-600 font-semibold mt-1"><i class="fa-solid fa-note-sticky"></i> ${item.note}</p>` : ''}
+            <div class="text-xs font-black text-red-600 mt-1.5">${item.price} ₺</div>
           </div>
-          <button onclick="removeFromCart(${idx})" class="w-8 h-8 rounded-xl bg-red-600/20 text-red-400 flex items-center justify-center hover:bg-red-600 hover:text-white transition">
+          <button onclick="removeFromCart(${idx})" class="w-8 h-8 rounded-xl bg-red-100 text-red-600 flex items-center justify-center hover:bg-red-200 transition">
             <i class="fa-solid fa-trash-can text-xs"></i>
           </button>
         </div>
@@ -830,7 +836,7 @@
       const orderIds = getTableOrderIds();
 
       if (orderIds.length === 0) {
-        container.innerHTML = `<div class="py-12 text-center text-slate-500 text-xs">Aktif siparişiniz bulunmuyor.</div>`;
+        container.innerHTML = `<div class="py-12 text-center text-slate-400 text-xs">Aktif siparişiniz bulunmuyor.</div>`;
         return;
       }
 
@@ -846,7 +852,7 @@
       const myOrders = allOrders.filter(o => orderIds.includes(String(o.id)) && String(o.status || '').toUpperCase() !== 'PAID' && String(o.status || '').toUpperCase() !== 'CANCELLED');
       
       if (myOrders.length === 0) {
-        container.innerHTML = `<div class="py-12 text-center text-slate-500 text-xs">Aktif siparişiniz bulunmuyor.</div>`;
+        container.innerHTML = `<div class="py-12 text-center text-slate-400 text-xs">Aktif siparişiniz bulunmuyor.</div>`;
         return;
       }
 
@@ -857,8 +863,8 @@
         else if (st === 'SERVED') statusBadge = '<span class="bg-indigo-500/20 text-indigo-400 px-2.5 py-1 rounded-lg text-[10px] font-bold">Servis Edildi / Ödeme Bekliyor</span>';
 
         return `
-          <div class="bg-slate-950 border border-slate-800 rounded-2xl p-4 space-y-3">
-            <div class="flex justify-between items-center border-b border-slate-800 pb-2">
+          <div class="bg-slate-800/80 border border-slate-700/80 rounded-2xl p-4 space-y-3">
+            <div class="flex justify-between items-center border-b border-slate-700 pb-2">
               <span class="text-xs font-black text-amber-400">Sipariş #${o.id}</span>
               ${statusBadge}
             </div>
@@ -870,9 +876,9 @@
                 </div>
               `).join('')}
             </div>
-            <div class="flex justify-between items-center pt-2 border-t border-slate-800 text-xs font-black">
+            <div class="flex justify-between items-center pt-2 border-t border-slate-700/50 text-xs font-black">
               <span class="text-slate-400">Toplam:</span>
-              <span class="text-red-500 text-sm">${o.totalPrice || o.total} ₺</span>
+              <span class="text-red-400 text-sm">${o.totalPrice || o.total} ₺</span>
             </div>
           </div>
         `;
