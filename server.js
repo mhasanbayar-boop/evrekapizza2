@@ -1,4 +1,5 @@
 const express = require('express');
+const fs = require('fs');
 const path = require('path');
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -7,278 +8,278 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname)));
 
-let orders = [];
-let nextOrderId = 1001;
+// Siparişlerin kalıcı olarak saklanacağı dosya yolu
+const ORDERS_FILE = path.join(__dirname, 'orders.json');
 
-// Tüm Kapsamlı Menü Kataloğu
-let catalog = [
-  // --- CLASSIC PİZZALAR (Orta / Jumbo Boy Seçenekleriyle) ---
-  {
-    id: 'piz-c1', category: 'pizza', title: 'Pepperoni Pizza', description: 'Mozarella/kaşar, sucuk, mantar, biber, mısır, zeytin.', basePrice: 260,
-    image: 'https://images.unsplash.com/photo-1628840042765-356cda07504e?auto=format&fit=crop&w=800&q=80',
-    sizes: [{ id: 'sz-m', name: 'Orta Boy', priceOffset: 0 }, { id: 'sz-j', name: 'Büyük Boy (Jumbo)', priceOffset: 70 }],
-    ingredients: ['Mozarella/Kaşar', 'Sucuk', 'Mantar', 'Biber', 'Mısır', 'Zeytin'], extras: []
-  },
-  {
-    id: 'piz-c2', category: 'pizza', title: 'Etobur (Meat-Lovers) Pizza', description: 'Mozarella/kaşar, sucuk, salam, sosis.', basePrice: 260,
-    image: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=800&q=80',
-    sizes: [{ id: 'sz-m', name: 'Orta Boy', priceOffset: 0 }, { id: 'sz-j', name: 'Büyük Boy (Jumbo)', priceOffset: 70 }],
-    ingredients: ['Mozarella/Kaşar', 'Sucuk', 'Salam', 'Sosis'], extras: []
-  },
-  {
-    id: 'piz-c3', category: 'pizza', title: 'Vejetaryen (Vegetarian) Pizza', description: 'Mozarella/kaşar, mantar, biber, mısır, zeytin.', basePrice: 260,
-    image: 'https://images.unsplash.com/photo-1593560708920-61dd98c46a4e?auto=format&fit=crop&w=800&q=80',
-    sizes: [{ id: 'sz-m', name: 'Orta Boy', priceOffset: 0 }, { id: 'sz-j', name: 'Büyük Boy (Jumbo)', priceOffset: 70 }],
-    ingredients: ['Mozarella/Kaşar', 'Mantar', 'Biber', 'Mısır', 'Zeytin'], extras: []
-  },
-  {
-    id: 'piz-c4', category: 'pizza', title: 'Fungi (Mantar) Pizza', description: 'Mozarella/kaşar, bol mantar, mısır, kekik.', basePrice: 260,
-    image: 'https://images.unsplash.com/photo-1541745537411-b8046dc6d66c?auto=format&fit=crop&w=800&q=80',
-    sizes: [{ id: 'sz-m', name: 'Orta Boy', priceOffset: 0 }, { id: 'sz-j', name: 'Büyük Boy (Jumbo)', priceOffset: 80 }],
-    ingredients: ['Mozarella/Kaşar', 'Bol Mantar', 'Mısır', 'Kekik'], extras: []
-  },
-  {
-    id: 'piz-c5', category: 'pizza', title: 'Bol Karışık (Mixed Meat)', description: 'Mozarella/kaşar, salam, sosis, sucuk, biber, mısır, zeytin.', basePrice: 270,
-    image: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?auto=format&fit=crop&w=800&q=80',
-    sizes: [{ id: 'sz-m', name: 'Orta Boy', priceOffset: 0 }, { id: 'sz-j', name: 'Büyük Boy (Jumbo)', priceOffset: 70 }],
-    ingredients: ['Mozarella/Kaşar', 'Salam', 'Sosis', 'Sucuk', 'Biber', 'Mısır', 'Zeytin'], extras: []
-  },
-  {
-    id: 'piz-c6', category: 'pizza', title: 'Margarita Pizza', description: 'Mozarella/kaşar, domates.', basePrice: 260,
-    image: 'https://images.unsplash.com/photo-1574071318508-1cdbab80d002?auto=format&fit=crop&w=800&q=80',
-    sizes: [{ id: 'sz-m', name: 'Orta Boy', priceOffset: 0 }, { id: 'sz-j', name: 'Büyük Boy (Jumbo)', priceOffset: 70 }],
-    ingredients: ['Mozarella/Kaşar', 'Domates'], extras: []
-  },
-
-  // --- SPECIAL & PREMIUM PİZZALAR ---
-  {
-    id: 'piz-s1', category: 'pizza', title: 'Evreka Special Deluxe', description: 'Kaşar, mozarella, sucuk, pastırma, biber, mısır, zeytin, mantar, cheddar peyniri.', basePrice: 330,
-    image: 'https://images.unsplash.com/photo-1534308983496-4fabb1a015ee?auto=format&fit=crop&w=800&q=80',
-    sizes: [{ id: 'sz-m', name: 'Orta Boy', priceOffset: 0 }, { id: 'sz-j', name: 'Büyük Boy (Jumbo)', priceOffset: 70 }],
-    ingredients: ['Kaşar', 'Mozarella', 'Sucuk', 'Pastırma', 'Biber', 'Mısır', 'Zeytin', 'Mantar', 'Cheddar'], extras: []
-  },
-  {
-    id: 'piz-s2', category: 'pizza', title: 'Kavurmalı - Sultan Roast', description: 'Mozarella/kaşar, dana kavurma, biber.', basePrice: 320,
-    image: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=800&q=80',
-    sizes: [{ id: 'sz-m', name: 'Orta Boy', priceOffset: 0 }, { id: 'sz-j', name: 'Büyük Boy (Jumbo)', priceOffset: 70 }],
-    ingredients: ['Mozarella/Kaşar', 'Dana Kavurma', 'Biber'], extras: []
-  },
-  {
-    id: 'piz-s3', category: 'pizza', title: 'Pastırmalı - Pastırma Signatura', description: 'Mozarella/kaşar, dana pastırma, biber.', basePrice: 320,
-    image: 'https://images.unsplash.com/photo-1628840042765-356cda07504e?auto=format&fit=crop&w=800&q=80',
-    sizes: [{ id: 'sz-m', name: 'Orta Boy', priceOffset: 0 }, { id: 'sz-j', name: 'Büyük Boy (Jumbo)', priceOffset: 70 }],
-    ingredients: ['Mozarella/Kaşar', 'Dana Pastırma', 'Biber'], extras: []
-  },
-  {
-    id: 'piz-s4', category: 'pizza', title: 'Dönerli Pizza - Döner Kebap Signatura', description: 'Özel sos, mozarella/kaşar, et döner, biber.', basePrice: 320,
-    image: 'https://images.unsplash.com/photo-1593560708920-61dd98c46a4e?auto=format&fit=crop&w=800&q=80',
-    sizes: [{ id: 'sz-m', name: 'Orta Boy', priceOffset: 0 }, { id: 'sz-j', name: 'Büyük Boy (Jumbo)', priceOffset: 70 }],
-    ingredients: ['Özel Sos', 'Mozarella/Kaşar', 'Et Döner', 'Biber'], extras: []
-  },
-  {
-    id: 'piz-s5', category: 'pizza', title: 'Ton Balıklı - Tuna Signatura', description: 'Mozarella/kaşar, ton balığı, mısır, soğan.', basePrice: 310,
-    image: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?auto=format&fit=crop&w=800&q=80',
-    sizes: [{ id: 'sz-m', name: 'Orta Boy', priceOffset: 0 }, { id: 'sz-j', name: 'Büyük Boy (Jumbo)', priceOffset: 70 }],
-    ingredients: ['Mozarella/Kaşar', 'Ton Balığı', 'Mısır', 'Soğan'], extras: []
-  },
-  {
-    id: 'piz-s6', category: 'pizza', title: 'Dört Peynirli - Quattro Formaggi', description: 'Mozarella/kaşar, cheddar peyniri, küflü peynir, üçgen peynir.', basePrice: 310,
-    image: 'https://images.unsplash.com/photo-1574071318508-1cdbab80d002?auto=format&fit=crop&w=800&q=80',
-    sizes: [{ id: 'sz-m', name: 'Orta Boy', priceOffset: 0 }, { id: 'sz-j', name: 'Büyük Boy (Jumbo)', priceOffset: 70 }],
-    ingredients: ['Mozarella/Kaşar', 'Cheddar', 'Küflü Peynir', 'Üçgen Peynir'], extras: []
-  },
-
-  // --- BURGERLER ---
-  {
-    id: 'burg-01', category: 'burger', title: 'Hamburger (Classic)', description: 'Susamlı ekmek, 100gr dana köfte, domates, marul, turşu, karamelize soğan, özel sos.', basePrice: 260,
-    image: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=800&q=80',
-    sizes: [], ingredients: ['Dana Köfte', 'Domates', 'Marul', 'Turşu', 'Karamelize Soğan', 'Özel Sos'], extras: []
-  },
-  {
-    id: 'burg-02', category: 'burger', title: 'Cheeseburger', description: 'Susamlı ekmek, 100gr dana köfte, cheddar, domates, marul, turşu, özel sos.', basePrice: 280,
-    image: 'https://images.unsplash.com/photo-1572802419224-296b0aeee0d9?auto=format&fit=crop&w=800&q=80',
-    sizes: [], ingredients: ['Dana Köfte', 'Cheddar', 'Domates', 'Marul', 'Turşu', 'Özel Sos'], extras: []
-  },
-  {
-    id: 'burg-03', category: 'burger', title: 'Double Burger', description: 'Susamlı ekmek, 2 x 100gr dana köfte, cheddar, domates, marul, turşu, özel sos.', basePrice: 350,
-    image: 'https://images.unsplash.com/photo-1550547660-d9450f859349?auto=format&fit=crop&w=800&q=80',
-    sizes: [], ingredients: ['2x Dana Köfte', 'Cheddar', 'Domates', 'Marul', 'Turşu', 'Özel Sos'], extras: []
-  },
-  {
-    id: 'burg-04', category: 'burger', title: 'Evreka Special (Signature Burger)', description: '2x Köfte, pastırma ve sucuk, cheddar peyniri, karamelize soğan, domates, özel sos.', basePrice: 390,
-    image: 'https://images.unsplash.com/photo-1586190848861-99aa4a171e90?auto=format&fit=crop&w=800&q=80',
-    sizes: [], ingredients: ['2x Dana Köfte', 'Pastırma', 'Sucuk', 'Cheddar', 'Karamelize Soğan', 'Özel Sos'], extras: []
-  },
-  {
-    id: 'burg-05', category: 'burger', title: 'Mexican Fire Burger', description: 'Dana köfte, cheddar peyniri, domates, jalapeno biber, acı sos.', basePrice: 300,
-    image: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=800&q=80',
-    sizes: [], ingredients: ['Dana Köfte', 'Cheddar', 'Jalapeno', 'Acı Sos'], extras: []
-  },
-  {
-    id: 'burg-06', category: 'burger', title: 'Crispy Chicken Burger', description: 'Çıtır tavuk eti, domates, marul, özel sos.', basePrice: 220,
-    image: 'https://images.unsplash.com/photo-1625813506062-0aeb1d7a094b?auto=format&fit=crop&w=800&q=80',
-    sizes: [], ingredients: ['Çıtır Tavuk', 'Domates', 'Marul', 'Özel Sos'], extras: []
-  },
-
-  // --- SALATALAR & DÜNYA MUTFAĞI ---
-  {
-    id: 'sal-01', category: 'salad', title: 'Tavuk Göbek Salata', description: 'Marul, kornişon turşu, mısır, tavuk parçaları, mayonez, yoğurt.', basePrice: 200,
-    image: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=800&q=80',
-    sizes: [], ingredients: ['Marul', 'Kornişon Turşu', 'Mısır', 'Tavuk Parçaları', 'Mayonez', 'Yoğurt'], extras: []
-  },
-  {
-    id: 'sal-02', category: 'salad', title: 'Tonno Salata', description: 'Marul, soğan, maydanoz, çeri domates, kapya biber, ton balığı, limon suyu.', basePrice: 200,
-    image: 'https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=800&q=80',
-    sizes: [], ingredients: ['Marul', 'Soğan', 'Maydanoz', 'Ton Balığı', 'Limon Suyu'], extras: []
-  },
-  {
-    id: 'sal-03', category: 'salad', title: 'Kapsalon (Dünya Mutfağı)', description: 'Patates kızartması, döner, kaşar, yeşillik, domates, özel sos.', basePrice: 300,
-    image: 'https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=800&q=80',
-    sizes: [], ingredients: ['Patates Kızartması', 'Döner', 'Kaşar', 'Yeşillik', 'Özel Sos'], extras: []
-  },
-
-  // --- ATIŞTIRMALIKLAR ---
-  {
-    id: 'sd-01', category: 'side', title: 'Patates Cips', description: 'Çıtır baharatlı patates kızartması.', basePrice: 100,
-    image: 'https://images.unsplash.com/photo-1576107232684-1279f3908594?auto=format&fit=crop&w=800&q=80',
-    sizes: [], ingredients: ['Patates', 'Baharat'], extras: []
-  },
-  {
-    id: 'sd-02', category: 'side', title: "6'lı Soğan Halkası", description: 'Çıtır kaplamalı soğan halkaları.', basePrice: 90,
-    image: 'https://images.unsplash.com/photo-1639024471283-03518883512d?auto=format&fit=crop&w=800&q=80',
-    sizes: [], ingredients: ['Soğan Halkası'], extras: []
-  },
-  {
-    id: 'sd-03', category: 'side', title: "6'lı Tavuk Nugget", description: 'Lezzetli çıtır tavuk nugget.', basePrice: 100,
-    image: 'https://images.unsplash.com/photo-1562967914-608f82629710?auto=format&fit=crop&w=800&q=80',
-    sizes: [], ingredients: ['Tavuk Nugget'], extras: []
-  },
-  {
-    id: 'sd-04', category: 'side', title: "4'lü Patates Kroket", description: 'Çıtır patates kroket.', basePrice: 90,
-    image: 'https://images.unsplash.com/photo-1576107232684-1279f3908594?auto=format&fit=crop&w=800&q=80',
-    sizes: [], ingredients: ['Patates Kroket'], extras: []
-  },
-
-  // --- İÇECEKLER ---
-  {
-    id: 'bev-01', category: 'beverage', title: 'Coca-Cola Kutu (330ml)', description: 'Buz gibi soğuk meşrubat.', basePrice: 70,
-    image: 'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?auto=format&fit=crop&w=800&q=80',
-    sizes: [], ingredients: ['Kutu İçecek'], extras: []
-  },
-  {
-    id: 'bev-02', category: 'beverage', title: 'Fanta Kutu (330ml)', description: 'Portakal aromalı gazlı içecek.', basePrice: 70,
-    image: 'https://images.unsplash.com/photo-1624552184280-9e9632bbeee9?auto=format&fit=crop&w=800&q=80',
-    sizes: [], ingredients: ['Kutu İçecek'], extras: []
-  },
-  {
-    id: 'bev-03', category: 'beverage', title: 'Ayran', description: 'Köpüklü yayık ayranı.', basePrice: 40,
-    image: 'https://images.unsplash.com/photo-1541658016709-82535e94bc69?auto=format&fit=crop&w=800&q=80',
-    sizes: [], ingredients: ['Ayran'], extras: []
-  },
-  {
-    id: 'bev-04', category: 'beverage', title: 'Su (0.5L)', description: 'Doğal kaynak suyu.', basePrice: 25,
-    image: 'https://images.unsplash.com/photo-1548839140-29a749e1cf4d?auto=format&fit=crop&w=800&q=80',
-    sizes: [], ingredients: ['Su'], extras: []
-  },
-
-  // --- TATLILAR ---
-  {
-    id: 'des-01', category: 'dessert', title: 'Sıcak Çikolatalı Waffle', description: 'Özel Belçika çikolatası ve taze meyvelerle.', basePrice: 150,
-    image: 'https://images.unsplash.com/photo-1562376552-0d160a2f238d?auto=format&fit=crop&w=800&q=80',
-    sizes: [], ingredients: ['Waffle Hamuru', 'Çikolata', 'Meyveler'], extras: []
-  },
-  {
-    id: 'des-02', category: 'dessert', title: 'Çikolatalı Pizza (Tatlı)', description: 'Fırından yeni çıkmış sıcak çikolatalı tatlı pizza.', basePrice: 250,
-    image: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=800&q=80',
-    sizes: [], ingredients: ['Pizza Tabanı', 'Çikolata'], extras: []
-  },
-  {
-    id: 'des-03', category: 'dessert', title: 'Cup Tiramisu', description: 'Özel İtalyan usulü tiramisu.', basePrice: 250,
-    image: 'https://images.unsplash.com/photo-1571877227200-a0d98ea607e9?auto=format&fit=crop&w=800&q=80',
-    sizes: [], ingredients: ['Labne', 'Kedi Dili', 'Kahve'], extras: []
-  },
-  {
-    id: 'des-04', category: 'dessert', title: 'Sütlaç', description: 'Geleneksel fırın sütlaç.', basePrice: 150,
-    image: 'https://images.unsplash.com/photo-1541781774459-bb2af2f05b55?auto=format&fit=crop&w=800&q=80',
-    sizes: [], ingredients: ['Süt', 'Pirinç', 'Şeker'], extras: []
-  },
-  {
-    id: 'des-05', category: 'dessert', title: 'Cheesecake Çeşitleri', description: 'Günlük taze cheesecake.', basePrice: 150,
-    image: 'https://images.unsplash.com/photo-1533134242443-d4fd215305ad?auto=format&fit=crop&w=800&q=80',
-    sizes: [], ingredients: ['Labne', 'Bisküvi Tabanı'], extras: []
+// Dosyadan siparişleri okuma fonksiyonu
+function getOrders() {
+  try {
+    if (!fs.existsSync(ORDERS_FILE)) {
+      fs.writeFileSync(ORDERS_FILE, JSON.stringify([], null, 2));
+      return [];
+    }
+    const data = fs.readFileSync(ORDERS_FILE, 'utf8');
+    return JSON.parse(data);
+  } catch (err) {
+    console.error('Siparişler okunurken hata oluştu:', err);
+    return [];
   }
-];
+}
 
-// Kimlik Doğrulama API
+// Dosyaya siparişleri kaydetme fonksiyonu
+function saveOrders(orders) {
+  try {
+    fs.writeFileSync(ORDERS_FILE, JSON.stringify(orders, null, 2));
+  } catch (err) {
+    console.error('Siparişler kaydedilirken hata oluştu:', err);
+  }
+}
+
+let nextOrderId = 1001;
+const existingOrders = getOrders();
+if (existingOrders.length > 0) {
+  const maxId = Math.max(...existingOrders.map(o => Number(o.id) || 1000));
+  if (maxId >= nextOrderId) {
+    nextOrderId = maxId + 1;
+  }
+}
+
+// Komple Menü Veritabanı
+const menu = {
+  classicPizzas: [
+    { id: 'c1', name: 'Pepperoni', description: 'Mozzarella, kaşar, sucuk, mantar, biber, mısır, zeytin', prices: { medium: 260, jumbo: 330 } },
+    { id: 'c2', name: 'Etobur (Meat-Lovers)', description: 'Mozzarella, kaşar, sucuk, salam, sosis', prices: { medium: 260, jumbo: 330 } },
+    { id: 'c3', name: 'Vejetaryen (Vegetarian)', description: 'Mozzarella, kaşar, mantar, biber, mısır, zeytin', prices: { medium: 260, jumbo: 330 } },
+    { id: 'c4', name: 'Fungi (Mantar)', description: 'Mozzarella, kaşar, bol mantar, mısır, kekik', prices: { medium: 260, jumbo: 330 } },
+    { id: 'c5', name: 'Bol Karışık (Mixed Meat)', description: 'Mozzarella, kaşar, salam, sosis, sucuk, biber, mısır, zeytin', prices: { medium: 270, jumbo: 340 } },
+    { id: 'c6', name: 'Margarita (Margherita)', description: 'Mozzarella, kaşar, domates', prices: { medium: 260, jumbo: 330 } }
+  ],
+  specialPremiumPizzas: [
+    { id: 'p1', name: 'Evreka İmza Dilimler (Signature Slices)', description: 'Kavurmalı-dana sucuklu, et dönerli-tavuklu veya tercih edilen 4 farklı dilim', prices: { medium: 350, jumbo: 420 } },
+    { id: 'p2', name: 'Evreka Special Deluxe', description: 'Kaşar, mozzarella, sucuk, pastırma, biber, mısır, zeytin, mantar, cheddar peyniri', prices: { medium: 330, jumbo: 400 } },
+    { id: 'p3', name: 'Kavurmalı - Sultan Roast', description: 'Mozzarella, kaşar, dana kavurma, biber', prices: { medium: 320, jumbo: 390 } },
+    { id: 'p4', name: 'Dana Sucuklu - Smoked Beef Signatura', description: 'Mozzarella, kaşar, dana sucuk', prices: { medium: 320, jumbo: 390 } },
+    { id: 'p5', name: 'Mexican - Mexican Fire Signature', description: 'Mozzarella, kaşar, sucuk, jalapeño biber, mısır', prices: { medium: 330, jumbo: 400 } },
+    { id: 'p6', name: 'Pastırmalı - Pastırma Signatura', description: 'Mozzarella, kaşar, dana pastırma, biber', prices: { medium: 320, jumbo: 390 } },
+    { id: 'p7', name: 'Dönerli Pizza - Döner Kebap Signatura', description: 'Özel sos, mozzarella, kaşar, et döner, biber', prices: { medium: 320, jumbo: 390 } },
+    { id: 'p8', name: 'Ton Balıklı - Tuna Signatura', description: 'Mozzarella, kaşar, ton balığı, mısır, soğan', prices: { medium: 310, jumbo: 380 } },
+    { id: 'p9', name: 'Tavuklu - Chicken Royale', description: 'Mozzarella, kaşar, tavuk parçaları, biber, mısır', prices: { medium: 310, jumbo: 380 } },
+    { id: 'p10', name: 'Evreka Közlüce - Köz Signatura', description: 'Mozzarella, kaşar, köz biber, köz patlıcan, biber', prices: { medium: 300, jumbo: 370 } },
+    { id: 'p11', name: 'Küflü Peynirli - Blue Cheese Pizza', description: 'Mozzarella, kaşar, küflü peynir, mantar, biber', prices: { medium: 290, jumbo: 360 } },
+    { id: 'p12', name: 'Dört Peynirli - Quattro Formaggi', description: 'Mozzarella, kaşar, cheddar peyniri, üçgen peynir', prices: { medium: 310, jumbo: 380 } },
+    { id: 'p13', name: 'Akdeniz Pizza', description: 'Çeri domates, biber, beyaz peynir, zeytin', prices: { medium: 300, jumbo: 370 } },
+    { id: 'p14', name: 'Calzone - Folded Italian Pizza', description: 'Tercihe göre sebzeli, 3 peynirli veya etli üzeri susamlı ve yumurta sarılı kapalı pizza', prices: { medium: 320, jumbo: 390 } },
+    { id: 'p15', name: 'Hot Honey Pizza (Acı - Tatlı)', description: 'Mozzarella, sucuk, sıcak acı bal sos', prices: { medium: 320, jumbo: 390 } }
+  ],
+  burgers: [
+    { id: 'b1', name: 'Hamburger (Classic)', price: 260, description: 'Susamlı burger ekmeği, 100gr dana izgara köfte, domates, marul, turşu, karamelize soğan, özel sos' },
+    { id: 'b2', name: 'Cheeseburger', price: 280, description: 'Susamlı burger ekmeği, 100gr dana izgara köfte, domates, marul, turşu, cheddar peyniri, karamelize soğan, özel sos' },
+    { id: 'b3', name: 'Double Burger', price: 350, description: 'Susamlı burger ekmeği, 2 x 100gr dana izgara köfte, cheddar peyniri, domates, marul, turşu, karamelize soğan, özel sos' },
+    { id: 'b4', name: 'Evreka Special (Signature Burger)', price: 390, description: 'Susamlı burger ekmeği, 100gr dana izgara köfte, pastırma ve sucuk, cheddar peyniri, karamelize soğan, domates, özel sos' },
+    { id: 'b5', name: 'Mexican Fire Burger', price: 300, description: 'Susamlı burger ekmeği, 100gr dana izgara köfte, cheddar peyniri, domates, jalapeño biber, acı sos' },
+    { id: 'b6', name: 'Truffle Deluxe Burger', price: 300, description: 'Susamlı burger ekmeği, 100gr dana izgara köfte, mantar, truffle mayo, cheddar peyniri, turşu, özel sos' },
+    { id: 'b7', name: 'Crispy Chicken Burger (Tavuk Burger)', price: 220, description: 'Susamlı burger ekmeği, çıtır tavuk eti, domates, marul, özel sos' },
+    { id: 'b8', name: 'Evreka Double Kapalı Burger', price: 350, description: 'Evreka hamur, cheddar peyniri, karamelize soğan ve 2 adet dana köfte, turşu, burger sos, hamur üzeri susam ve yumurta sarısı' }
+  ],
+  salads: [
+    { id: 's1', name: 'Tavuk Göbek Salata', price: 200, description: 'Marul, kornişon turşu, mısır, tavuk parçaları, mayonez, yoğurt' },
+    { id: 's2', name: 'Tonno Salata', price: 200, description: 'Marul, soğan, maydanoz, çeri domates, kapya biber, mısır, ton balığı salatalık, limon suyu' },
+    { id: 's3', name: 'Mevsim Salata', price: 150, description: 'Mevsimine göre taze yeşillikler' }
+  ],
+  worldCuisine: [
+    { id: 'w1', name: 'Kapsalon', price: 300, description: 'Patates kızartma, döner, kaşar, yeşillik, domates, sos' }
+  ],
+  desserts: [
+    { id: 'd1', name: 'Waffle', price: 150 },
+    { id: 'd2', name: 'Çikolatalı Pizza', price: 250 },
+    { id: 'd3', name: 'Cup Tiramisu', price: 150 },
+    { id: 'd4', name: 'Cup Magnolia', price: 150 },
+    { id: 'd5', name: 'Sütlaç', price: 150 },
+    { id: 'd6', name: 'Dondurma', price: 150 },
+    { id: 'd7', name: 'Cheesecake Çeşitleri', price: 150 },
+    { id: 'd8', name: 'Brownie', price: 150 },
+    { id: 'd9', name: 'Ekmek Kadayıfı + Üzeri Top Dondurma', price: 150 },
+    { id: 'd10', name: '2 Dilim Baklava + Üzeri Top Dondurma', price: 150 }
+  ],
+  coffeeAndHotDrinks: [
+    { id: 'cf1', name: 'Americano', price: 100 },
+    { id: 'cf2', name: 'Espresso', price: 100 },
+    { id: 'cf3', name: 'Nescafe', price: 100 },
+    { id: 'cf4', name: 'Cappuccino', price: 100 },
+    { id: 'cf5', name: 'Macchiato', price: 100 },
+    { id: 'cf6', name: 'Latte', price: 100 },
+    { id: 'cf7', name: 'Filtre Kahve', price: 100 },
+    { id: 'cf8', name: 'Bitki Çayı', price: 100 },
+    { id: 'cf9', name: 'Çay', price: 25 },
+    { id: 'cf10', name: 'Türk Kahvesi', price: 80 }
+  ],
+  coldDrinks: [
+    { id: 'cd1', name: 'ColaTurka / Sarıyer (200ml şişe)', price: 70 },
+    { id: 'cd2', name: 'ColaTurka / Sarıyer (330ml kutu)', price: 90 },
+    { id: 'cd3', name: 'ColaTurka / Sarıyer (1Lt)', price: 110 },
+    { id: 'cd4', name: 'Pepsi (200ml şişe)', price: 70 },
+    { id: 'cd5', name: 'Pepsi (330ml kutu)', price: 90 },
+    { id: 'cd6', name: 'Pepsi (1Lt)', price: 110 },
+    { id: 'cd7', name: 'Coca-Cola (200ml şişe)', price: 70 },
+    { id: 'cd8', name: 'Coca-Cola (330ml kutu)', price: 90 },
+    { id: 'cd9', name: 'Coca-Cola (1Lt)', price: 110 },
+    { id: 'cd10', name: 'Fanta (200ml şişe)', price: 70 },
+    { id: 'cd11', name: 'Fanta (330ml kutu)', price: 90 },
+    { id: 'cd12', name: 'Fanta (1Lt)', price: 110 },
+    { id: 'cd13', name: 'Soğuk Çay Çeşitleri (330ml kutu)', price: 90 },
+    { id: 'cd14', name: 'Juss-Tea Çeşitleri (250ml kutu)', price: 70 },
+    { id: 'cd15', name: 'Meyve Suyu Çeşitleri (330ml kutu)', price: 90 },
+    { id: 'cd16', name: 'Sprite Kutu', price: 90 },
+    { id: 'cd17', name: 'Sprite Şişe', price: 70 },
+    { id: 'cd18', name: 'Meyveli Soda Çeşitleri', price: 60 },
+    { id: 'cd19', name: 'Sade Soda Şişe', price: 50 },
+    { id: 'cd20', name: 'Gazoz', price: 65 },
+    { id: 'cd21', name: 'Çocuk Meyve Suyu (200ml)', price: 30 },
+    { id: 'cd22', name: 'Çocuk Meyve Suyu Capri-Sun', price: 50 },
+    { id: 'cd23', name: 'Enerji İçeceği', price: 100 },
+    { id: 'cd24', name: 'Şalgam Suyu', price: 60 },
+    { id: 'cd25', name: 'Ayran', price: 40 },
+    { id: 'cd26', name: 'Su 0.5Lt', price: 25 },
+    { id: 'cd27', name: 'Soğuk Kahve Çeşitleri', price: 110 }
+  ],
+  snacks: [
+    { id: 'sn1', name: 'Patates Cips', price: 100 },
+    { id: 'sn2', name: 'Elma Dilim Patates', price: 110 },
+    { id: 'sn3', name: '6\'lı Tavuk Nugget', price: 100 },
+    { id: 'sn4', name: '6\'lı Tavuk Topları', price: 90 },
+    { id: 'sn5', name: '6\'lı Soğan Halkası', price: 90 },
+    { id: 'sn6', name: '3\'lü Çıtır Tavuk', price: 90 },
+    { id: 'sn7', name: '4\'lü Patates Kroket', price: 90 },
+    { id: 'sn8', name: 'Schnitzel', price: 90 }
+  ],
+  extraMenus: [
+    { id: 'em1', name: 'Sınırsız Menü (Evreka Unlimited)', price: 549, description: 'Sınırsız pizza + sınırsız cips + ilk 200 ml şişe içecek bizden' },
+    { id: 'em2', name: 'Avantaj Menü 1 (Power Combo)', price: 599, description: '2 adet orta boy klasik pizza veya burger + çıtır chicken veya klasik + 1 litre içecek' },
+    { id: 'em3', name: 'Fantastik 4\'lü Menü (Party Box)', price: 880, description: '3 adet klasik orta boy pizza + 1 litre içecek' },
+    { id: 'em4', name: 'Muhteşem 5\'li (Mega Feast)', price: 890, description: '3 adet orta boy klasik pizza + patates cips + 1 litre içecek' },
+    { id: 'em5', name: 'Kanka Menü (Duo Menu)', price: 700, description: '2 adet büyük boy klasik pizza + 1 litre içecek' },
+    { id: 'em6', name: 'Evreka Aile Menüsü (Evreka Family Feast)', price: 799, description: '2 adet büyük boy klasik pizza + patates cips + 8\'li soğan halkası + 1 litre içecek' },
+    { id: 'em7', name: 'Evreka Sokak Lezzetleri (Street Menu)', prices: { klasikRoll: 320, specialRoll: 380, klasikPatso: 150, specialPatso: 200 } }
+  ],
+  kidsMenus: [
+    { id: 'km1', name: 'Pizza Çocuk Menüsü (Kids Pizza Meal)', price: 340, description: '2 dilim sucuklu klasik pizza + patates cips + 2 adet soğan halkası + sürpriz yumurta veya çikolata + meyve suyu' },
+    { id: 'km2', name: 'Burger Çocuk Menüsü (Kids Burger Meal)', price: 340, description: '1 adet chicken veya hamburger + patates cips + 2 adet soğan halkası + sürpriz yumurta veya çikolata + meyve suyu' }
+  ],
+  snackBoxes: [
+    { id: 'sb1', name: 'Evreka Eko Menü', price: 330, description: '1 adet schnitzel + patates cips (kajun baharatlı) + 1 adet nugget + 4 adet soğan halkası + 1 çıtır tavuk + 2 adet nugget + 4 adet soğan halkası + 2 adet çıtır tavuk + ranch sos + pizza baharatı + şişe içecek' },
+    { id: 'sb2', name: 'Evreka Premium Menü', price: 600, description: '2 adet schnitzel + patates cips + 4 adet nugget + 4 adet soğan halkası + çıtır tavuk + şişe içecek' }
+  ],
+  loveMenuAndBreakfast: [
+    { id: 'lm1', name: 'Evreka Kahvaltı', price: 500 },
+    { id: 'lm2', name: 'Yumurtalı Sucuklu Pizza Menü', price: 400, description: 'Kaşar peynir + sucuk + yumurta + cips + şişe içecek + çay' },
+    { id: 'lm3', name: 'Bol Peynirli Pizza Menü', price: 400, description: 'Kaşar peynir + eriyen peynir çeşitleri + cips + domates + yeşillik + çay' }
+  ]
+};
+
+// Admin / Garson Giriş API
 app.post('/api/auth/login', (req, res) => {
-  const { username, password } = req.body;
-  if (username === 'evrekapizza' && password === '12345') {
-    res.json({ success: true });
+  const { password } = req.body;
+  if (password === '1234' || password === 'admin') {
+    res.json({ success: true, message: 'Giriş başarılı' });
   } else {
-    res.status(401).json({ success: false, error: 'Kullanıcı adı veya şifre hatalı!' });
+    res.status(401).json({ success: false, error: 'Geçersiz Şifre!' });
   }
 });
 
-// Sipariş Yönetimi API'leri
-app.get('/api/orders', (req, res) => res.json({ success: true, orders }));
+// Menüyü Listele API
+app.get('/api/menu', (req, res) => {
+  res.json({ success: true, menu });
+});
 
+// Siparişleri Listele (Kalıcı dosyadan okur)
+app.get('/api/orders', (req, res) => {
+  const orders = getOrders();
+  res.json({ success: true, orders });
+});
+
+// Yeni Sipariş Oluştur (Kalıcı dosyaya yazar)
 app.post('/api/orders', (req, res) => {
   const { tableName, items, totalPrice } = req.body;
-  const newOrder = { id: nextOrderId++, tableName, items, totalPrice, status: 'WAITING', createdAt: new Date().toISOString() };
+  if (!tableName || !items || items.length === 0) {
+    return res.status(400).json({ success: false, error: 'Eksik sipariş bilgisi' });
+  }
+
+  const orders = getOrders();
+  const newOrder = {
+    id: nextOrderId++,
+    tableName,
+    items,
+    totalPrice,
+    status: 'WAITING',
+    createdAt: new Date().toISOString()
+  };
+
   orders.push(newOrder);
+  saveOrders(orders);
   res.json({ success: true, order: newOrder });
 });
 
-// Merkezi Durum Güncelleme Rotası (WAITING -> PREPARING -> SERVED -> PAID / CANCELLED)
+// Siparişi Onayla (Mutfağa Gönder - Onaylayan ve Zaman Damgası ile Kalıcı Kayıt)
+app.patch('/api/orders/:id/approve', (req, res) => {
+  const { id } = req.params;
+  const { approvedBy } = req.body; // Hangi garson/admin onayladıysa
+  const orders = getOrders();
+  const order = orders.find(o => String(o.id) === String(id));
+  
+  if (!order) return res.status(404).json({ success: false, error: 'Sipariş bulunamadı' });
+  
+  order.status = 'PREPARING';
+  if (approvedBy) {
+    order.approvedBy = approvedBy;
+  }
+  order.approvedAt = new Date().toISOString();
+  
+  saveOrders(orders);
+  res.json({ success: true, order });
+});
+
+// Sipariş Durumunu Güncelle
 app.patch('/api/orders/:id/status', (req, res) => {
-  const { status } = req.body;
-  const o = orders.find(x => String(x.id) === String(req.params.id));
-  if (o) {
-    o.status = status;
-    res.json({ success: true, order: o });
-  } else {
-    res.status(404).json({ success: false, error: 'Sipariş bulunamadı' });
+  const { id } = req.params;
+  const { status, updatedBy } = req.body;
+  const orders = getOrders();
+  const order = orders.find(o => String(o.id) === String(id));
+  
+  if (!order) return res.status(404).json({ success: false, error: 'Sipariş bulunamadı' });
+  
+  order.status = status;
+  if (updatedBy) {
+    order.updatedBy = updatedBy;
   }
+  order.lastUpdated = new Date().toISOString();
+  
+  saveOrders(orders);
+  res.json({ success: true, order });
 });
 
-// Menü Yönetimi API'leri
-app.get('/api/catalog', (req, res) => res.json({ success: true, catalog }));
-
-app.post('/api/catalog', (req, res) => {
-  const { title, category, basePrice, description, image } = req.body;
-  if (!title || !basePrice) return res.status(400).json({ success: false, error: 'Ürün adı ve fiyat zorunludur' });
-  const newItem = {
-    id: 'prod-' + Date.now(),
-    category: category || 'pizza',
-    title,
-    description: description || '',
-    basePrice: Number(basePrice),
-    image: image || 'https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=800&q=80',
-    sizes: category === 'pizza' ? [{id:'sz-m', name:'Orta Boy', priceOffset:0}, {id:'sz-j', name:'Büyük Boy', priceOffset:70}] : [],
-    ingredients: ['Ana Malzeme'],
-    extras: []
-  };
-  catalog.push(newItem);
-  res.json({ success: true, item: newItem });
-});
-
-app.delete('/api/catalog/:id', (req, res) => {
-  catalog = catalog.filter(item => String(item.id) !== String(req.params.id));
-  res.json({ success: true });
-});
-
-app.patch('/api/catalog/:id/price', (req, res) => {
-  const { basePrice } = req.body;
-  const item = catalog.find(x => String(x.id) === String(req.params.id));
-  if (item) {
-    item.basePrice = Number(basePrice);
-    res.json({ success: true, item });
-  } else {
-    res.status(404).json({ success: false, error: 'Ürün bulunamadı' });
+// Siparişi İptal Et
+app.delete('/api/orders/:id', (req, res) => {
+  const { id } = req.params;
+  const { cancelledBy } = req.body;
+  const orders = getOrders();
+  const order = orders.find(o => String(o.id) === String(id));
+  
+  if (!order) return res.status(404).json({ success: false, error: 'Sipariş bulunamadı' });
+  
+  order.status = 'CANCELLED';
+  if (cancelledBy) {
+    order.cancelledBy = cancelledBy;
   }
+  order.cancelledAt = new Date().toISOString();
+  
+  saveOrders(orders);
+  res.json({ success: true, message: 'Sipariş iptal edildi', order });
 });
 
+// Sayfa Yönlendirmeleri
 app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
 app.get('/admin', (req, res) => res.sendFile(path.join(__dirname, 'admin.html')));
 
-app.listen(PORT, () => console.log(`🚀 Evreka Pizza Sunucusu http://localhost:${PORT} adresinde çalışıyor.`));
+app.listen(PORT, () => {
+  console.log(`🚀 Evreka Pizza Sunucusu http://localhost:${PORT} adresinde çalışıyor.`);
+});
