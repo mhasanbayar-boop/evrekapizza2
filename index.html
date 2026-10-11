@@ -156,8 +156,8 @@
     let selectedSizePrice = 0;
     let selectedSizeName = '';
 
-    // SAYFA YÜKLENİR YÜKLENMEZ BAŞLAT
-    (function initApp() {
+    // SAYFA YÜKLENİR YÜKLENMEZ ÇALIŞACAK ANA FONKSİYON
+    window.addEventListener('DOMContentLoaded', () => {
       const params = new URLSearchParams(window.location.search);
       currentTable = params.get('masa') || params.get('table') || localStorage.getItem('evreka_table') || 'Masa-1';
       localStorage.setItem('evreka_table', currentTable);
@@ -168,7 +168,7 @@
       fetchServerCatalog();
       checkOrders();
       setInterval(checkOrders, 2000);
-    })();
+    });
 
     async function fetchServerCatalog() {
       try {
@@ -204,6 +204,7 @@
       }
       renderProducts(cat);
     }
+    window.filterCat = filterCat;
 
     function renderProducts(cat) {
       const grid = document.getElementById('product-grid');
@@ -234,6 +235,7 @@
         </div>
       `).join('');
     }
+    window.renderProducts = renderProducts;
 
     function openModal(id) {
       activeProduct = catalog.find(p => String(p.id) === String(id));
@@ -267,6 +269,7 @@
       updateModalPrice();
       document.getElementById('modal').classList.remove('hidden');
     }
+    window.openModal = openModal;
 
     function selectSize(price, name, btn) {
       selectedSizePrice = price;
@@ -279,6 +282,7 @@
       }
       updateModalPrice();
     }
+    window.selectSize = selectSize;
 
     function updateModalPrice() {
       if (!activeProduct) return;
@@ -289,6 +293,7 @@
     function closeModal() {
       document.getElementById('modal').classList.add('hidden');
     }
+    window.closeModal = closeModal;
 
     function addToCart() {
       if (!activeProduct) return;
@@ -303,6 +308,7 @@
       closeModal();
       updateCartUI();
     }
+    window.addToCart = addToCart;
 
     function updateCartUI() {
       document.getElementById('cart-count').innerText = cart.length;
@@ -326,22 +332,26 @@
         </div>
       `).join('');
     }
+    window.updateCartUI = updateCartUI;
 
     function removeFromCart(idx) {
       cart.splice(idx, 1);
       updateCartUI();
     }
+    window.removeFromCart = removeFromCart;
 
     function toggleCart() {
       document.getElementById('cart-drawer').classList.toggle('active');
       document.getElementById('cart-overlay').classList.toggle('hidden');
     }
+    window.toggleCart = toggleCart;
 
     function openTracker() {
       document.getElementById('tracker-drawer').classList.toggle('active');
       document.getElementById('tracker-overlay').classList.toggle('hidden');
       renderTrackerOrders();
     }
+    window.openTracker = openTracker;
 
     async function sendOrder() {
       if (cart.length === 0) return;
@@ -380,6 +390,7 @@
         openTracker();
       }
     }
+    window.sendOrder = sendOrder;
 
     function getLocalOrders() {
       const list = localStorage.getItem(`orders_${currentTable}`);
