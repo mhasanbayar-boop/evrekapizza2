@@ -22,9 +22,7 @@
   <header class="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-sm">
     <div class="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between">
       <div class="flex items-center gap-3">
-        <div class="w-10 h-10 rounded-2xl bg-red-600 flex items-center justify-center text-white text-xl shadow-md">
-          🍕
-        </div>
+        <div class="w-10 h-10 rounded-2xl bg-red-600 flex items-center justify-center text-white text-xl shadow-md">🍕</div>
         <div>
           <h1 class="font-black text-base text-slate-900 leading-none">EVREKA PİZZA</h1>
           <p class="text-[11px] text-slate-500 font-semibold mt-0.5">Taş Fırın Lezzetleri</p>
@@ -44,15 +42,12 @@
         <span class="w-2.5 h-2.5 rounded-full bg-amber-500 animate-pulse"></span>
         <span id="tracker-banner-text">Aktif Siparişiniz Var</span>
       </div>
-      <button onclick="openTracker()" class="bg-red-600 text-white text-xs font-bold px-3 py-1.5 rounded-xl shadow">
-        Takip Et ➔
-      </button>
+      <button onclick="openTracker()" class="bg-red-600 text-white text-xs font-bold px-3 py-1.5 rounded-xl shadow">Takip Et ➔</button>
     </div>
   </div>
 
   <!-- ANA İÇERİK -->
   <main class="flex-1 max-w-4xl w-full mx-auto p-4 pb-28 space-y-4">
-    <!-- Banner -->
     <div class="bg-gradient-to-r from-red-600 to-amber-600 rounded-3xl p-6 text-white shadow-lg relative overflow-hidden">
       <h2 class="text-2xl font-black">Geleneksel Taş Fırın</h2>
       <p class="text-xs text-white/90 mt-1">Masadan QR kod ile kolayca sipariş verin.</p>
@@ -102,9 +97,7 @@
         <span class="text-slate-600">Toplam:</span>
         <span id="drawer-total" class="text-red-600 text-xl font-black">0 ₺</span>
       </div>
-      <button onclick="sendOrder()" id="send-btn" class="w-full bg-red-600 hover:bg-red-700 text-white font-black py-3.5 rounded-2xl text-sm shadow-lg">
-        Garsona Siparişi Gönder
-      </button>
+      <button onclick="sendOrder()" id="send-btn" class="w-full bg-red-600 hover:bg-red-700 text-white font-black py-3.5 rounded-2xl text-sm shadow-lg">Garsona Siparişi Gönder</button>
     </div>
   </div>
 
@@ -128,13 +121,11 @@
         <p id="modal-desc" class="text-xs text-slate-500 mt-1"></p>
       </div>
 
-      <!-- BOYUT SEÇİMİ -->
       <div id="modal-sizes-box">
         <label class="block text-xs font-black text-slate-700 uppercase mb-2">Boyut Seçin *</label>
         <div id="modal-sizes" class="grid grid-cols-2 gap-2"></div>
       </div>
 
-      <!-- SERVİS / MENÜ / PAKET (Sadece Pizza ve Burgerlerde Görünür) -->
       <div id="service-options-section" class="hidden">
         <label class="block text-xs font-black text-slate-700 uppercase mb-2">Servis ve Menü Seçenekleri *</label>
         <div class="grid grid-cols-3 gap-2">
@@ -156,7 +147,6 @@
           <div class="text-xs font-bold text-emerald-700 flex items-center gap-1.5">
             <i class="fa-solid fa-circle-check"></i> Zorunlu: Orta Boy Patates Kızartması dahildir.
           </div>
-          <!-- AÇILIR KAPANIR (AKORDİYON) İÇECEK SEÇİCİ -->
           <div class="relative">
             <label class="block text-[11px] font-extrabold text-slate-700 uppercase tracking-wider mb-1">İçecek Seçin *</label>
             <button onclick="toggleDrinkDropdown('menu')" type="button" class="w-full bg-white border border-slate-200 rounded-xl p-2.5 text-left text-xs font-bold text-slate-800 flex items-center justify-between shadow-sm">
@@ -168,13 +158,11 @@
         </div>
       </div>
 
-      <!-- KAMPANYA SEÇENEKLERİ -->
       <div id="campaign-options-section" class="hidden">
         <label class="block text-xs font-black text-slate-700 uppercase mb-2">Kampanya Seçenekleri *</label>
         <div id="modal-campaign-options" class="space-y-3"></div>
       </div>
 
-      <!-- GARSON NOTU -->
       <div>
         <label class="block text-xs font-black text-slate-700 uppercase mb-1">Garson Notu</label>
         <input type="text" id="modal-note" placeholder="Örn: Soslu olsun..." class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs outline-none focus:border-red-500">
@@ -195,15 +183,8 @@
       try { localStorage.setItem(key, val); } catch (e) {}
     }
 
-    // YEDEK KATALOG (Sunucuya ulaşılamazsa veya boş dönerse kullanılır)
-    let catalog = [
-      { id: '1', title: 'Pepperoni Pizza', category: 'pizza', price: 260, description: 'Mozzarella, yoğun sucuk dilimleri, özel domates sosu', image: 'https://images.unsplash.com/photo-1628840042765-356cda07504e?w=500', sizes: [{name: 'Orta Boy', price: 0}, {name: 'Büyük Boy', price: 70}] },
-      { id: '2', title: 'Margherita Pizza', category: 'pizza', price: 240, description: 'Taze mozzarella, fesleğen yaprakları', image: 'https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=500', sizes: [{name: 'Orta Boy', price: 0}, {name: 'Büyük Boy', price: 60}] }
-    ];
-
-    let campaigns = [
-      { id: 'camp_1', title: 'Haftanın Özel Menüsü', description: 'Seçeceğiniz orta boy pizza + kutu içecek sadece 320 ₺!', badge: '%15 İNDİRİM', image: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=500' }
-    ];
+    let catalog = [];
+    let campaigns = [];
 
     let availableMenuDrinks = [
       { name: 'ColaTurka / Sarıyer (200ml Şişe)', extraPrice: 0 },
@@ -233,14 +214,14 @@
     function translateStatus(status) {
       const st = String(status || '').toUpperCase().trim();
       if (st.includes('PREPARING') || st === 'HAZIRLANIYOR') return 'HAZIRLANIYOR';
-      if (st.includes('PENDING') || st.includes('ONAY') || st === 'GARSON ONAYI BEKLİYOR') return 'GARSON ONAYI BEKLİYOR';
+      if (st.includes('PENDING') || st.includes('ONAY') || st === 'GARSON ONAYI BEKLİYOR' || st === 'WAITING') return 'GARSON ONAYI BEKLİYOR';
       if (st.includes('READY') || st === 'HAZIR') return 'HAZIR';
       if (st.includes('SERVED') || st.includes('SERVİS') || st === 'MASAYA SERVİS EDİLDİ') return 'MASAYA SERVİS EDİLDİ';
       if (st.includes('COMPLETED') || st.includes('PAID') || st.includes('ÖDENDİ')) return 'TAMAMLANDI';
       return status || 'GARSON ONAYI BEKLİYOR';
     }
 
-    // SAYFA AÇILDIĞI AN SUNUCUDAN ÜRÜNLERİ ÇEK VE SENKRONİZASYONU BAŞLAT
+    // SAYFA AÇILDIĞI AN SUNUCUDAN KATALOG VE KAMPANYALARI ÇEK
     (async function initApp() {
       try {
         const params = new URLSearchParams(window.location.search);
@@ -249,13 +230,12 @@
         const badge = document.getElementById('table-badge');
         if (badge) badge.innerText = currentTable;
 
-        await loadProductsFromServer();
-        renderCampaigns();
+        await loadServerData();
         checkOrders();
 
-        // Ürünleri ve siparişleri anlık güncellemek için döngü
+        // Her 2 saniyede bir sunucudan güncel menüyü ve siparişleri çek (Anlık Yansıma)
         setInterval(() => {
-          loadProductsFromServer(true); // Arka planda sessizce ürünleri güncelle
+          loadServerData(true);
           checkOrders();
         }, 2000);
 
@@ -269,26 +249,32 @@
         });
       } catch (err) {
         console.error("Init Error:", err);
-        renderProducts('all');
       }
     })();
 
-    // PATRON PANELİNDEKİ DEĞİŞİKLİKLERİ ANINDA ÇEKEN FONKSİYON
-    async function loadProductsFromServer(isSilent = false) {
+    // SERVER_2.JS ENDPOINTLERİNDEN /api/catalog VE /api/campaigns VERİLERİNİ ÇEKME
+    async function loadServerData(isSilent = false) {
       try {
-        const res = await fetch('/api/products'); // Sunucu ürün rotası
-        const data = await res.json();
-        let fetchedProducts = [];
-        if (Array.isArray(data)) fetchedProducts = data;
-        else if (data.products && Array.isArray(data.products)) fetchedProducts = data.products;
-        else if (data.data && Array.isArray(data.data)) fetchedProducts = data.data;
+        const [catRes, campRes] = await Promise.all([
+          fetch('/api/catalog'),
+          fetch('/api/campaigns')
+        ]);
+        
+        const catData = await catRes.json();
+        if (catData.success && Array.isArray(catData.catalog)) {
+          catalog = catData.catalog;
+          const activeCatBtn = document.querySelector('.cat-btn.bg-slate-900');
+          const currentCat = activeCatBtn ? activeCatBtn.getAttribute('onclick')?.match(/'([^']+)'/)?.[1] || 'all' : 'all';
+          renderProducts(currentCat);
+        }
 
-        if (fetchedProducts.length > 0) {
-          catalog = fetchedProducts;
-          renderProducts(document.querySelector('.cat-btn.bg-slate-900')?.getAttribute('onclick')?.match(/'([^']+)'/)?.[1] || 'all');
+        const campData = await campRes.json();
+        if (campData.success && Array.isArray(campData.campaigns)) {
+          campaigns = campData.campaigns;
+          renderCampaigns();
         }
       } catch (e) {
-        if (!isSilent) renderProducts('all');
+        if (!isSilent) console.error("Veri yüklenemedi", e);
       }
     }
 
@@ -442,23 +428,26 @@
         return;
       }
 
-      grid.innerHTML = filtered.map(p => `
-        <div onclick="openModal('${p.id}')" class="bg-white rounded-3xl p-3.5 border border-slate-200 shadow-sm hover:shadow-md transition flex gap-3.5 cursor-pointer">
-          <img src="${p.image || 'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=500'}" class="w-24 h-24 rounded-2xl object-cover flex-shrink-0">
-          <div class="flex-1 flex flex-col justify-between">
-            <div>
-              <h3 class="font-black text-slate-900 text-sm leading-snug">${p.title}</h3>
-              <p class="text-[11px] text-slate-500 mt-1 line-clamp-2">${p.description || ''}</p>
-            </div>
-            <div class="flex items-center justify-between mt-2">
-              <span class="text-xs font-black text-red-600">${p.price} ₺</span>
-              <div class="w-7 h-7 rounded-xl bg-slate-100 text-slate-700 flex items-center justify-center text-xs">
-                <i class="fa-solid fa-plus"></i>
+      grid.innerHTML = filtered.map(p => {
+        const displayPrice = p.basePrice !== undefined ? p.basePrice : p.price;
+        return `
+          <div onclick="openModal('${p.id}')" class="bg-white rounded-3xl p-3.5 border border-slate-200 shadow-sm hover:shadow-md transition flex gap-3.5 cursor-pointer">
+            <img src="${p.image || 'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=300'}" class="w-24 h-24 rounded-2xl object-cover flex-shrink-0">
+            <div class="flex-1 flex flex-col justify-between">
+              <div>
+                <h3 class="font-black text-slate-900 text-sm leading-snug">${p.title}</h3>
+                <p class="text-[11px] text-slate-500 mt-1 line-clamp-2">${p.description || ''}</p>
+              </div>
+              <div class="flex items-center justify-between mt-2">
+                <span class="text-xs font-black text-red-600">${displayPrice} ₺</span>
+                <div class="w-7 h-7 rounded-xl bg-slate-100 text-slate-700 flex items-center justify-center text-xs">
+                  <i class="fa-solid fa-plus"></i>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      `).join('');
+        `;
+      }).join('');
     }
     window.renderProducts = renderProducts;
 
@@ -473,7 +462,7 @@
       selectedServiceType = 'normal';
       selectedMenuDrink = availableMenuDrinks[0];
 
-      document.getElementById('modal-img').src = prod.image || 'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=500';
+      document.getElementById('modal-img').src = prod.image || 'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=300';
       document.getElementById('modal-title').innerText = prod.title;
       document.getElementById('modal-desc').innerText = prod.description || '';
       document.getElementById('modal-note').value = '';
@@ -483,16 +472,28 @@
       const sizesBox = document.getElementById('modal-sizes-box');
       const sizesContainer = document.getElementById('modal-sizes');
 
-      if (prod.sizes && prod.sizes.length > 0) {
+      let prodSizes = prod.sizes;
+      if (!prodSizes && String(prod.category || '').toLowerCase() === 'pizza') {
+        prodSizes = [
+          { name: 'Orta Boy (Medium)', priceOffset: 0 },
+          { name: 'Büyük Boy (Jumbo)', priceOffset: 70 }
+        ];
+      }
+
+      if (prodSizes && prodSizes.length > 0) {
         sizesBox.classList.remove('hidden');
-        selectedSizePrice = prod.sizes[0].price || 0;
-        selectedSizeName = prod.sizes[0].name || '';
-        sizesContainer.innerHTML = prod.sizes.map((sz, idx) => `
-          <button onclick="selectSize(${sz.price || 0}, '${sz.name}', this)" type="button" class="sz-btn p-2.5 rounded-xl border text-left text-xs ${idx === 0 ? 'border-red-600 bg-red-50 text-red-600 font-bold' : 'border-slate-200 text-slate-600'}">
-            <div>${sz.name}</div>
-            <div class="text-[10px] opacity-70">+${sz.price || 0} ₺</div>
-          </button>
-        `).join('');
+        selectedSizePrice = prodSizes[0].priceOffset !== undefined ? prodSizes[0].priceOffset : (prodSizes[0].price || 0);
+        selectedSizeName = prodSizes[0].name || '';
+        sizesContainer.innerHTML = prodSizes.map((sz, idx) => {
+          const pOffset = sz.priceOffset !== undefined ? sz.priceOffset : (sz.price || 0);
+          const szName = sz.name || sz.id;
+          return `
+            <button onclick="selectSize(${pOffset}, '${szName}', this)" type="button" class="sz-btn p-2.5 rounded-xl border text-left text-xs ${idx === 0 ? 'border-red-600 bg-red-50 text-red-600 font-bold' : 'border-slate-200 text-slate-600'}">
+              <div>${szName}</div>
+              <div class="text-[10px] opacity-70">+${pOffset} ₺</div>
+            </button>
+          `;
+        }).join('');
       } else {
         sizesBox.classList.add('hidden');
       }
@@ -587,7 +588,8 @@
         return;
       }
       if (!activeProduct) return;
-      let total = Number(activeProduct.price) + Number(selectedSizePrice);
+      const baseP = activeProduct.basePrice !== undefined ? activeProduct.basePrice : activeProduct.price;
+      let total = Number(baseP) + Number(selectedSizePrice);
 
       const cat = String(activeProduct.category || '').toLowerCase();
       if (cat === 'pizza' || cat === 'burger') {
@@ -631,7 +633,8 @@
 
     function addToCart() {
       if (!activeProduct) return;
-      let unitPrice = Number(activeProduct.price) + Number(selectedSizePrice);
+      const baseP = activeProduct.basePrice !== undefined ? activeProduct.basePrice : activeProduct.price;
+      let unitPrice = Number(baseP) + Number(selectedSizePrice);
       let variantDesc = selectedSizeName ? selectedSizeName : '';
 
       const cat = String(activeProduct.category || '').toLowerCase();
@@ -712,28 +715,39 @@
       btn.disabled = true;
       btn.innerText = "Gönderiliyor...";
 
+      const totalAmount = cart.reduce((sum, i) => sum + i.price, 0);
       const newOrder = {
-        id: Date.now().toString().slice(-6),
-        table: currentTable,
         tableName: currentTable,
         items: [...cart],
-        totalPrice: cart.reduce((sum, i) => sum + i.price, 0),
-        total: cart.reduce((sum, i) => sum + i.price, 0),
-        status: 'GARSON ONAYI BEKLİYOR',
-        time: new Date().toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })
+        totalPrice: totalAmount
       };
 
       try {
-        await fetch('/api/orders', {
+        const res = await fetch('/api/orders', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(newOrder)
         });
-      } catch (e) {} finally {
+        const data = await res.json();
+        if (data.success && data.order) {
+          let orders = getLocalOrders();
+          orders.push(data.order);
+          safeSetItem(`orders_data_${currentTable}`, JSON.stringify(orders));
+        }
+      } catch (e) {
+        // Fallback local
         let orders = getLocalOrders();
-        orders.push(newOrder);
+        const fallbackOrder = {
+          id: Date.now().toString().slice(-6),
+          tableName: currentTable,
+          items: [...cart],
+          totalPrice: totalAmount,
+          status: 'WAITING',
+          createdAt: new Date().toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })
+        };
+        orders.push(fallbackOrder);
         safeSetItem(`orders_data_${currentTable}`, JSON.stringify(orders));
-
+      } finally {
         cart = [];
         updateCartUI();
         toggleCart();
@@ -754,11 +768,10 @@
         const res = await fetch('/api/orders');
         const data = await res.json();
         let serverOrders = [];
-        if (Array.isArray(data)) serverOrders = data;
-        else if (data.orders && Array.isArray(data.orders)) serverOrders = data.orders;
-        else if (data.data && Array.isArray(data.data)) serverOrders = data.data;
+        if (data.success && Array.isArray(data.orders)) serverOrders = data.orders;
+        else if (Array.isArray(data)) serverOrders = data;
 
-        const tableServerOrders = serverOrders.filter(o => String(o.table || o.tableName) === String(currentTable));
+        const tableServerOrders = serverOrders.filter(o => String(o.tableName || o.table) === String(currentTable));
         
         if (tableServerOrders.length > 0) {
           const activeServerOrders = tableServerOrders.filter(o => {
@@ -767,23 +780,18 @@
           });
 
           orders = activeServerOrders.map(so => {
-            const existing = orders.find(loc => String(loc.id) === String(so.id || so._id));
+            const existing = orders.find(loc => String(loc.id) === String(so.id));
             return {
-              id: so.id || so._id || (existing ? existing.id : Date.now()),
-              table: so.table || so.tableName || currentTable,
+              id: so.id || (existing ? existing.id : Date.now()),
+              tableName: so.tableName || so.table || currentTable,
               items: so.items || (existing ? existing.items : []),
-              total: so.total || so.totalPrice || (existing ? existing.total : 0),
-              status: translateStatus(so.status || (existing ? existing.status : 'GARSON ONAYI BEKLİYOR')),
-              time: so.time || (existing ? existing.time : '')
+              totalPrice: so.totalPrice || so.total || (existing ? existing.totalPrice : 0),
+              status: translateStatus(so.status || (existing ? existing.status : 'WAITING')),
+              createdAt: so.createdAt || (existing ? existing.createdAt : '')
             };
           });
 
           safeSetItem(`orders_data_${currentTable}`, JSON.stringify(orders));
-        } else if (serverOrders.length > 0) {
-          if (!serverOrders.some(o => String(o.table || o.tableName) === String(currentTable) && String(o.status || '').toUpperCase() !== 'PAID')) {
-            orders = [];
-            safeSetItem(`orders_data_${currentTable}`, JSON.stringify([]));
-          }
         }
       } catch (e) {}
 
@@ -815,7 +823,7 @@
       container.innerHTML = orders.map((o) => `
         <div class="bg-slate-800 border border-slate-700 rounded-2xl p-4 space-y-3">
           <div class="flex justify-between items-center text-xs font-bold text-amber-400 border-b border-slate-700 pb-2">
-            <span>Sipariş #${o.id || '---'} (${o.time || ''})</span>
+            <span>Sipariş #${o.id || '---'} (${o.createdAt || ''})</span>
             <span class="px-2.5 py-0.5 rounded-lg bg-amber-500/20 text-amber-300 font-extrabold uppercase">${translateStatus(o.status)}</span>
           </div>
           <div class="space-y-1.5 text-xs">
@@ -828,7 +836,7 @@
           </div>
           <div class="pt-2 border-t border-slate-700/60 flex justify-between items-center text-xs">
             <span class="text-slate-400 font-medium">Toplam Tutar:</span>
-            <span class="text-amber-400 font-black">${o.total || o.totalPrice || 0} ₺</span>
+            <span class="text-amber-400 font-black">${o.totalPrice || o.total || 0} ₺</span>
           </div>
         </div>
       `).join('');
