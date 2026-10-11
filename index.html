@@ -31,7 +31,7 @@
 
   <!-- ÜST BAR -->
   <header class="bg-slate-900 text-white sticky top-0 z-40 shadow-xl border-b border-slate-800">
-    <div class="max-w-xl mx-auto px-4 py-3 flex items-center justify-between">
+    <div class="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
       <div class="flex items-center gap-3">
         <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-amber-500 via-red-600 to-red-700 flex items-center justify-center text-white text-xl shadow-lg shadow-red-900/40">
           🍕
@@ -51,7 +51,7 @@
 
   <!-- CANLI TAKİP BARI -->
   <div id="mini-tracker-banner" class="hidden bg-slate-900 border-b border-slate-800 px-4 py-2.5 sticky top-[57px] z-30 shadow-lg">
-    <div class="max-w-xl mx-auto flex items-center justify-between">
+    <div class="max-w-5xl mx-auto flex items-center justify-between">
       <div class="flex items-center gap-2 text-xs">
         <span class="relative flex h-2.5 w-2.5">
           <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
@@ -66,15 +66,15 @@
   </div>
 
   <!-- MENÜ -->
-  <main class="flex-1 max-w-xl w-full mx-auto pb-28">
+  <main class="flex-1 max-w-5xl w-full mx-auto pb-28">
     <div class="p-4 space-y-4">
-      <div class="bg-gradient-to-r from-red-600 via-amber-600 to-orange-600 rounded-3xl p-6 text-white shadow-xl relative overflow-hidden">
+      <div class="bg-gradient-to-r from-red-600 via-amber-600 to-orange-600 rounded-3xl p-6 md:p-8 text-white shadow-xl relative overflow-hidden">
         <div class="absolute -right-4 -bottom-4 opacity-15 text-9xl">🍕</div>
         <span class="bg-white/20 backdrop-blur-md px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider text-amber-100">
           %100 Doğal Ekşi Maya
         </span>
-        <h2 class="text-2xl font-black mt-2 leading-tight">İtalyan Usulü Taş Fırın</h2>
-        <p class="text-xs text-white/80 mt-1">Masadaki QR kod ile anında sipariş verin.</p>
+        <h2 class="text-2xl md:text-3xl font-black mt-2 leading-tight">İtalyan Usulü Taş Fırın</h2>
+        <p class="text-xs md:text-sm text-white/80 mt-1">Masadaki QR kod ile anında sipariş verin.</p>
       </div>
 
       <!-- KAMPANYALAR BANNER ALANI -->
@@ -91,12 +91,13 @@
       <button onclick="filterCategory('dessert', this)" class="cat-btn px-4 py-2 rounded-2xl bg-white text-slate-600 border border-slate-200 text-xs font-bold whitespace-nowrap transition">Tatlılar</button>
     </div>
 
-    <div class="px-4 mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4" id="product-list"></div>
+    <!-- ÜRÜN LİSTESİ (Responsive Grid: Mobilde 1, Tablet/PC'de 2-3 sütun) -->
+    <div class="px-4 mt-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4" id="product-list"></div>
   </main>
 
   <!-- YÜZEN SEPET BARI -->
   <div id="cart-bar" class="fixed bottom-0 left-0 right-0 z-40 p-4 bg-gradient-to-t from-slate-100 via-slate-100/90 to-transparent">
-    <div class="max-w-xl mx-auto">
+    <div class="max-w-5xl mx-auto">
       <button onclick="toggleCartDrawer()" class="w-full bg-gradient-to-r from-red-600 to-amber-600 text-white font-extrabold py-3.5 px-6 rounded-2xl shadow-xl flex items-center justify-between transition">
         <div class="flex items-center gap-3">
           <span id="cart-badge" class="bg-white text-red-600 w-7 h-7 rounded-full flex items-center justify-center text-xs font-black">0</span>
@@ -201,12 +202,12 @@
             <div class="text-[10px] opacity-70">Patates + İçecek</div>
           </button>
           <button onclick="selectServiceType('paket')" id="srv-paket" class="srv-btn p-2.5 rounded-xl border text-left text-xs border-slate-200 text-slate-600">
-            <div>Paket</div>
-            <div class="text-[10px] opacity-70">+120 ₺</div>
+            <div>Paket (+120 ₺)</div>
+            <div class="text-[10px] opacity-70">Patates + İçecek</div>
           </button>
         </div>
 
-        <!-- MENÜ SEÇİLDİĞİNDE ÇIKACAK İÇECEK VE PATATES BİLGİSİ -->
+        <!-- MENÜ VEYA PAKET SEÇİLDİĞİNDE ÇIKACAK İÇECEK VE PATATES BİLGİSİ -->
         <div id="menu-details-box" class="mt-3 hidden bg-slate-50 border border-slate-200 rounded-2xl p-3.5 space-y-3">
           <div class="text-xs font-bold text-emerald-700 flex items-center gap-1.5">
             <i class="fa-solid fa-circle-check"></i> Zorunlu: Orta Boy Patates Kızartması dahildir.
@@ -295,7 +296,7 @@
       setInterval(checkActiveOrdersMini, 1500);
     });
 
-    // MENÜYÜ SUNUCUDAN ÇEK VEYA FALLBACK KULLAN
+    // MENÜYÜ SUNUCUDAN ÇEK VEYA FALLBACK KULLAN (TÜM KATEGORİLER)
     async function loadMenu() {
       try {
         const res = await fetch('/api/menu');
@@ -569,7 +570,7 @@
         sizeSec.classList.add('hidden');
       }
 
-      // Servis / Menü Seçenekleri (Pizza veya Burger için)
+      // Servis / Menü / Paket Seçenekleri (Pizza veya Burger için)
       const serviceSec = document.getElementById('service-options-section');
       if (prod.category === 'pizza' || prod.category === 'burger') {
         serviceSec.classList.remove('hidden');
@@ -630,7 +631,7 @@
       });
 
       const menuDetailsBox = document.getElementById('menu-details-box');
-      if (selectedServiceType === 'menu') {
+      if (selectedServiceType === 'menu' || selectedServiceType === 'paket') {
         menuDetailsBox.classList.remove('hidden');
         renderMenuDrinks();
       } else {
@@ -682,7 +683,7 @@
         if (selectedServiceType === 'menu') {
           total += 80 + selectedMenuDrink.extraPrice;
         } else if (selectedServiceType === 'paket') {
-          total += 120;
+          total += 120 + selectedMenuDrink.extraPrice;
         }
       }
 
@@ -701,8 +702,8 @@
           unitPrice += 80 + selectedMenuDrink.extraPrice;
           variantDesc += (variantDesc ? ' • ' : '') + `Menü (+80₺, Patates + ${selectedMenuDrink.name}${selectedMenuDrink.extraPrice > 0 ? ` +${selectedMenuDrink.extraPrice}₺` : ''})`;
         } else if (selectedServiceType === 'paket') {
-          unitPrice += 120;
-          variantDesc += (variantDesc ? ' • ' : '') + `Paket Servis (+120₺)`;
+          unitPrice += 120 + selectedMenuDrink.extraPrice;
+          variantDesc += (variantDesc ? ' • ' : '') + `Paket (+120₺, Patates + ${selectedMenuDrink.name}${selectedMenuDrink.extraPrice > 0 ? ` +${selectedMenuDrink.extraPrice}₺` : ''})`;
         } else {
           variantDesc += (variantDesc ? ' • ' : '') + `Normal Servis`;
         }
