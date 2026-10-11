@@ -222,7 +222,7 @@
     let selectedCampPizza = null;
     let selectedCampaignDrink = availableMenuDrinks[0];
 
-    // SAYFA AÇILDIĞI AN ANINDA RENDER ET
+    // SAYFA AÇILDIĞI AN DOĞRUDAN ÇALIŞIR
     (function initApp() {
       const params = new URLSearchParams(window.location.search);
       currentTable = params.get('masa') || params.get('table') || localStorage.getItem('evreka_table') || 'Masa-1';
@@ -232,36 +232,7 @@
 
       renderProducts('all');
       renderCampaigns();
-      
-      // Arka planda sunucudan verileri güncellemeye çalış
-      fetchServerCatalog();
-      checkOrders();
-      setInterval(checkOrders, 2000);
     })();
-
-    async function fetchServerCatalog() {
-      try {
-        const res = await fetch('/api/catalog');
-        const data = await res.json();
-        let rawList = [];
-        if (Array.isArray(data)) rawList = data;
-        else if (data.catalog && Array.isArray(data.catalog)) rawList = data.catalog;
-        else if (data.data && Array.isArray(data.data)) rawList = data.data;
-
-        if (rawList.length > 0) {
-          catalog = rawList.map(item => ({
-            id: item.id || item._id || Math.random().toString(),
-            title: item.title || item.name || 'Ürün',
-            category: item.category || 'pizza',
-            price: Number(item.basePrice || item.price || item.tutar || 250),
-            description: item.description || item.desc || item.aciklama || '',
-            image: item.image || item.img || 'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=500',
-            sizes: Array.isArray(item.sizes) ? item.sizes : []
-          }));
-          renderProducts('all');
-        }
-      } catch (e) {}
-    }
 
     function renderCampaigns() {
       const container = document.getElementById('campaigns-container');
@@ -451,7 +422,7 @@
         sizesBox.classList.add('hidden');
       }
 
-      // SADECE PİZZA VE BURGERLERDE MENÜ/PAKET SEÇENEĞİ GÖSTER
+      // SADECE PİZZA VE BURGERLERDE MENÜ / PAKET SEÇENEĞİ GÖSTER
       const serviceSec = document.getElementById('service-options-section');
       const cat = String(prod.category || '').toLowerCase();
       if (cat === 'pizza' || cat === 'burger') {
