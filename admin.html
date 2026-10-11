@@ -39,6 +39,7 @@
         <!-- SADECE PATRON GÖREBİLİR -->
         <button onclick="switchMainTab('finance')" id="tab-btn-finance" class="hidden bg-slate-800 text-slate-300 hover:bg-slate-700 text-xs px-5 py-2.5 rounded-xl font-bold transition">📊 Ciro & Finans</button>
         <button onclick="switchMainTab('menu')" id="tab-btn-menu" class="hidden bg-slate-800 text-slate-300 hover:bg-slate-700 text-xs px-5 py-2.5 rounded-xl font-bold transition">🍕 Menü & Ürünler</button>
+        <button onclick="switchMainTab('campaigns')" id="tab-btn-campaigns" class="hidden bg-slate-800 text-slate-300 hover:bg-slate-700 text-xs px-5 py-2.5 rounded-xl font-bold transition">📢 Kampanya Yönetimi</button>
         <button onclick="switchMainTab('users')" id="tab-btn-users" class="hidden bg-slate-800 text-slate-300 hover:bg-slate-700 text-xs px-5 py-2.5 rounded-xl font-bold transition">👥 Personel Yönetimi</button>
         
         <button onclick="logout()" class="bg-red-600/20 text-red-400 hover:bg-red-600 hover:text-white text-xs px-4 py-2.5 rounded-xl font-bold transition">Çıkış</button>
@@ -91,7 +92,7 @@
     <!-- MENÜ YÖNETİMİ SEKMESİ (SADECE PATRON) -->
     <div id="section-menu" class="hidden space-y-6">
       <div class="bg-slate-800 p-6 rounded-3xl border border-slate-700 shadow-xl space-y-4">
-        <h3 class="text-base font-black text-white flex items-center gap-2"><i class="fa-solid fa-plus-circle text-red-500"></i> Yeni Ürün Ekle</h3>
+        <h3 class="text-base font-black text-white flex items-center gap-2"><i class="fa-solid fa-plus-circle text-red-500"></i> Yeni Ürün Ekle (Otomatik En Üste Eklenir)</h3>
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-xs">
           <input type="text" id="new-title" placeholder="Ürün Adı" class="bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-white">
           <select id="new-category" class="bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-white">
@@ -104,8 +105,26 @@
         <button onclick="addNewProduct()" class="bg-red-600 hover:bg-red-700 text-white font-extrabold text-xs px-6 py-3 rounded-xl transition shadow-lg">Ürünü Menüye Ekle</button>
       </div>
       <div class="bg-slate-800 p-6 rounded-3xl border border-slate-700 shadow-xl space-y-4">
-        <h3 class="text-base font-black text-white flex items-center gap-2"><i class="fa-solid fa-utensils text-amber-400"></i> Menüdeki Ürünler ve Fiyatlar</h3>
-        <div id="admin-menu-list" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
+        <h3 class="text-base font-black text-white flex items-center gap-2"><i class="fa-solid fa-utensils text-amber-400"></i> Menüdeki Ürünler ve Sıralama (▲ / ▼ ile Taşıyabilirsiniz)</h3>
+        <div id="admin-menu-list" class="space-y-3"></div>
+      </div>
+    </div>
+
+    <!-- KAMPANYA YÖNETİMİ SEKMESİ (SADECE PATRON) -->
+    <div id="section-campaigns" class="hidden space-y-6">
+      <div class="bg-slate-800 p-6 rounded-3xl border border-slate-700 shadow-xl space-y-4">
+        <h3 class="text-base font-black text-white flex items-center gap-2"><i class="fa-solid fa-bullhorn text-amber-400"></i> Yeni Kampanya Banner Ekle</h3>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+          <input type="text" id="camp-title" placeholder="Kampanya Başlığı" class="bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-white">
+          <input type="text" id="camp-badge" placeholder="Rozet (Örn: %20 İNDİRİM)" class="bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-white">
+          <input type="text" id="camp-image" placeholder="Görsel URL" class="bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-white">
+        </div>
+        <textarea id="camp-desc" placeholder="Kampanya Açıklaması..." class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-xs text-white"></textarea>
+        <button onclick="addNewCampaign()" class="bg-red-600 hover:bg-red-700 text-white font-extrabold text-xs px-6 py-3 rounded-xl transition shadow-lg">Kampanyayı Yayınla</button>
+      </div>
+      <div class="bg-slate-800 p-6 rounded-3xl border border-slate-700 shadow-xl space-y-4">
+        <h3 class="text-base font-black text-white flex items-center gap-2"><i class="fa-solid fa-list text-amber-400"></i> Yayındaki Kampanyalar</h3>
+        <div id="admin-campaign-list" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
       </div>
     </div>
 
@@ -143,6 +162,7 @@
     let currentFilter = 'ALL';
     let cachedOrders = [];
     let cachedCatalog = [];
+    let cachedCampaigns = [];
     let previousOrderCount = 0;
     let selectedOrderForPay = null;
     let currentUserRole = 'garson'; 
@@ -177,6 +197,7 @@
       document.getElementById('active-user-name').innerText = `${currentUsername} (${currentUserRole.toUpperCase()})`;
       const tabFinance = document.getElementById('tab-btn-finance');
       const tabMenu = document.getElementById('tab-btn-menu');
+      const tabCampaigns = document.getElementById('tab-btn-campaigns');
       const tabUsers = document.getElementById('tab-btn-users');
 
       if (currentUserRole === 'patron') {
@@ -184,12 +205,14 @@
         badge.className = "text-xs px-2.5 py-1 rounded-lg bg-amber-500/20 text-amber-400 border border-amber-500/30 font-extrabold";
         if(tabFinance) tabFinance.classList.remove('hidden');
         if(tabMenu) tabMenu.classList.remove('hidden');
+        if(tabCampaigns) tabCampaigns.classList.remove('hidden');
         if(tabUsers) tabUsers.classList.remove('hidden');
       } else {
         badge.innerText = 'Garson Paneli';
         badge.className = "text-xs px-2.5 py-1 rounded-lg bg-indigo-500/20 text-indigo-400 border border-indigo-500/30 font-extrabold";
         if(tabFinance) tabFinance.classList.add('hidden');
         if(tabMenu) tabMenu.classList.add('hidden');
+        if(tabCampaigns) tabCampaigns.classList.add('hidden');
         if(tabUsers) tabUsers.classList.add('hidden');
       }
     }
@@ -244,13 +267,15 @@
       document.getElementById('section-orders').classList.add('hidden');
       const secFinance = document.getElementById('section-finance');
       const secMenu = document.getElementById('section-menu');
+      const secCampaigns = document.getElementById('section-campaigns');
       const secUsers = document.getElementById('section-users');
       if(secFinance) secFinance.classList.add('hidden');
       if(secMenu) secMenu.classList.add('hidden');
+      if(secCampaigns) secCampaigns.classList.add('hidden');
       if(secUsers) secUsers.classList.add('hidden');
 
       document.getElementById('tab-btn-orders').className = "bg-slate-800 text-slate-300 hover:bg-slate-700 text-xs px-5 py-2.5 rounded-xl font-bold transition";
-      ['tab-btn-finance', 'tab-btn-menu', 'tab-btn-users'].forEach(id => {
+      ['tab-btn-finance', 'tab-btn-menu', 'tab-btn-campaigns', 'tab-btn-users'].forEach(id => {
         const el = document.getElementById(id);
         if(el) el.className = "bg-slate-800 text-slate-300 hover:bg-slate-700 text-xs px-5 py-2.5 rounded-xl font-bold transition";
       });
@@ -266,6 +291,10 @@
         secMenu.classList.remove('hidden');
         document.getElementById('tab-btn-menu').className = "bg-red-600 text-white text-xs px-5 py-2.5 rounded-xl font-extrabold transition shadow-md";
         fetchCatalogForAdmin();
+      } else if (tab === 'campaigns' && currentUserRole === 'patron') {
+        secCampaigns.classList.remove('hidden');
+        document.getElementById('tab-btn-campaigns').className = "bg-red-600 text-white text-xs px-5 py-2.5 rounded-xl font-extrabold transition shadow-md";
+        fetchCampaignsForAdmin();
       } else if (tab === 'users' && currentUserRole === 'patron') {
         secUsers.classList.remove('hidden');
         document.getElementById('tab-btn-users').className = "bg-red-600 text-white text-xs px-5 py-2.5 rounded-xl font-extrabold transition shadow-md";
@@ -380,19 +409,113 @@
 
     function renderAdminCatalog() {
       const container = document.getElementById('admin-menu-list');
-      container.innerHTML = cachedCatalog.map(item => `
-        <div class="bg-slate-900 p-3.5 rounded-2xl border border-slate-700 flex items-center justify-between gap-3 text-xs">
+      container.innerHTML = cachedCatalog.map((item, index) => `
+        <div class="bg-slate-900 p-3.5 rounded-2xl border border-slate-700 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
           <div class="flex items-center gap-3">
             <img src="${item.image}" class="w-12 h-12 rounded-xl object-cover">
-            <div><h4 class="font-extrabold text-white">${item.title}</h4><span class="text-[10px] text-slate-400 uppercase">${item.category}</span></div>
+            <div>
+              <h4 class="font-extrabold text-white">${item.title}</h4>
+              <span class="text-[10px] text-slate-400 uppercase">${item.category}</span>
+            </div>
           </div>
           <div class="flex items-center gap-2">
+            <div class="flex flex-col gap-1">
+              <button onclick="moveProduct(${index}, -1)" title="Yukarı Taşı" class="bg-slate-800 hover:bg-slate-700 text-amber-400 px-2 py-0.5 rounded text-[10px]"><i class="fa-solid fa-arrow-up"></i></button>
+              <button onclick="moveProduct(${index}, 1)" title="Aşağı Taşı" class="bg-slate-800 hover:bg-slate-700 text-amber-400 px-2 py-0.5 rounded text-[10px]"><i class="fa-solid fa-arrow-down"></i></button>
+            </div>
             <input type="number" id="price-input-${item.id}" value="${item.basePrice}" class="w-20 bg-slate-800 border border-slate-700 rounded-xl px-2 py-1.5 text-amber-400 font-bold text-center">
-            <button onclick="updatePrice('${item.id}')" class="bg-emerald-600 hover:bg-emerald-500 text-white px-2.5 py-1.5 rounded-xl font-bold"><i class="fa-solid fa-check"></i></button>
-            <button onclick="deleteProduct('${item.id}')" class="bg-slate-800 hover:bg-red-600/30 text-slate-400 hover:text-red-400 px-2.5 py-1.5 rounded-xl"><i class="fa-solid fa-trash"></i></button>
+            <button onclick="updatePrice('${item.id}')" class="bg-emerald-600 hover:bg-emerald-500 text-white px-2.5 py-1.5 rounded-xl font-bold" title="Fiyatı Güncelle"><i class="fa-solid fa-check"></i></button>
+            <button onclick="deleteProduct('${item.id}')" class="bg-slate-800 hover:bg-red-600/30 text-slate-400 hover:text-red-400 px-2.5 py-1.5 rounded-xl" title="Ürünü Sil"><i class="fa-solid fa-trash"></i></button>
           </div>
         </div>
       `).join('');
+    }
+
+    async function moveProduct(index, direction) {
+      const newIndex = index + direction;
+      if (newIndex < 0 || newIndex >= cachedCatalog.length) return;
+      const temp = cachedCatalog[index];
+      cachedCatalog[index] = cachedCatalog[newIndex];
+      cachedCatalog[newIndex] = temp;
+
+      try {
+        await fetch('/api/catalog', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ catalog: cachedCatalog })
+        });
+        renderAdminCatalog();
+      } catch (e) {}
+    }
+
+    // --- KAMPANYA YÖNETİMİ FONKSİYONLARI ---
+    async function fetchCampaignsForAdmin() {
+      if (currentUserRole !== 'patron') return;
+      try {
+        const res = await fetch('/api/campaigns');
+        const data = await res.json();
+        if (data.success) {
+          cachedCampaigns = data.campaigns || [];
+          renderAdminCampaigns();
+        }
+      } catch (e) {}
+    }
+
+    function renderAdminCampaigns() {
+      const container = document.getElementById('admin-campaign-list');
+      if (cachedCampaigns.length === 0) {
+        container.innerHTML = '<div class="col-span-full p-6 text-center text-slate-500 text-xs">Henüz aktif kampanya bulunmuyor.</div>';
+        return;
+      }
+      container.innerHTML = cachedCampaigns.map(c => `
+        <div class="bg-slate-900 p-4 rounded-2xl border border-slate-700 flex items-center justify-between gap-3 text-xs">
+          <div class="flex items-center gap-3">
+            <img src="${c.image}" class="w-12 h-12 rounded-xl object-cover">
+            <div>
+              <span class="bg-amber-500/20 text-amber-400 text-[10px] font-extrabold px-2 py-0.5 rounded">${c.badge}</span>
+              <h4 class="font-black text-white mt-1">${c.title}</h4>
+              <p class="text-[11px] text-slate-400 line-clamp-1">${c.description}</p>
+            </div>
+          </div>
+          <button onclick="deleteCampaign('${c.id}')" class="bg-slate-800 hover:bg-red-600/30 text-slate-400 hover:text-red-400 p-2.5 rounded-xl"><i class="fa-solid fa-trash"></i></button>
+        </div>
+      `).join('');
+    }
+
+    async function addNewCampaign() {
+      if (currentUserRole !== 'patron') return;
+      const title = document.getElementById('camp-title').value.trim();
+      const badge = document.getElementById('camp-badge').value.trim();
+      const description = document.getElementById('camp-desc').value.trim();
+      const image = document.getElementById('camp-image').value.trim();
+
+      if (!title) { alert('Kampanya başlığı zorunludur!'); return; }
+
+      try {
+        const res = await fetch('/api/campaigns', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ title, badge, description, image })
+        });
+        const data = await res.json();
+        if (data.success) {
+          document.getElementById('camp-title').value = '';
+          document.getElementById('camp-badge').value = '';
+          document.getElementById('camp-desc').value = '';
+          document.getElementById('camp-image').value = '';
+          fetchCampaignsForAdmin();
+          alert('Kampanya başarıyla yayınlandı!');
+        }
+      } catch (e) {}
+    }
+
+    async function deleteCampaign(id) {
+      if (currentUserRole !== 'patron') return;
+      if (!confirm('Bu kampanyayı kaldırmak istediğinize emin misiniz?')) return;
+      try {
+        await fetch(`/api/campaigns/${id}`, { method: 'DELETE' });
+        fetchCampaignsForAdmin();
+      } catch (e) {}
     }
 
     async function addNewProduct() {
@@ -424,7 +547,7 @@
           document.getElementById('new-desc').value = ''; 
           document.getElementById('new-image').value = '';
           fetchCatalogForAdmin(); 
-          alert('Ürün başarıyla menüye eklendi!');
+          alert('Ürün menünün en başına başarıyla eklendi!');
         } else {
           alert('Ürün eklenemedi.');
         }
