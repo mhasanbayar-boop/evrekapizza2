@@ -18,7 +18,7 @@
         <div class="w-10 h-10 rounded-2xl bg-red-600 flex items-center justify-center text-white font-black text-xl shadow-lg shadow-red-600/30">🍕</div>
         <div>
           <h1 class="text-base sm:text-lg font-black tracking-tight text-white">Evreka Pizza</h1>
-          <p class="text-[11px] text-slate-400 font-medium">Lezzetin En Akıllı Hali</p>
+          <p id="table-indicator" class="text-[11px] text-amber-400 font-bold">Masa Yükleniyor...</p>
         </div>
       </div>
       <div class="flex items-center gap-3">
@@ -33,7 +33,7 @@
   <!-- ANA İÇERİK -->
   <main class="max-w-7xl mx-auto px-4 sm:px-6 py-6 flex-grow space-y-6 w-full">
     
-    <!-- PATRON PANELİNDEN YÖNETİLEN KAMPANYALAR BANNER ALANI -->
+    <!-- PATRON PANELİNDEN YÖNETİLEN KAMPANYALAR BANNER ALANI (Doğrudan sepete eklenebilir) -->
     <div id="campaigns-banner-container" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
 
     <!-- KATEGORİ FİLTRELERİ -->
@@ -51,7 +51,7 @@
     <div id="product-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5"></div>
   </main>
 
-  <!-- ÜRÜN DETAY / BOYUT SEÇİM MODALI -->
+  <!-- ÜRÜN / KAMPANYA DETAY & SEÇİM MODALI -->
   <div id="product-modal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
     <div class="bg-slate-800 border border-slate-700 w-full max-w-md rounded-3xl p-6 shadow-2xl space-y-5 animate-in fade-in zoom-in duration-200">
       <div class="flex justify-between items-start gap-4">
@@ -62,9 +62,9 @@
         <button onclick="closeProductModal()" class="w-8 h-8 rounded-full bg-slate-700 text-slate-300 flex items-center justify-center hover:bg-slate-600 transition"><i class="fa-solid fa-xmark"></i></button>
       </div>
 
-      <!-- Boyut Seçenekleri (Varsa) -->
+      <!-- Boyut veya İçecek / Yan Ürün Seçenekleri -->
       <div id="modal-sizes-container" class="space-y-2 hidden">
-        <label class="text-xs font-bold text-slate-400 uppercase tracking-wider block">Boyut Seçimi</label>
+        <label class="text-xs font-bold text-slate-400 uppercase tracking-wider block" id="modal-options-label">Seçenekler</label>
         <div id="sizes-radio-group" class="grid grid-cols-2 gap-2"></div>
       </div>
 
@@ -95,19 +95,9 @@
       <div id="cart-items-list" class="space-y-3 overflow-y-auto flex-grow pr-1"></div>
 
       <div class="border-t border-slate-700 pt-4 space-y-4">
-        <!-- Masa / Paket Seçimi -->
-        <div class="grid grid-cols-2 gap-3">
-          <div>
-            <label class="text-[11px] font-bold text-slate-400 block mb-1">Masa Numarası</label>
-            <input type="text" id="order-table" placeholder="Örn: Masa 4" class="w-full bg-slate-900 border border-slate-700 rounded-2xl px-4 py-3 text-xs font-bold text-white focus:outline-none focus:ring-2 focus:ring-red-500">
-          </div>
-          <div>
-            <label class="text-[11px] font-bold text-slate-400 block mb-1">Servis Türü</label>
-            <select id="order-type" class="w-full bg-slate-900 border border-slate-700 rounded-2xl px-4 py-3 text-xs font-bold text-white focus:outline-none focus:ring-2 focus:ring-red-500">
-              <option value="Restoran">Restoran İçi</option>
-              <option value="Paket Servis">Paket Servis</option>
-            </select>
-          </div>
+        <div class="bg-slate-900 p-3.5 rounded-2xl border border-slate-700 flex justify-between items-center text-xs">
+          <span class="text-slate-400 font-bold">Sipariş Verilen Konum:</span>
+          <span id="cart-table-badge" class="font-black text-amber-400">Masa -</span>
         </div>
 
         <div class="flex justify-between items-center bg-slate-900 p-4 rounded-2xl border border-slate-700">
@@ -116,7 +106,7 @@
         </div>
 
         <button onclick="submitOrder()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold py-4 rounded-2xl text-xs transition shadow-lg shadow-emerald-600/30 flex items-center justify-center gap-2">
-          <i class="fa-solid fa-check-circle"></i> Siparişi Onayla ve Gönder
+          <i class="fa-solid fa-check-circle"></i> Siparişi Onayla ve Mutfağa Gönder
         </button>
       </div>
     </div>
@@ -130,8 +120,18 @@
     let selectedItemForModal = null;
     let selectedSizeOffset = 0;
     let selectedSizeName = '';
+    let currentTableName = 'Masa 1';
+    let isCampaignModal = false;
 
     window.addEventListener('DOMContentLoaded', () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const masa = urlParams.get('masa') || urlParams.get('table');
+      if (masa) {
+        currentTableName = `Masa ${masa}`;
+      }
+      document.getElementById('table-indicator').innerText = `Konum: ${currentTableName}`;
+      document.getElementById('cart-table-badge').innerText = currentTableName;
+
       loadCampaigns();
       loadCatalog();
     });
@@ -144,12 +144,17 @@
           campaigns = data.campaigns;
           const container = document.getElementById('campaigns-banner-container');
           container.innerHTML = campaigns.map(c => `
-            <div class="bg-gradient-to-r from-red-950/90 to-slate-900 border border-red-500/30 rounded-3xl p-5 shadow-2xl flex items-center gap-4 text-white">
-              <img src="${c.image}" class="w-20 h-20 rounded-2xl object-cover shadow-md flex-shrink-0">
-              <div class="space-y-1">
-                <span class="bg-red-600 text-white text-[10px] font-black px-2.5 py-0.5 rounded-lg shadow">${c.badge}</span>
-                <h3 class="text-sm font-black text-white">${c.title}</h3>
-                <p class="text-xs text-slate-300">${c.description}</p>
+            <div onclick="openCampaignModal('${c.id}')" class="bg-gradient-to-r from-red-950/90 to-slate-900 border border-red-500/30 hover:border-red-500/80 cursor-pointer rounded-3xl p-5 shadow-2xl flex items-center justify-between gap-4 text-white transition group">
+              <div class="flex items-center gap-4">
+                <img src="${c.image}" class="w-20 h-20 rounded-2xl object-cover shadow-md flex-shrink-0 group-hover:scale-105 transition">
+                <div class="space-y-1">
+                  <span class="bg-red-600 text-white text-[10px] font-black px-2.5 py-0.5 rounded-lg shadow">${c.badge}</span>
+                  <h3 class="text-sm font-black text-white">${c.title}</h3>
+                  <p class="text-xs text-slate-300 line-clamp-1">${c.description}</p>
+                </div>
+              </div>
+              <div class="w-10 h-10 rounded-2xl bg-red-600/20 group-hover:bg-red-600 text-red-400 group-hover:text-white flex items-center justify-center font-bold text-sm transition flex-shrink-0">
+                <i class="fa-solid fa-plus"></i>
               </div>
             </div>
           `).join('');
@@ -214,13 +219,57 @@
       `).join('');
     }
 
+    function openCampaignModal(campId) {
+      const camp = campaigns.find(c => String(c.id) === String(campId));
+      if (!camp) return;
+
+      isCampaignModal = true;
+      selectedItemForModal = {
+        id: camp.id,
+        title: camp.title,
+        basePrice: 320, // Kampanya baz fiyatı
+        description: camp.description
+      };
+
+      document.getElementById('modal-title').innerText = camp.title;
+      document.getElementById('modal-desc').innerText = camp.description;
+      document.getElementById('modal-note').value = '';
+      document.getElementById('modal-options-label').innerText = 'Kampanya İçecek / Yan Ürün Seçimi';
+
+      const sizesContainer = document.getElementById('modal-sizes-container');
+      const radioGroup = document.getElementById('sizes-radio-group');
+
+      sizesContainer.classList.remove('hidden');
+      const campaignOptions = [
+        { name: 'Kola (Kutu 330ml)', offset: 0 },
+        { name: 'Fanta (Kutu 330ml)', offset: 0 },
+        { name: 'Ayran (300ml)', offset: 0 },
+        { name: 'Soğuk Çay (Ice Tea)', offset: 0 }
+      ];
+
+      radioGroup.innerHTML = campaignOptions.map((opt, idx) => `
+        <label class="flex items-center gap-2.5 bg-slate-900 border ${idx === 0 ? 'border-red-500 bg-red-500/10' : 'border-slate-700'} p-3 rounded-2xl cursor-pointer text-xs font-bold transition size-label">
+          <input type="radio" name="product-size" value="${opt.offset}" ${idx === 0 ? 'checked' : ''} onchange="updateModalPrice(${opt.offset}, '${opt.name}')" class="text-red-600 focus:ring-red-500">
+          <span>${opt.name}</span>
+        </label>
+      `).join('');
+
+      selectedSizeOffset = campaignOptions[0].offset;
+      selectedSizeName = campaignOptions[0].name;
+
+      updateModalPrice(selectedSizeOffset, selectedSizeName);
+      document.getElementById('product-modal').classList.remove('hidden');
+    }
+
     function openProductModal(id) {
+      isCampaignModal = false;
       selectedItemForModal = catalog.find(i => String(i.id) === String(id));
       if (!selectedItemForModal) return;
 
       document.getElementById('modal-title').innerText = selectedItemForModal.title;
       document.getElementById('modal-desc').innerText = selectedItemForModal.description || '';
       document.getElementById('modal-note').value = '';
+      document.getElementById('modal-options-label').innerText = 'Boyut Seçimi';
 
       const sizesContainer = document.getElementById('modal-sizes-container');
       const radioGroup = document.getElementById('sizes-radio-group');
@@ -257,6 +306,7 @@
     function closeProductModal() {
       document.getElementById('product-modal').classList.add('hidden');
       selectedItemForModal = null;
+      isCampaignModal = false;
     }
 
     function confirmAddToCart() {
@@ -264,11 +314,18 @@
       const note = document.getElementById('modal-note').value.trim();
       const finalPrice = Number(selectedItemForModal.basePrice) + Number(selectedSizeOffset);
 
+      let itemTitle = selectedItemForModal.title;
+      let itemSub = selectedSizeName;
+      if (isCampaignModal) {
+        itemTitle = `🔥 Kampanya: ${selectedItemForModal.title}`;
+        itemSub = `İçecek/Yan Ürün: ${selectedSizeName}`;
+      }
+
       cart.push({
         id: selectedItemForModal.id + '_' + Date.now(),
-        title: selectedItemForModal.title,
+        title: itemTitle,
         price: finalPrice,
-        size: selectedSizeName,
+        size: itemSub,
         note: note
       });
 
@@ -329,19 +386,13 @@
 
     async function submitOrder() {
       if (cart.length === 0) { alert('Sepetiniz boş!'); return; }
-      const tableName = document.getElementById('order-table').value.trim();
-      const orderType = document.getElementById('order-type').value;
-
-      if (!tableName) { alert('Lütfen masa numarası veya isim giriniz.'); return; }
-
-      const finalTableName = orderType === 'Paket Servis' ? `${tableName} (Paket)` : tableName;
       const totalPrice = cart.reduce((sum, item) => sum + item.price, 0);
 
       try {
         const res = await fetch('/api/orders', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ tableName: finalTableName, items: cart, totalPrice })
+          body: JSON.stringify({ tableName: currentTableName, items: cart, totalPrice })
         });
         const data = await res.json();
         if (data.success) {
