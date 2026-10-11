@@ -139,6 +139,7 @@
   </div>
 
   <script>
+    // VARSAYILAN GARANTİ KATALOG (Sunucu yanıt vermese dahi anında ekranda görünür)
     let catalog = [
       { id: '1', title: 'Pepperoni Pizza', category: 'pizza', price: 260, description: 'Mozzarella, yoğun sucuk dilimleri, özel domates sosu', image: 'https://images.unsplash.com/photo-1628840042765-356cda07504e?w=500', sizes: [{name: 'Orta Boy', price: 0}, {name: 'Büyük Boy', price: 70}] },
       { id: '2', title: 'Margherita Pizza', category: 'pizza', price: 240, description: 'Taze mozzarella, fesleğen yaprakları', image: 'https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=500', sizes: [{name: 'Orta Boy', price: 0}, {name: 'Büyük Boy', price: 60}] },
@@ -155,7 +156,7 @@
     let selectedSizePrice = 0;
     let selectedSizeName = '';
 
-    // SAYFA AÇILDIĞI AN DOĞRUDAN ÇALIŞIR (DOMContentLoaded Beklemez)
+    // SAYFA AÇILDIĞI AN BAŞLATMA
     (function initApp() {
       const params = new URLSearchParams(window.location.search);
       currentTable = params.get('masa') || params.get('table') || localStorage.getItem('evreka_table') || 'Masa-1';
@@ -169,30 +170,45 @@
       setInterval(checkOrders, 2000);
     })();
 
+    // SUNUCUDAN GELEN VERİYİ HER FORMATTA (Dizi veya Nesne) DOĞRU OKUMA
     async function fetchServerCatalog() {
       try {
         const res = await fetch('/api/catalog');[cite: 1]
         const data = await res.json();
-        if (data.success && Array.isArray(data.catalog) && data.catalog.length > 0) {
-          catalog = data.catalog.map(item => ({
-            id: item.id,
-            title: item.title || item.name,
-            category: item.category,
-            price: Number(item.basePrice || item.price || 250),
-            description: item.description || '',
-            image: item.image || 'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=500',
-            sizes: item.sizes || []
+        
+        let rawList = [];
+        if (Array.isArray(data)) {
+          rawList = data;
+        } else if (data.catalog && Array.isArray(data.catalog)) {
+          rawList = data.catalog;
+        } else if (data.data && Array.isArray(data.data)) {
+          rawList = data.data;
+        }
+
+        if (rawList.length > 0) {
+          catalog = rawList.map(item => ({
+            id: item.id || item._id || Math.random().toString(),
+            title: item.title || item.name || 'Ürün',
+            category: item.category || 'pizza',
+            price: Number(item.basePrice || item.price || item.tutar || 250),
+            description: item.description || item.desc || item.aciklama || '',
+            image: item.image || item.img || 'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=500',
+            sizes: Array.isArray(item.sizes) ? item.sizes : []
           }));
           renderProducts('all');
         }
-      } catch (e) {}
+      } catch (e) {
+        console.error("Sunucu catalog çekme hatası, varsayılan menü kullanılıyor:", e);
+      }
     }
 
     function filterCat(cat, btn) {
       document.querySelectorAll('.cat-btn').forEach(b => {
         b.className = "cat-btn px-4 py-2 rounded-2xl bg-white text-slate-700 border border-slate-200 text-xs font-bold whitespace-nowrap";
       });
-      btn.className = "cat-btn px-4 py-2 rounded-2xl bg-slate-900 text-white text-xs font-black whitespace-nowrap shadow-sm";
+      if (btn) {
+        btn.className = "cat-btn px-4 py-2 rounded-2xl bg-slate-900 text-white text-xs font-black whitespace-nowrap shadow-sm";
+      }
       renderProducts(cat);
     }
 
@@ -265,7 +281,9 @@
       document.querySelectorAll('.sz-btn').forEach(b => {
         b.className = "sz-btn p-2.5 rounded-xl border text-left text-xs border-slate-200 text-slate-600";
       });
-      btn.className = "sz-btn p-2.5 rounded-xl border text-left text-xs border-red-600 bg-red-50 text-red-600 font-bold";
+      if (btn) {
+        btn.className = "sz-btn p-2.5 rounded-xl border text-left text-xs border-red-600 bg-red-50 text-red-600 font-bold";
+      }
       updateModalPrice();
     }
 
@@ -340,10 +358,13 @@
 
       const payload = {
         tableName: currentTable,
+        table: currentTable,
         items: cart.map(i => ({ title: i.title, size: i.size, price: i.price, note: i.note })),
-        totalPrice: cart.reduce((sum, i) => sum + i.price, 0)
+        totalPrice: cart.reduce((sum, i) => sum + i.price, 0),
+        total: cart.reduce((sum, i) => sum + i.price, 0)
       };
 
+      let orderId = Date.now();
       try {
         const res = await fetch('/api/orders', {[cite: 1]
           method: 'POST',
@@ -351,11 +372,15 @@
           body: JSON.stringify(payload)
         });
         const data = await res.json();
-        const orderId = data.success && data.order ? data.order.id : Date.now();
-        saveOrderIdLocally(orderId);
+        if (data.success && (data.order || data.id)) {
+          orderId = data.order?.id || data.order?._id || data.id || Date.now();
+        } else if (data.id || data._id) {
+          orderId = data.id || data._id;
+        }
       } catch (e) {
-        saveOrderIdLocally(Date.now());
+        console.error("Sipariş gönderme hatası:", e);
       } finally {
+        saveOrderIdLocally(orderId);
         cart = [];
         updateCartUI();
         toggleCart();
@@ -381,30 +406,39 @@
     async function checkOrders() {
       const orderIds = getLocalOrders();
       if (orderIds.length === 0) {
-        document.getElementById('tracker-banner').classList.add('hidden');
+        const banner = document.getElementById('tracker-banner');
+        if (banner) banner.classList.add('hidden');
         return;
       }
 
       try {
         const res = await fetch('/api/orders');[cite: 1]
         const data = await res.json();
-        if (data.success && Array.isArray(data.orders)) {
-          const activeIds = orderIds.filter(id => {
-            const found = data.orders.find(o => String(o.id) === String(id));
-            if (!found) return true;
-            const st = String(found.status || '').toUpperCase();
-            return st !== 'PAID' && st !== 'CANCELLED';
-          });
+        
+        let orderList = [];
+        if (Array.isArray(data)) {
+          orderList = data;
+        } else if (data.orders && Array.isArray(data.orders)) {
+          orderList = data.orders;
+        } else if (data.data && Array.isArray(data.data)) {
+          orderList = data.data;
+        }
 
-          if (activeIds.length !== orderIds.length) {
-            localStorage.setItem(`orders_${currentTable}`, JSON.stringify(activeIds));
-          }
+        const activeIds = orderIds.filter(id => {
+          const found = orderList.find(o => String(o.id || o._id) === String(id));
+          if (!found) return true;
+          const st = String(found.status || '').toUpperCase();
+          return st !== 'PAID' && st !== 'COMPLETED' && st !== 'CANCELLED';
+        });
 
-          if (activeIds.length > 0) {
-            document.getElementById('tracker-banner').classList.remove('hidden');
-          } else {
-            document.getElementById('tracker-banner').classList.add('hidden');
-          }
+        if (activeIds.length !== orderIds.length) {
+          localStorage.setItem(`orders_${currentTable}`, JSON.stringify(activeIds));
+        }
+
+        const banner = document.getElementById('tracker-banner');
+        if (banner) {
+          if (activeIds.length > 0) banner.classList.remove('hidden');
+          else banner.classList.add('hidden');
         }
       } catch (e) {}
     }
@@ -421,26 +455,34 @@
       try {
         const res = await fetch('/api/orders');[cite: 1]
         const data = await res.json();
-        if (data.success && Array.isArray(data.orders)) {
-          const myOrders = data.orders.filter(o => orderIds.includes(String(o.id)) && String(o.status || '').toUpperCase() !== 'PAID' && String(o.status || '').toUpperCase() !== 'CANCELLED');
-          
-          if (myOrders.length === 0) {
-            container.innerHTML = `<div class="py-12 text-center text-slate-400 text-xs">Aktif siparişiniz bulunmuyor.</div>`;
-            return;
-          }
-
-          container.innerHTML = myOrders.map(o => `
-            <div class="bg-slate-800 border border-slate-700 rounded-2xl p-4 space-y-2">
-              <div class="flex justify-between items-center text-xs font-bold text-amber-400 border-b border-slate-700 pb-2">
-                <span>Sipariş #${o.id}</span>
-                <span class="px-2 py-0.5 rounded bg-slate-700 text-white">${o.status || 'WAITING'}</span>
-              </div>
-              <div class="space-y-1 text-xs">
-                ${(o.items || []).map(i => `<div class="flex justify-between text-slate-300"><span>${i.title}</span><span class="font-bold">${i.price} ₺</span></div>`).join('')}
-              </div>
-            </div>
-          `).join('');
+        
+        let orderList = [];
+        if (Array.isArray(data)) {
+          orderList = data;
+        } else if (data.orders && Array.isArray(data.orders)) {
+          orderList = data.orders;
+        } else if (data.data && Array.isArray(data.data)) {
+          orderList = data.data;
         }
+
+        const myOrders = orderList.filter(o => orderIds.includes(String(o.id || o._id)) && String(o.status || '').toUpperCase() !== 'PAID' && String(o.status || '').toUpperCase() !== 'COMPLETED' && String(o.status || '').toUpperCase() !== 'CANCELLED');
+        
+        if (myOrders.length === 0) {
+          container.innerHTML = `<div class="py-12 text-center text-slate-400 text-xs">Aktif siparişiniz bulunmuyor.</div>`;
+          return;
+        }
+
+        container.innerHTML = myOrders.map(o => `
+          <div class="bg-slate-800 border border-slate-700 rounded-2xl p-4 space-y-2">
+            <div class="flex justify-between items-center text-xs font-bold text-amber-400 border-b border-slate-700 pb-2">
+              <span>Sipariş #${o.id || o._id}</span>
+              <span class="px-2 py-0.5 rounded bg-slate-700 text-white">${o.status || 'WAITING'}</span>
+            </div>
+            <div class="space-y-1 text-xs">
+              ${(o.items || []).map(i => `<div class="flex justify-between text-slate-300"><span>${i.title || i.name}</span><span class="font-bold">${i.price || i.tutar} ₺</span></div>`).join('')}
+            </div>
+          </div>
+        `).join('');
       } catch (e) {
         container.innerHTML = `<div class="py-12 text-center text-slate-400 text-xs">Sipariş bilgileri yüklenemedi.</div>`;
       }
