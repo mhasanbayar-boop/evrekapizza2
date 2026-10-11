@@ -161,9 +161,9 @@
     }
 
     window.addEventListener('DOMContentLoaded', () => {
-      if (localStorage.getItem('evreka_admin_logged') === 'true') {
-        currentUserRole = localStorage.getItem('evreka_admin_role') || 'garson';
-        currentUsername = localStorage.getItem('evreka_admin_user') || 'Garson';
+      if (sessionStorage.getItem('evreka_admin_logged') === 'true') {
+        currentUserRole = sessionStorage.getItem('evreka_admin_role') || 'garson';
+        currentUsername = sessionStorage.getItem('evreka_admin_user') || 'Garson';
         applyRoleUI();
         document.getElementById('login-screen').classList.add('hidden');
         document.getElementById('dashboard').classList.remove('hidden');
@@ -220,9 +220,9 @@
       if (found) {
         currentUserRole = found.role;
         currentUsername = found.username;
-        localStorage.setItem('evreka_admin_logged', 'true');
-        localStorage.setItem('evreka_admin_role', currentUserRole);
-        localStorage.setItem('evreka_admin_user', currentUsername);
+        sessionStorage.setItem('evreka_admin_logged', 'true');
+        sessionStorage.setItem('evreka_admin_role', currentUserRole);
+        sessionStorage.setItem('evreka_admin_user', currentUsername);
         applyRoleUI();
         document.getElementById('login-screen').classList.add('hidden');
         document.getElementById('dashboard').classList.remove('hidden');
@@ -234,9 +234,9 @@
     }
 
     function logout() {
-      localStorage.removeItem('evreka_admin_logged');
-      localStorage.removeItem('evreka_admin_role');
-      localStorage.removeItem('evreka_admin_user');
+      sessionStorage.removeItem('evreka_admin_logged');
+      sessionStorage.removeItem('evreka_admin_role');
+      sessionStorage.removeItem('evreka_admin_user');
       location.reload();
     }
 
@@ -338,7 +338,6 @@
           }
           previousOrderCount = waitingCount;
 
-          // Sunucu verilerini yerel state ile birleştirerek imza ve saatlerin kaybolmasını engelliyoruz
           cachedOrders = newOrders.map(serverOrder => {
             const existing = cachedOrders.find(o => String(o.id) === String(serverOrder.id));
             return {
@@ -418,8 +417,18 @@
       if (currentUserRole !== 'patron') return;
       const newPrice = document.getElementById(`price-input-${id}`).value;
       try {
-        await fetch(`/api/catalog/${id}/price`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ basePrice: newPrice }) });
-        alert('Fiyat güncellendi!'); fetchCatalogForAdmin();
+        const res = await fetch(`/api/catalog/${id}`, { 
+          method: 'PATCH', 
+          headers: { 'Content-Type': 'application/json' }, 
+          body: JSON.stringify({ basePrice: Number(newPrice) }) 
+        });
+        const data = await res.json();
+        if (data.success) {
+          alert('Fiyat güncellendi!'); 
+          fetchCatalogForAdmin();
+        } else {
+          alert('Güncelleme başarısız oldu.');
+        }
       } catch (e) {}
     }
 
@@ -461,12 +470,10 @@
         if (targetOrder) {
           targetOrder.status = newStatus;
           
-          // İlk onaylayan personeli kalıcı olarak sabitle
           if (!targetOrder.handledBy) {
             targetOrder.handledBy = staffSignature;
           }
 
-          // Butona tıklandığı andaki saatleri eksiksiz kaydet
           if (!targetOrder.timeLogs) targetOrder.timeLogs = {};
           if (!targetOrder.timeLogs.created) {
             targetOrder.timeLogs.created = targetOrder.createdAt || nowTime;
@@ -476,7 +483,6 @@
           if (newStatus === 'PAID' && !targetOrder.timeLogs.paid) targetOrder.timeLogs.paid = nowTime;
         }
 
-        // Sunucuya gönderip kalıcı olarak kaydediyoruz
         await fetch(`/api/orders/${id}/status`, { 
           method: 'PATCH', 
           headers: { 'Content-Type': 'application/json' }, 
@@ -549,12 +555,10 @@
 
         const orderTime = (o.timeLogs && o.timeLogs.created) ? o.timeLogs.created : (o.createdAt || (new Date().toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' }) + ' - ' + new Date().toLocaleDateString('tr-TR')));
 
-        // Hangi personel onayladıysa ismi her zaman ve her cihazda kalıcı olarak görünür
         const handledBadge = o.handledBy 
           ? `<div class="bg-indigo-500/10 border border-indigo-500/30 text-indigo-300 text-[11px] font-bold px-3 py-1.5 rounded-xl mb-3 flex items-center justify-between shadow-sm"><span class="flex items-center gap-1.5"><i class="fa-solid fa-user-check text-emerald-400"></i> Onaylayan:</span> <span class="text-white">${o.handledBy}</span></div>` 
           : `<div class="bg-amber-500/10 border border-amber-500/30 text-amber-300 text-[11px] font-bold px-3 py-1.5 rounded-xl mb-3 flex items-center gap-2 shadow-sm"><i class="fa-solid fa-clock text-amber-400"></i> Onay Bekliyor</div>`;
 
-        // Tamamlananlar / Arşiv sekmesinde buton saatlerinin tam dökümü
         let timelineBox = '';
         if (st === 'PAID') {
           const logs = o.timeLogs || {};
@@ -597,14 +601,11 @@
                 <span class="text-xs font-mono font-bold text-slate-400">#${o.id}</span>
               </div>
               
-              <!-- Kalıcı Personel Onay Rozeti -->
               ${handledBadge}
-
-              <!-- Tamamlananlar / Arşiv İçin Ayrıntılı Saat Çizelgesi -->
               ${timelineBox}
 
               <div class="space-y-2.5">
-                ${(o.items||[]).map(i=>`
+                 ${(o.items||[]).map(i=>`
                   <div class="bg-slate-900/90 p-3 rounded-2xl border border-slate-700/50 text-xs space-y-1">
                     <div class="flex justify-between items-start font-extrabold">
                       <span class="text-slate-100">${i.title}${i.size ? `<span class="text-amber-400 font-semibold block text-[11px] mt-0.5">${i.size}</span>` : ''}</span>
