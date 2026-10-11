@@ -1,516 +1,501 @@
 <!DOCTYPE html>
 <html lang="tr" class="h-full bg-slate-950">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Evreka Pizza - QR Menü</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <style>
-    body { font-family: 'Plus Jakarta Sans', sans-serif; }
-    .no-scrollbar::-webkit-scrollbar { display: none; }
-    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-    .cart-drawer, .tracker-drawer { transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1); transform: translateY(100%); }
-    .cart-drawer.active, .tracker-drawer.active { transform: translateY(0); }
-    /* Kibar ve naif akordeon panel animasyonu */
-    .accordion-panel { max-height: 0; overflow: hidden; transition: max-height 0.4s ease-in-out, opacity 0.3s ease-in-out; opacity: 0; }
-    .accordion-panel.open { max-height: 600px; opacity: 1; }
-  </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Evreka Pizza - QR Menü</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    .cart-drawer, .tracker-drawer { transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1); transform: translateY(100%); }
+    .cart-drawer.active, .tracker-drawer.active { transform: translateY(0); }
+    .accordion-panel { max-height: 0; overflow: hidden; transition: max-height 0.4s ease-in-out, opacity 0.3s ease-in-out; opacity: 0; }
+    .accordion-panel.open { max-height: 600px; opacity: 1; }
+  </style>
 </head>
 <body class="h-full text-slate-800 bg-slate-100 flex flex-col antialiased items-center">
 
-  <div id="no-table-screen" class="fixed inset-0 z-50 bg-slate-950 flex items-center justify-center p-4 text-center hidden">
-    <div class="max-w-sm bg-slate-900 border border-slate-800 p-8 rounded-3xl space-y-4 shadow-2xl">
-      <div class="w-16 h-16 bg-red-600/20 text-red-500 rounded-2xl flex items-center justify-center mx-auto text-3xl font-black border border-red-500/30"><i class="fa-solid fa-qrcode"></i></div>
-      <h2 class="text-xl font-black text-white">Masa Bilgisi Bulunamadı</h2>
-      <p class="text-xs text-slate-400">Lütfen masanızdaki QR kodu okutun (Örn: <code class="text-amber-300">?masa=Masa-1</code>).</p>
-    </div>
-  </div>
+  <div id="no-table-screen" class="fixed inset-0 z-50 bg-slate-950 flex items-center justify-center p-4 text-center hidden">
+    <div class="max-w-sm bg-slate-900 border border-slate-800 p-8 rounded-3xl space-y-4 shadow-2xl">
+      <div class="w-16 h-16 bg-red-600/20 text-red-500 rounded-2xl flex items-center justify-center mx-auto text-3xl font-black border border-red-500/30"><i class="fa-solid fa-qrcode"></i></div>
+      <h2 class="text-xl font-black text-white">Masa Bilgisi Bulunamadı</h2>
+      <p class="text-xs text-slate-400">Lütfen masanızdaki QR kodu okutun (Örn: <code class="text-amber-300">?masa=Masa-1</code>).</p>
+    </div>
+  </div>
 
-  <!-- TÜM CİHAZLARDA SABİT KALAN ÜST BÖLÜM (Header + Kategori Çubuğu) -->
-  <div class="sticky top-0 z-40 w-full max-w-xl bg-slate-900 shadow-xl border-b border-slate-800">
-    <header class="text-white">
-      <div class="px-4 py-3 flex items-center justify-between">
-        <div class="flex items-center gap-3">
-          <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-amber-500 via-red-600 to-red-700 flex items-center justify-center text-white text-xl shadow-md">🍕</div>
-          <div><h1 class="font-black text-base text-white leading-none">EVREKA PIZZA</h1><p class="text-[11px] text-amber-400 font-semibold mt-0.5">Gurme Taş Fırın</p></div>
-        </div>
-        <div id="table-display-badge" class="bg-emerald-600/20 text-emerald-400 font-extrabold text-xs px-3.5 py-2 rounded-2xl border border-emerald-500/40 flex items-center gap-2">
-          <i class="fa-solid fa-lock text-[10px]"></i><span id="active-table-display">Yükleniyor...</span>
-        </div>
-      </div>
-    </header>
+  <div class="sticky top-0 z-40 w-full max-w-xl bg-slate-900 shadow-xl border-b border-slate-800">
+    <header class="text-white">
+      <div class="px-4 py-3 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-amber-500 via-red-600 to-red-700 flex items-center justify-center text-white text-xl shadow-md">🍕</div>
+          <div><h1 class="font-black text-base text-white leading-none">EVREKA PIZZA</h1><p class="text-[11px] text-amber-400 font-semibold mt-0.5">Gurme Taş Fırın</p></div>
+        </div>
+        <div id="table-display-badge" class="bg-emerald-600/20 text-emerald-400 font-extrabold text-xs px-3.5 py-2 rounded-2xl border border-emerald-500/40 flex items-center gap-2">
+          <i class="fa-solid fa-lock text-[10px]"></i><span id="active-table-display">Yükleniyor...</span>
+        </div>
+      </div>
+    </header>
 
-    <!-- CANLI TAKİP BARI -->
-    <div id="mini-tracker-banner" class="hidden bg-slate-900 border-t border-slate-800 px-4 py-2.5">
-      <div class="flex items-center justify-between">
-        <div class="flex items-center gap-2 text-xs"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span><span class="text-slate-200 font-bold" id="mini-tracker-text">Aktif Siparişiniz Var</span></div>
-        <button onclick="toggleTrackerDrawer()" class="bg-gradient-to-r from-amber-500 to-red-600 text-white font-extrabold text-[11px] px-3.5 py-1.5 rounded-xl shadow">Canlı Takip Et ➔</button>
-      </div>
-    </div>
+    <div id="mini-tracker-banner" class="hidden bg-slate-900 border-t border-slate-800 px-4 py-2.5">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-2 text-xs"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span><span class="text-slate-200 font-bold" id="mini-tracker-text">Aktif Siparişiniz Var</span></div>
+        <button onclick="toggleTrackerDrawer()" class="bg-gradient-to-r from-amber-500 to-red-600 text-white font-extrabold text-[11px] px-3.5 py-1.5 rounded-xl shadow">Canlı Takip Et ➔</button>
+      </div>
+    </div>
 
-    <!-- KATEGORİ ÇUBUĞU -->
-    <div class="px-4 overflow-x-auto no-scrollbar flex gap-2.5 py-3 bg-slate-900/95 backdrop-blur-md border-t border-slate-800">
-      <button onclick="filterCategory('all', this)" class="cat-btn px-4 py-2 rounded-2xl bg-red-600 text-white text-xs font-black shadow-md whitespace-nowrap transition-all">Tüm Menü</button>
-      <button onclick="filterCategory('pizza', this)" class="cat-btn px-4 py-2 rounded-2xl bg-slate-800 text-slate-300 border border-slate-700 text-xs font-bold whitespace-nowrap transition-all hover:bg-slate-700">Pizzalar</button>
-      <button onclick="filterCategory('burger', this)" class="cat-btn px-4 py-2 rounded-2xl bg-slate-800 text-slate-300 border border-slate-700 text-xs font-bold whitespace-nowrap transition-all hover:bg-slate-700">Burgerler</button>
-      <button onclick="filterCategory('salad', this)" class="cat-btn px-4 py-2 rounded-2xl bg-slate-800 text-slate-300 border border-slate-700 text-xs font-bold whitespace-nowrap transition-all hover:bg-slate-700">Salatalar</button>
-      <button onclick="filterCategory('side', this)" class="cat-btn px-4 py-2 rounded-2xl bg-slate-800 text-slate-300 border border-slate-700 text-xs font-bold whitespace-nowrap transition-all hover:bg-slate-700">Atıştırmalıklar</button>
-      <button onclick="filterCategory('beverage', this)" class="cat-btn px-4 py-2 rounded-2xl bg-slate-800 text-slate-300 border border-slate-700 text-xs font-bold whitespace-nowrap transition-all hover:bg-slate-700">İçecekler</button>
-      <button onclick="filterCategory('dessert', this)" class="cat-btn px-4 py-2 rounded-2xl bg-slate-800 text-slate-300 border border-slate-700 text-xs font-bold whitespace-nowrap transition-all hover:bg-slate-700">Tatlılar</button>
-    </div>
-  </div>
+    <div class="px-4 overflow-x-auto no-scrollbar flex gap-2.5 py-3 bg-slate-900/95 backdrop-blur-md border-t border-slate-800">
+      <button onclick="filterCategory('all', this)" class="cat-btn px-4 py-2 rounded-2xl bg-red-600 text-white text-xs font-black shadow-md whitespace-nowrap transition-all">Tüm Menü</button>
+      <button onclick="filterCategory('pizza', this)" class="cat-btn px-4 py-2 rounded-2xl bg-slate-800 text-slate-300 border border-slate-700 text-xs font-bold whitespace-nowrap transition-all hover:bg-slate-700">Pizzalar</button>
+      <button onclick="filterCategory('burger', this)" class="cat-btn px-4 py-2 rounded-2xl bg-slate-800 text-slate-300 border border-slate-700 text-xs font-bold whitespace-nowrap transition-all hover:bg-slate-700">Burgerler</button>
+      <button onclick="filterCategory('salad', this)" class="cat-btn px-4 py-2 rounded-2xl bg-slate-800 text-slate-300 border border-slate-700 text-xs font-bold whitespace-nowrap transition-all hover:bg-slate-700">Salatalar</button>
+      <button onclick="filterCategory('side', this)" class="cat-btn px-4 py-2 rounded-2xl bg-slate-800 text-slate-300 border border-slate-700 text-xs font-bold whitespace-nowrap transition-all hover:bg-slate-700">Atıştırmalıklar</button>
+      <button onclick="filterCategory('beverage', this)" class="cat-btn px-4 py-2 rounded-2xl bg-slate-800 text-slate-300 border border-slate-700 text-xs font-bold whitespace-nowrap transition-all hover:bg-slate-700">İçecekler</button>
+      <button onclick="filterCategory('dessert', this)" class="cat-btn px-4 py-2 rounded-2xl bg-slate-800 text-slate-300 border border-slate-700 text-xs font-bold whitespace-nowrap transition-all hover:bg-slate-700">Tatlılar</button>
+    </div>
+  </div>
 
-  <main class="flex-1 max-w-xl w-full mx-auto pb-28 bg-slate-100">
-    <div class="p-4">
-      <div class="bg-gradient-to-r from-red-600 via-amber-600 to-orange-600 rounded-3xl p-6 text-white shadow-xl relative overflow-hidden">
-        <h2 class="text-2xl font-black leading-tight">İtalyan Usulü Taş Fırın</h2>
-        <p class="text-xs text-white/80 mt-1">Anında sipariş verin, masanızda canlı takip edin.</p>
-      </div>
-    </div>
+  <main class="flex-1 max-w-xl w-full mx-auto pb-28 bg-slate-100">
+    <div class="p-4">
+      <div class="bg-gradient-to-r from-red-600 via-amber-600 to-orange-600 rounded-3xl p-6 text-white shadow-xl relative overflow-hidden">
+        <h2 class="text-2xl font-black leading-tight">İtalyan Usulü Taş Fırın</h2>
+        <p class="text-xs text-white/80 mt-1">Anında sipariş verin, masanızda canlı takip edin.</p>
+      </div>
+    </div>
 
-    <div class="px-4 mt-2 grid grid-cols-1 sm:grid-cols-2 gap-4" id="product-list"></div>
-  </main>
+    <div class="px-4 mt-2 grid grid-cols-1 sm:grid-cols-2 gap-4" id="product-list"></div>
+  </main>
 
-  <div id="cart-bar" class="fixed bottom-0 left-0 right-0 z-40 p-4 bg-gradient-to-t from-slate-100 via-slate-100/90 to-transparent flex justify-center">
-    <div class="max-w-xl w-full">
-      <button onclick="toggleCartDrawer()" class="w-full bg-gradient-to-r from-red-600 to-amber-600 text-white font-extrabold py-3.5 px-6 rounded-2xl shadow-xl flex items-center justify-between">
-        <div class="flex items-center gap-3"><span id="cart-badge" class="bg-white text-red-600 w-7 h-7 rounded-full flex items-center justify-center text-xs font-black">0</span><span>Sepeti İncele & Gönder</span></div>
-        <span id="cart-total-price" class="text-base font-black">0 ₺</span>
-      </button>
-    </div>
-  </div>
+  <div id="cart-bar" class="fixed bottom-0 left-0 right-0 z-40 p-4 bg-gradient-to-t from-slate-100 via-slate-100/90 to-transparent flex justify-center">
+    <div class="max-w-xl w-full">
+      <button onclick="toggleCartDrawer()" class="w-full bg-gradient-to-r from-red-600 to-amber-600 text-white font-extrabold py-3.5 px-6 rounded-2xl shadow-xl flex items-center justify-between">
+        <div class="flex items-center gap-3"><span id="cart-badge" class="bg-white text-red-600 w-7 h-7 rounded-full flex items-center justify-center text-xs font-black">0</span><span>Sepeti İncele & Gönder</span></div>
+        <span id="cart-total-price" class="text-base font-black">0 ₺</span>
+      </button>
+    </div>
+  </div>
 
-  <!-- SEPET ÇEKMECESİ -->
-  <div id="drawer-overlay" onclick="closeCartDrawerExplicit()" class="fixed inset-0 bg-slate-950/70 backdrop-blur-sm z-50 hidden"></div>
-  <div id="cart-drawer" class="cart-drawer fixed bottom-0 right-0 left-0 sm:left-auto sm:top-0 sm:w-96 bg-white z-50 rounded-t-3xl sm:rounded-l-3xl max-h-[85vh] flex flex-col shadow-2xl">
-    <div class="p-5 border-b flex justify-between items-center bg-slate-50 rounded-t-3xl">
-      <div><h3 class="text-lg font-black text-slate-900">Sipariş Özetiniz</h3><p class="text-xs text-emerald-600 font-extrabold" id="cart-drawer-table-display">Masa</p></div>
-      <button onclick="closeCartDrawerExplicit()" class="w-8 h-8 rounded-full bg-slate-200 flex items-center justify-center"><i class="fa-solid fa-xmark"></i></button>
-    </div>
-    <div id="cart-items-container" class="flex-1 overflow-y-auto p-5 space-y-3"></div>
-    <div class="p-5 border-t bg-slate-50 space-y-3">
-      <div class="flex justify-between items-center text-sm"><span class="text-slate-500 font-bold">Toplam:</span><span id="cart-drawer-total" class="text-2xl font-black text-red-600">0 ₺</span></div>
-      <button id="submit-btn" onclick="submitOrderToAPI()" class="w-full bg-red-600 text-white font-extrabold py-3.5 rounded-2xl text-sm shadow-lg">Garsona Siparişi Gönder</button>
-    </div>
-  </div>
+  <div id="drawer-overlay" onclick="closeCartDrawerExplicit()" class="fixed inset-0 bg-slate-950/70 backdrop-blur-sm z-50 hidden"></div>
+  <div id="cart-drawer" class="cart-drawer fixed bottom-0 right-0 left-0 sm:left-auto sm:top-0 sm:w-96 bg-white z-50 rounded-t-3xl sm:rounded-l-3xl max-h-[85vh] flex flex-col shadow-2xl">
+    <div class="p-5 border-b flex justify-between items-center bg-slate-50 rounded-t-3xl">
+      <div><h3 class="text-lg font-black text-slate-900">Sipariş Özetiniz</h3><p class="text-xs text-emerald-600 font-extrabold" id="cart-drawer-table-display">Masa</p></div>
+      <button onclick="closeCartDrawerExplicit()" class="w-8 h-8 rounded-full bg-slate-200 flex items-center justify-center"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div id="cart-items-container" class="flex-1 overflow-y-auto p-5 space-y-3"></div>
+    <div class="p-5 border-t bg-slate-50 space-y-3">
+      <div class="flex justify-between items-center text-sm"><span class="text-slate-500 font-bold">Toplam:</span><span id="cart-drawer-total" class="text-2xl font-black text-red-600">0 ₺</span></div>
+      <button id="submit-btn" onclick="submitOrderToAPI()" class="w-full bg-red-600 text-white font-extrabold py-3.5 rounded-2xl text-sm shadow-lg">Garsona Siparişi Gönder</button>
+    </div>
+  </div>
 
-  <!-- CANLI TAKİP ÇEKMECESİ -->
-  <div id="tracker-overlay" onclick="closeTrackerDrawer()" class="fixed inset-0 bg-slate-950/70 backdrop-blur-sm z-50 hidden"></div>
-  <div id="tracker-drawer" class="tracker-drawer fixed bottom-0 right-0 left-0 bg-slate-900 text-white z-50 rounded-t-3xl max-h-[85vh] flex flex-col shadow-2xl">
-    <div class="p-5 border-b border-slate-800 flex justify-between items-center"><h3 class="text-lg font-black">Canlı Sipariş Takibi</h3><button onclick="closeTrackerDrawer()" class="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center"><i class="fa-solid fa-xmark"></i></button></div>
-    <div id="tracker-items-container" class="flex-1 overflow-y-auto p-5 space-y-4"></div>
-  </div>
+  <div id="tracker-overlay" onclick="closeTrackerDrawer()" class="fixed inset-0 bg-slate-950/70 backdrop-blur-sm z-50 hidden"></div>
+  <div id="tracker-drawer" class="tracker-drawer fixed bottom-0 right-0 left-0 bg-slate-900 text-white z-50 rounded-t-3xl max-h-[85vh] flex flex-col shadow-2xl">
+    <div class="p-5 border-b border-slate-800 flex justify-between items-center"><h3 class="text-lg font-black">Canlı Sipariş Takibi</h3><button onclick="closeTrackerDrawer()" class="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center"><i class="fa-solid fa-xmark"></i></button></div>
+    <div id="tracker-items-container" class="flex-1 overflow-y-auto p-5 space-y-4"></div>
+  </div>
 
-  <!-- BAŞARI MODALI -->
-  <div id="order-success-modal" class="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md hidden flex items-center justify-center p-4">
-    <div class="bg-slate-900 border border-slate-800 w-full max-w-sm rounded-3xl p-6 shadow-2xl text-center space-y-5">
-      <div class="w-16 h-16 bg-emerald-500/20 text-emerald-400 rounded-2xl flex items-center justify-center mx-auto text-3xl"><i class="fa-solid fa-check"></i></div>
-      <h3 class="text-xl font-black text-white">Siparişiniz Alındı!</h3>
-      <button onclick="document.getElementById('order-success-modal').classList.add('hidden'); toggleTrackerDrawer();" class="w-full bg-emerald-600 text-white font-extrabold py-3 rounded-2xl text-xs">Canlı Takibi Aç</button>
-    </div>
-  </div>
+  <div id="order-success-modal" class="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md hidden flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-800 w-full max-w-sm rounded-3xl p-6 shadow-2xl text-center space-y-5">
+      <div class="w-16 h-16 bg-emerald-500/20 text-emerald-400 rounded-2xl flex items-center justify-center mx-auto text-3xl"><i class="fa-solid fa-check"></i></div>
+      <h3 class="text-xl font-black text-white">Siparişiniz Alındı!</h3>
+      <button onclick="document.getElementById('order-success-modal').classList.add('hidden'); toggleTrackerDrawer();" class="w-full bg-emerald-600 text-white font-extrabold py-3 rounded-2xl text-xs">Canlı Takibi Aç</button>
+    </div>
+  </div>
 
-  <!-- ÜRÜN ÖZELLEŞTİRME MODALI -->
-  <div id="options-modal" class="fixed inset-0 z-50 bg-slate-950/75 backdrop-blur-sm hidden flex items-end sm:items-center justify-center p-0 sm:p-4">
-    <div class="bg-white w-full max-w-md rounded-t-3xl sm:rounded-3xl max-h-[90vh] overflow-y-auto p-6 shadow-2xl flex flex-col">
-      <div class="relative h-48 -mx-6 -mt-6 mb-4 overflow-hidden rounded-t-3xl bg-slate-100">
-        <img id="modal-img" src="" class="w-full h-full object-cover">
-        <button onclick="closeOptionsModal()" class="absolute top-4 right-4 w-9 h-9 rounded-full bg-black/50 text-white flex items-center justify-center"><i class="fa-solid fa-xmark"></i></button>
-      </div>
-      <h3 id="modal-title" class="text-xl font-black text-slate-900"></h3>
-      <p id="modal-desc" class="text-xs text-slate-500 mt-1"></p>
+  <div id="options-modal" class="fixed inset-0 z-50 bg-slate-950/75 backdrop-blur-sm hidden flex items-end sm:items-center justify-center p-0 sm:p-4">
+    <div class="bg-white w-full max-w-md rounded-t-3xl sm:rounded-3xl max-h-[90vh] overflow-y-auto p-6 shadow-2xl flex flex-col">
+      <div class="relative h-48 -mx-6 -mt-6 mb-4 overflow-hidden rounded-t-3xl bg-slate-100">
+        <img id="modal-img" src="" class="w-full h-full object-cover">
+        <button onclick="closeOptionsModal()" class="absolute top-4 right-4 w-9 h-9 rounded-full bg-black/50 text-white flex items-center justify-center"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <h3 id="modal-title" class="text-xl font-black text-slate-900"></h3>
+      <p id="modal-desc" class="text-xs text-slate-500 mt-1"></p>
 
-      <div class="mt-5" id="size-section">
-        <label class="block text-xs font-extrabold text-slate-700 uppercase mb-2">Boyut Seçin *</label>
-        <div class="grid grid-cols-2 gap-2" id="modal-sizes"></div>
-      </div>
+      <div class="mt-5" id="size-section">
+        <label class="block text-xs font-extrabold text-slate-700 uppercase mb-2">Boyut Seçin *</label>
+        <div class="grid grid-cols-2 gap-2" id="modal-sizes"></div>
+      </div>
 
-      <!-- ZORUNLU MENÜ / PAKET TERCİHİ -->
-      <div class="mt-5 hidden" id="menu-choice-section">
-        <label class="block text-xs font-extrabold text-slate-700 uppercase mb-2">Servis Tercihi (Zorunlu) *</label>
-        <div class="grid grid-cols-3 gap-2">
-          <button type="button" onclick="setServiceChoice('none')" id="srv-btn-none" class="srv-btn p-2 rounded-xl border text-center text-xs border-slate-200 transition">
-            <div class="font-bold">Sadece Ürün</div>
-            <div class="text-[10px] opacity-70">+0 ₺</div>
-          </button>
-          <button type="button" onclick="setServiceChoice('menu')" id="srv-btn-menu" class="srv-btn p-2 rounded-xl border text-center text-xs border-slate-200 transition">
-            <div class="font-bold">Menü Yap</div>
-            <div class="text-[10px] text-red-600 font-extrabold">+80 ₺</div>
-          </button>
-          <button type="button" onclick="setServiceChoice('package')" id="srv-btn-package" class="srv-btn p-2 rounded-xl border text-center text-xs border-slate-200 transition">
-            <div class="font-bold">Paket Yap</div>
-            <div class="text-[10px] text-red-600 font-extrabold">+120 ₺</div>
-          </button>
-        </div>
+      <div class="mt-5 hidden" id="menu-choice-section">
+        <label class="block text-xs font-extrabold text-slate-700 uppercase mb-2">Servis Tercihi (Zorunlu) *</label>
+        <div class="grid grid-cols-3 gap-2">
+          <button type="button" onclick="setServiceChoice('none')" id="srv-btn-none" class="srv-btn p-2 rounded-xl border text-center text-xs border-slate-200 transition">
+            <div class="font-bold">Sadece Ürün</div>
+            <div class="text-[10px] opacity-70">+0 ₺</div>
+          </button>
+          <button type="button" onclick="setServiceChoice('menu')" id="srv-btn-menu" class="srv-btn p-2 rounded-xl border text-center text-xs border-slate-200 transition">
+            <div class="font-bold">Menü Yap</div>
+            <div class="text-[10px] text-red-600 font-extrabold">+80 ₺</div>
+          </button>
+          <button type="button" onclick="setServiceChoice('package')" id="srv-btn-package" class="srv-btn p-2 rounded-xl border text-center text-xs border-slate-200 transition">
+            <div class="font-bold">Paket Yap</div>
+            <div class="text-[10px] text-red-600 font-extrabold">+120 ₺</div>
+          </button>
+        </div>
 
-        <!-- AKILCI, KİBAR VE NAFİK AÇILIR KAYIRMALI (ACCORDION) DETAY PANELİ -->
-        <div id="service-accordion" class="accordion-panel mt-3 bg-slate-50 border border-slate-200 rounded-2xl p-4 space-y-4">
-          
-          <!-- Sabit Patates -->
-          <div class="flex items-center justify-between text-xs bg-white p-2.5 rounded-xl border border-slate-200 shadow-sm">
-            <span class="font-bold text-slate-700 flex items-center gap-2"><i class="fa-solid fa-utensils text-amber-500"></i> Patates Kızartması</span>
-            <span class="text-[10px] font-extrabold bg-amber-50 text-amber-700 px-2.5 py-1 rounded-lg border border-amber-200">Orta Boy (Dahil / Ücretsiz)</span>
-          </div>
+        <div id="service-accordion" class="accordion-panel mt-3 bg-slate-50 border border-slate-200 rounded-2xl p-4 space-y-4">
+          <div class="flex items-center justify-between text-xs bg-white p-2.5 rounded-xl border border-slate-200 shadow-sm">
+            <span class="font-bold text-slate-700 flex items-center gap-2"><i class="fa-solid fa-utensils text-amber-500"></i> Patates Kızartması</span>
+            <span class="text-[10px] font-extrabold bg-amber-50 text-amber-700 px-2.5 py-1 rounded-lg border border-amber-200">Orta Boy (Dahil / Ücretsiz)</span>
+          </div>
 
-          <!-- Şişe İçecekler (Ücretsiz) -->
-          <div>
-            <div class="flex items-center justify-between mb-2">
-              <span class="text-[11px] font-extrabold text-slate-700 uppercase">🥤 Şişe İçecekler</span>
-              <span class="text-[10px] text-emerald-600 font-bold bg-emerald-50 px-2 py-0.5 rounded-md">Ücretsiz Dahil</span>
-            </div>
-            <div class="grid grid-cols-2 gap-1.5" id="bottle-beverages">
-              <button type="button" onclick="setBeverage('Coca-Cola (Şişe)', 0)" id="bev-Coca-Cola (Şişe)" class="bev-btn p-2 rounded-xl border text-left text-xs border-slate-200 bg-white font-medium transition">Coca-Cola</button>
-              <button type="button" onclick="setBeverage('Kola Şekersiz (Şişe)', 0)" id="bev-Kola Şekersiz (Şişe)" class="bev-btn p-2 rounded-xl border text-left text-xs border-slate-200 bg-white font-medium transition">Kola Şekersiz</button>
-              <button type="button" onclick="setBeverage('Fanta (Şişe)', 0)" id="bev-Fanta (Şişe)" class="bev-btn p-2 rounded-xl border text-left text-xs border-slate-200 bg-white font-medium transition">Fanta</button>
-              <button type="button" onclick="setBeverage('Sprite (Şişe)', 0)" id="bev-Sprite (Şişe)" class="bev-btn p-2 rounded-xl border text-left text-xs border-slate-200 bg-white font-medium transition">Sprite</button>
-              <button type="button" onclick="setBeverage('Ayran', 0)" id="bev-Ayran" class="bev-btn p-2 rounded-xl border text-left text-xs border-slate-200 bg-white font-medium transition">Ayran</button>
-              <button type="button" onclick="setBeverage('Ice Tea Şeftali (Şişe)', 0)" id="bev-Ice Tea Şeftali (Şişe)" class="bev-btn p-2 rounded-xl border text-left text-xs border-slate-200 bg-white font-medium transition">Ice Tea Şeftali</button>
-            </div>
-          </div>
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-[11px] font-extrabold text-slate-700 uppercase">🥤 Şişe İçecekler</span>
+              <span class="text-[10px] text-emerald-600 font-bold bg-emerald-50 px-2 py-0.5 rounded-md">Ücretsiz Dahil</span>
+            </div>
+            <div class="grid grid-cols-2 gap-1.5" id="bottle-beverages">
+              <button type="button" onclick="setBeverage('Coca-Cola (Şişe)', 0)" id="bev-Coca-Cola (Şişe)" class="bev-btn p-2 rounded-xl border text-left text-xs border-slate-200 bg-white font-medium transition">Coca-Cola</button>
+              <button type="button" onclick="setBeverage('Kola Şekersiz (Şişe)', 0)" id="bev-Kola Şekersiz (Şişe)" class="bev-btn p-2 rounded-xl border text-left text-xs border-slate-200 bg-white font-medium transition">Kola Şekersiz</button>
+              <button type="button" onclick="setBeverage('Fanta (Şişe)', 0)" id="bev-Fanta (Şişe)" class="bev-btn p-2 rounded-xl border text-left text-xs border-slate-200 bg-white font-medium transition">Fanta</button>
+              <button type="button" onclick="setBeverage('Sprite (Şişe)', 0)" id="bev-Sprite (Şişe)" class="bev-btn p-2 rounded-xl border text-left text-xs border-slate-200 bg-white font-medium transition">Sprite</button>
+              <button type="button" onclick="setBeverage('Ayran', 0)" id="bev-Ayran" class="bev-btn p-2 rounded-xl border text-left text-xs border-slate-200 bg-white font-medium transition">Ayran</button>
+              <button type="button" onclick="setBeverage('Ice Tea Şeftali (Şişe)', 0)" id="bev-Ice Tea Şeftali (Şişe)" class="bev-btn p-2 rounded-xl border text-left text-xs border-slate-200 bg-white font-medium transition">Ice Tea Şeftali</button>
+            </div>
+          </div>
 
-          <!-- Kutu İçecekler (+20 ₺ Farklı) -->
-          <div>
-            <div class="flex items-center justify-between mb-2">
-              <span class="text-[11px] font-extrabold text-slate-700 uppercase">🥫 Kutu İçecekler</span>
-              <span class="text-[10px] text-red-600 font-bold bg-red-50 px-2 py-0.5 rounded-md">+20 ₺ Fark</span>
-            </div>
-            <div class="grid grid-cols-2 gap-1.5" id="can-beverages">
-              <button type="button" onclick="setBeverage('Coca-Cola (Kutu)', 20)" id="bev-Coca-Cola (Kutu)" class="bev-btn p-2 rounded-xl border text-left text-xs border-slate-200 bg-white font-medium transition">Coca-Cola (Kutu)</button>
-              <button type="button" onclick="setBeverage('Kola Şekersiz (Kutu)', 20)" id="bev-Kola Şekersiz (Kutu)" class="bev-btn p-2 rounded-xl border text-left text-xs border-slate-200 bg-white font-medium transition">Kola Şekersiz (Kutu)</button>
-              <button type="button" onclick="setBeverage('Fanta (Kutu)', 20)" id="bev-Fanta (Kutu)" class="bev-btn p-2 rounded-xl border text-left text-xs border-slate-200 bg-white font-medium transition">Fanta (Kutu)</button>
-              <button type="button" onclick="setBeverage('Sprite (Kutu)', 20)" id="bev-Sprite (Kutu)" class="bev-btn p-2 rounded-xl border text-left text-xs border-slate-200 bg-white font-medium transition">Sprite (Kutu)</button>
-              <button type="button" onclick="setBeverage('Ice Tea Şeftali (Kutu)', 20)" id="bev-Ice Tea Şeftali (Kutu)" class="bev-btn p-2 rounded-xl border text-left text-xs border-slate-200 bg-white font-medium transition">Ice Tea (Kutu)</button>
-            </div>
-          </div>
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-[11px] font-extrabold text-slate-700 uppercase">🥫 Kutu İçecekler</span>
+              <span class="text-[10px] text-red-600 font-bold bg-red-50 px-2 py-0.5 rounded-md">+20 ₺ Fark</span>
+            </div>
+            <div class="grid grid-cols-2 gap-1.5" id="can-beverages">
+              <button type="button" onclick="setBeverage('Coca-Cola (Kutu)', 20)" id="bev-Coca-Cola (Kutu)" class="bev-btn p-2 rounded-xl border text-left text-xs border-slate-200 bg-white font-medium transition">Coca-Cola (Kutu)</button>
+              <button type="button" onclick="setBeverage('Kola Şekersiz (Kutu)', 20)" id="bev-Kola Şekersiz (Kutu)" class="bev-btn p-2 rounded-xl border text-left text-xs border-slate-200 bg-white font-medium transition">Kola Şekersiz (Kutu)</button>
+              <button type="button" onclick="setBeverage('Fanta (Kutu)', 20)" id="bev-Fanta (Kutu)" class="bev-btn p-2 rounded-xl border text-left text-xs border-slate-200 bg-white font-medium transition">Fanta (Kutu)</button>
+              <button type="button" onclick="setBeverage('Sprite (Kutu)', 20)" id="bev-Sprite (Kutu)" class="bev-btn p-2 rounded-xl border text-left text-xs border-slate-200 bg-white font-medium transition">Sprite (Kutu)</button>
+              <button type="button" onclick="setBeverage('Ice Tea Şeftali (Kutu)', 20)" id="bev-Ice Tea Şeftali (Kutu)" class="bev-btn p-2 rounded-xl border text-left text-xs border-slate-200 bg-white font-medium transition">Ice Tea (Kutu)</button>
+            </div>
+          </div>
+        </div>
+      </div>
 
-        </div>
-      </div>
+      <div class="mt-5">
+        <label class="block text-xs font-extrabold text-slate-700 uppercase mb-1">Garson Notu</label>
+        <input type="text" id="modal-note" placeholder="Örn: Sosu bol olsun..." class="w-full bg-slate-50 border rounded-xl px-3 py-2 text-xs">
+      </div>
 
-      <div class="mt-5">
-        <label class="block text-xs font-extrabold text-slate-700 uppercase mb-1">Garson Notu</label>
-        <input type="text" id="modal-note" placeholder="Örn: Sosu bol olsun..." class="w-full bg-slate-50 border rounded-xl px-3 py-2 text-xs">
-      </div>
+      <div class="mt-6 pt-3 border-t">
+        <button id="modal-add-btn" class="w-full bg-slate-900 text-white font-extrabold py-3.5 rounded-2xl text-sm flex justify-between px-6">
+          <span>Sepete Ekle</span><span id="modal-total-price" class="text-amber-400">0 ₺</span>
+        </button>
+      </div>
+    </div>
+  </div>
 
-      <div class="mt-6 pt-3 border-t">
-        <button id="modal-add-btn" class="w-full bg-slate-900 text-white font-extrabold py-3.5 rounded-2xl text-sm flex justify-between px-6">
-          <span>Sepete Ekle</span><span id="modal-total-price" class="text-amber-400">0 ₺</span>
-        </button>
-      </div>
-    </div>
-  </div>
+  <script>
+    let catalog = [];
+    let currentTable = null;
+    let cart = [];
+    let selectedProduct = null;
+    let selectedSize = null;
+    let serviceChoice = 'none';
+    let selectedBeverage = 'Coca-Cola (Şişe)';
+    let beverageExtraPrice = 0;
+    let currentCategory = 'all';
 
-  <script>
-    let catalog = [];
-    let currentTable = null;
-    let cart = [];
-    let selectedProduct = null;
-    let selectedSize = null;
-    let serviceChoice = 'none'; // 'none', 'menu', 'package'
-    let selectedBeverage = 'Coca-Cola (Şişe)';
-    let beverageExtraPrice = 0;
-    let currentCategory = 'all';
+    document.addEventListener('DOMContentLoaded', async () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      currentTable = urlParams.get('masa') || urlParams.get('table') || urlParams.get('m') || localStorage.getItem('evreka_customer_table');
+      if (currentTable) localStorage.setItem('evreka_customer_table', currentTable);
 
-    document.addEventListener('DOMContentLoaded', async () => {
-      const urlParams = new URLSearchParams(window.location.search);
-      currentTable = urlParams.get('masa') || urlParams.get('table') || urlParams.get('m') || localStorage.getItem('evreka_customer_table');
-      if (currentTable) localStorage.setItem('evreka_customer_table', currentTable);
+      if (!currentTable) { document.getElementById('no-table-screen').classList.remove('hidden'); return; }
+      document.getElementById('active-table-display').innerText = currentTable;
+      document.getElementById('cart-drawer-table-display').innerText = currentTable;
 
-      if (!currentTable) { document.getElementById('no-table-screen').classList.remove('hidden'); return; }
-      document.getElementById('active-table-display').innerText = currentTable;
-      document.getElementById('cart-drawer-table-display').innerText = currentTable;
+      await loadCatalog();
+      checkActiveOrdersMini();
+      
+      setInterval(async () => {
+        await loadCatalog(true);
+        await checkActiveOrdersMini();
+      }, 3000);
+    });
 
-      await loadCatalog();
-      checkActiveOrdersMini();
-      
-      setInterval(async () => {
-        await loadCatalog(true);
-        await checkActiveOrdersMini();
-      }, 3000);
-    });
+    async function loadCatalog(isBackground = false) {
+      try {
+        const res = await fetch('/api/catalog');
+        const data = await res.json();
+        if (data.success) {
+          catalog = data.catalog || [];
+          renderProducts(currentCategory, isBackground);
+        }
+      } catch (e) {}
+    }
 
-    async function loadCatalog(isBackground = false) {
-      try {
-        const res = await fetch('/api/catalog');
-        const data = await res.json();
-        if (data.success) {
-          catalog = data.catalog || [];
-          renderProducts(currentCategory, isBackground);
-        }
-      } catch (e) {}
-    }
+    function renderProducts(filter, isBackground = false) {
+      currentCategory = filter;
+      const list = document.getElementById('product-list');
+      const filtered = filter === 'all' ? catalog : catalog.filter(p => p.category === filter);
+      if (filtered.length === 0) {
+        list.innerHTML = '<div class="col-span-full py-12 text-center text-xs text-slate-400">Bu kategoride ürün bulunamadı.</div>';
+        return;
+      }
+      list.innerHTML = filtered.map(p => `
+        <div class="bg-white rounded-3xl overflow-hidden border shadow-sm flex flex-col justify-between">
+          <div>
+            <div class="h-40 w-full overflow-hidden relative"><img src="${p.image}" class="w-full h-full object-cover"><span class="absolute top-3 right-3 bg-slate-900/85 text-amber-400 font-extrabold text-xs px-3 py-1 rounded-xl">${p.basePrice} ₺</span></div>
+            <div class="p-4"><h3 class="font-black text-slate-900 text-base">${p.title}</h3><p class="text-xs text-slate-500 mt-1">${p.description}</p></div>
+          </div>
+          <div class="p-4 pt-0"><button onclick="openOptionsModal('${p.id}')" class="w-full bg-slate-100 hover:bg-red-600 hover:text-white text-slate-800 font-extrabold text-xs py-2.5 rounded-xl transition">Ekle</button></div>
+        </div>
+      `).join('');
+    }
 
-    function renderProducts(filter, isBackground = false) {
-      currentCategory = filter;
-      const list = document.getElementById('product-list');
-      const filtered = filter === 'all' ? catalog : catalog.filter(p => p.category === filter);
-      if (filtered.length === 0) {
-        list.innerHTML = '<div class="col-span-full py-12 text-center text-xs text-slate-400">Bu kategoride ürün bulunamadı.</div>';
-        return;
-      }
-      list.innerHTML = filtered.map(p => `
-        <div class="bg-white rounded-3xl overflow-hidden border shadow-sm flex flex-col justify-between">
-          <div>
-            <div class="h-40 w-full overflow-hidden relative"><img src="${p.image}" class="w-full h-full object-cover"><span class="absolute top-3 right-3 bg-slate-900/85 text-amber-400 font-extrabold text-xs px-3 py-1 rounded-xl">${p.basePrice} ₺</span></div>
-            <div class="p-4"><h3 class="font-black text-slate-900 text-base">${p.title}</h3><p class="text-xs text-slate-500 mt-1">${p.description}</p></div>
-          </div>
-          <div class="p-4 pt-0"><button onclick="openOptionsModal('${p.id}')" class="w-full bg-slate-100 hover:bg-red-600 hover:text-white text-slate-800 font-extrabold text-xs py-2.5 rounded-xl transition">Ekle</button></div>
-        </div>
-      `).join('');
-    }
+    function openOptionsModal(id) {
+      selectedProduct = catalog.find(p => String(p.id) === String(id));
+      if (!selectedProduct) return;
+      selectedSize = selectedProduct.sizes && selectedProduct.sizes.length > 0 ? selectedProduct.sizes[0] : null;
+      serviceChoice = 'none';
+      selectedBeverage = 'Coca-Cola (Şişe)';
+      beverageExtraPrice = 0;
 
-    function openOptionsModal(id) {
-      selectedProduct = catalog.find(p => String(p.id) === String(id));
-      if (!selectedProduct) return;
-      selectedSize = selectedProduct.sizes && selectedProduct.sizes.length > 0 ? selectedProduct.sizes[0] : null;
-      serviceChoice = 'none';
-      selectedBeverage = 'Coca-Cola (Şişe)';
-      beverageExtraPrice = 0;
+      document.getElementById('modal-note').value = '';
+      document.getElementById('modal-img').src = selectedProduct.image;
+      document.getElementById('modal-title').innerText = selectedProduct.title;
+      document.getElementById('modal-desc').innerText = selectedProduct.description;
 
-      document.getElementById('modal-note').value = '';
-      document.getElementById('modal-img').src = selectedProduct.image;
-      document.getElementById('modal-title').innerText = selectedProduct.title;
-      document.getElementById('modal-desc').innerText = selectedProduct.description;
+      const sizeSec = document.getElementById('size-section');
+      const sizesCont = document.getElementById('modal-sizes');
+      if (selectedProduct.sizes && selectedProduct.sizes.length > 0) {
+        sizeSec.classList.remove('hidden');
+        sizesCont.innerHTML = selectedProduct.sizes.map((s, idx) => `
+          <button type="button" onclick="selectSize('${s.id}')" id="size-btn-${s.id}" class="size-btn p-2 rounded-xl border text-left text-xs ${idx === 0 ? 'border-red-600 bg-red-50 text-red-600 font-bold' : 'border-slate-200'}">
+            <div>${s.name}</div><div class="text-[10px] opacity-70">+${s.priceOffset} ₺</div>
+          </button>
+        `).join('');
+      } else { sizeSec.classList.add('hidden'); }
 
-      const sizeSec = document.getElementById('size-section');
-      const sizesCont = document.getElementById('modal-sizes');
-      if (selectedProduct.sizes && selectedProduct.sizes.length > 0) {
-        sizeSec.classList.remove('hidden');
-        sizesCont.innerHTML = selectedProduct.sizes.map((s, idx) => `
-          <button type="button" onclick="selectSize('${s.id}')" id="size-btn-${s.id}" class="size-btn p-2 rounded-xl border text-left text-xs ${idx === 0 ? 'border-red-600 bg-red-50 text-red-600 font-bold' : 'border-slate-200'}">
-            <div>${s.name}</div><div class="text-[10px] opacity-70">+${s.priceOffset} ₺</div>
-          </button>
-        `).join('');
-      } else { sizeSec.classList.add('hidden'); }
+      const isPizzaOrBurger = selectedProduct.category === 'pizza' || selectedProduct.category === 'burger';
+      const menuSec = document.getElementById('menu-choice-section');
 
-      const isPizzaOrBurger = selectedProduct.category === 'pizza' || selectedProduct.category === 'burger';
-      const menuSec = document.getElementById('menu-choice-section');
+      if (isPizzaOrBurger) {
+        menuSec.classList.remove('hidden');
+        setServiceChoice('none');
+      } else {
+        menuSec.classList.add('hidden');
+      }
 
-      if (isPizzaOrBurger) {
-        menuSec.classList.remove('hidden');
-        setServiceChoice('none');
-      } else {
-        menuSec.classList.add('hidden');
-      }
+      updateModalPrice();
+      document.getElementById('options-modal').classList.remove('hidden');
+    }
 
-      updateModalPrice();
-      document.getElementById('options-modal').classList.remove('hidden');
-    }
+    function closeOptionsModal() { document.getElementById('options-modal').classList.add('hidden'); }
 
-    function closeOptionsModal() { document.getElementById('options-modal').classList.add('hidden'); }
+    function selectSize(id) {
+      selectedSize = selectedProduct.sizes.find(s => s.id === id);
+      document.querySelectorAll('.size-btn').forEach(b => b.className = "size-btn p-2 rounded-xl border text-left text-xs border-slate-200");
+      document.getElementById(`size-btn-${id}`).className = "size-btn p-2 rounded-xl border text-left text-xs border-red-600 bg-red-50 text-red-600 font-bold";
+      updateModalPrice();
+    }
 
-    function selectSize(id) {
-      selectedSize = selectedProduct.sizes.find(s => s.id === id);
-      document.querySelectorAll('.size-btn').forEach(b => b.className = "size-btn p-2 rounded-xl border text-left text-xs border-slate-200");
-      document.getElementById(`size-btn-${id}`).className = "size-btn p-2 rounded-xl border text-left text-xs border-red-600 bg-red-50 text-red-600 font-bold";
-      updateModalPrice();
-    }
+    function setServiceChoice(choice) {
+      serviceChoice = choice;
+      document.querySelectorAll('.srv-btn').forEach(b => {
+        b.className = "srv-btn p-2 rounded-xl border text-center text-xs border-slate-200 transition";
+      });
+      document.getElementById(`srv-btn-${choice}`).className = "srv-btn p-2 rounded-xl border text-center text-xs border-red-600 bg-red-50 text-red-600 font-bold transition";
 
-    function setServiceChoice(choice) {
-      serviceChoice = choice;
-      document.querySelectorAll('.srv-btn').forEach(b => {
-        b.className = "srv-btn p-2 rounded-xl border text-center text-xs border-slate-200 transition";
-      });
-      document.getElementById(`srv-btn-${choice}`).className = "srv-btn p-2 rounded-xl border text-center text-xs border-red-600 bg-red-50 text-red-600 font-bold transition";
+      const accordion = document.getElementById('service-accordion');
+      if (choice === 'none') {
+        accordion.classList.remove('open');
+      } else {
+        accordion.classList.add('open');
+        setBeverage('Coca-Cola (Şişe)', 0);
+      }
+      updateModalPrice();
+    }
 
-      const accordion = document.getElementById('service-accordion');
-      if (choice === 'none') {
-        accordion.classList.remove('open');
-      } else {
-        accordion.classList.add('open');
-        setBeverage('Coca-Cola (Şişe)', 0); // Varsayılan şişe içecek
-      }
-      updateModalPrice();
-    }
+    function setBeverage(bev, extra) {
+      selectedBeverage = bev;
+      beverageExtraPrice = extra;
+      document.querySelectorAll('.bev-btn').forEach(b => {
+        b.className = "bev-btn p-2 rounded-xl border text-left text-xs border-slate-200 bg-white font-medium transition";
+      });
+      const target = document.getElementById(`bev-${bev}`);
+      if(target) {
+        target.className = "bev-btn p-2 rounded-xl border text-left text-xs border-red-600 bg-red-50 text-red-600 font-bold transition";
+      }
+      updateModalPrice();
+    }
 
-    function setBeverage(bev, extra) {
-      selectedBeverage = bev;
-      beverageExtraPrice = extra;
-      document.querySelectorAll('.bev-btn').forEach(b => {
-        b.className = "bev-btn p-2 rounded-xl border text-left text-xs border-slate-200 bg-white font-medium transition";
-      });
-      const target = document.getElementById(`bev-${bev}`);
-      if(target) {
-        target.className = "bev-btn p-2 rounded-xl border text-left text-xs border-red-600 bg-red-50 text-red-600 font-bold transition";
-      }
-      updateModalPrice();
-    }
+    function updateModalPrice() {
+      let total = selectedProduct.basePrice + (selectedSize ? selectedSize.priceOffset : 0);
+      if (serviceChoice === 'menu') {
+        total += 80 + beverageExtraPrice;
+      } else if (serviceChoice === 'package') {
+        total += 120 + beverageExtraPrice;
+      }
 
-    function updateModalPrice() {
-      let total = selectedProduct.basePrice + (selectedSize ? selectedSize.priceOffset : 0);
-      if (serviceChoice === 'menu') {
-        total += 80 + beverageExtraPrice;
-      } else if (serviceChoice === 'package') {
-        total += 120 + beverageExtraPrice;
-      }
+      document.getElementById('modal-total-price').innerText = `${total} ₺`;
+      document.getElementById('modal-add-btn').onclick = () => {
+        addToCart(total);
+        closeOptionsModal();
+      };
+    }
 
-      document.getElementById('modal-total-price').innerText = `${total} ₺`;
-      document.getElementById('modal-add-btn').onclick = () => {
-        addToCart(total);
-        closeOptionsModal();
-      };
-    }
+    function addToCart(totalPrice) {
+      let details = [];
+      if (selectedSize) details.push(selectedSize.name);
+      
+      if (serviceChoice === 'menu') {
+        let bevText = beverageExtraPrice > 0 ? `${selectedBeverage} (+20 ₺)` : selectedBeverage;
+        details.push(`Menü (+80 ₺: Orta Patates + ${bevText})`);
+      } else if (serviceChoice === 'package') {
+        let bevText = beverageExtraPrice > 0 ? `${selectedBeverage} (+20 ₺)` : selectedBeverage;
+        details.push(`Paket (+120 ₺: Orta Patates + ${bevText})`);
+      }
 
-    function addToCart(totalPrice) {
-      let details = [];
-      if (selectedSize) details.push(selectedSize.name);
-      
-      if (serviceChoice === 'menu') {
-        let bevText = beverageExtraPrice > 0 ? `${selectedBeverage} (+20 ₺)` : selectedBeverage;
-        details.push(`Menü (+80 ₺: Orta Patates + ${bevText})`);
-      } else if (serviceChoice === 'package') {
-        let bevText = beverageExtraPrice > 0 ? `${selectedBeverage} (+20 ₺)` : selectedBeverage;
-        details.push(`Paket (+120 ₺: Orta Patates + ${bevText})`);
-      }
+      cart.push({
+        id: Date.now(),
+        title: selectedProduct.title,
+        size: details.length > 0 ? details.join(' | ') : null,
+        price: totalPrice,
+        note: document.getElementById('modal-note').value.trim()
+      });
+      updateCartBar();
+    }
 
-      cart.push({
-        id: Date.now(),
-        title: selectedProduct.title,
-        size: details.length > 0 ? details.join(' | ') : null,
-        price: totalPrice,
-        note: document.getElementById('modal-note').value.trim()
-      });
-      updateCartBar();
-    }
+    function updateCartBar() {
+      document.getElementById('cart-badge').innerText = cart.length;
+      document.getElementById('cart-total-price').innerText = `${cart.reduce((s,i)=>s+i.price,0)} ₺`;
+      renderCartDrawerItems();
+    }
 
-    function updateCartBar() {
-      document.getElementById('cart-badge').innerText = cart.length;
-      document.getElementById('cart-total-price').innerText = `${cart.reduce((s,i)=>s+i.price,0)} ₺`;
-      renderCartDrawerItems();
-    }
+    function toggleCartDrawer() {
+      if (cart.length === 0) { alert('Sepetiniz boş'); return; }
+      document.getElementById('cart-drawer').classList.toggle('active');
+      document.getElementById('drawer-overlay').classList.toggle('hidden');
+    }
 
-    function toggleCartDrawer() {
-      if (cart.length === 0) { alert('Sepetiniz boş'); return; }
-      document.getElementById('cart-drawer').classList.toggle('active');
-      document.getElementById('drawer-overlay').classList.toggle('hidden');
-    }
+    function closeCartDrawerExplicit() {
+      document.getElementById('cart-drawer').classList.remove('active');
+      document.getElementById('drawer-overlay').classList.add('hidden');
+    }
 
-    function closeCartDrawerExplicit() {
-      document.getElementById('cart-drawer').classList.remove('active');
-      document.getElementById('drawer-overlay').classList.add('hidden');
-    }
+    function renderCartDrawerItems() {
+      document.getElementById('cart-items-container').innerHTML = cart.map((item, idx) => `
+        <div class="bg-slate-50 p-3 rounded-2xl border flex justify-between items-start text-xs">
+          <div><h4 class="font-extrabold text-slate-900">${item.title} ${item.size ? `(${item.size})` : ''}</h4>${item.note ? `<div class="text-[10px] text-amber-600">Not: ${item.note}</div>`:''}<span class="font-black text-slate-900">${item.price} ₺</span></div>
+          <button onclick="cart.splice(${idx},1); updateCartBar();" class="text-slate-400 hover:text-red-600"><i class="fa-solid fa-trash"></i></button>
+        </div>
+      `).join('');
+      document.getElementById('cart-drawer-total').innerText = `${cart.reduce((s,i)=>s+i.price,0)} ₺`;
+    }
 
-    function renderCartDrawerItems() {
-      document.getElementById('cart-items-container').innerHTML = cart.map((item, idx) => `
-        <div class="bg-slate-50 p-3 rounded-2xl border flex justify-between items-start text-xs">
-          <div><h4 class="font-extrabold text-slate-900">${item.title} ${item.size ? `(${item.size})` : ''}</h4>${item.note ? `<div class="text-[10px] text-amber-600">Not: ${item.note}</div>`:''}<span class="font-black text-slate-900">${item.price} ₺</span></div>
-          <button onclick="cart.splice(${idx},1); updateCartBar();" class="text-slate-400 hover:text-red-600"><i class="fa-solid fa-trash"></i></button>
-        </div>
-      `).join('');
-      document.getElementById('cart-drawer-total').innerText = `${cart.reduce((s,i)=>s+i.price,0)} ₺`;
-    }
+    async function submitOrderToAPI() {
+      if (!currentTable || cart.length === 0) return;
+      const res = await fetch('/api/orders', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ tableName: currentTable, items: cart, totalPrice: cart.reduce((s,i)=>s+i.price,0) }) });
+      const data = await res.json();
+      if (data.success) {
+        let ids = JSON.parse(localStorage.getItem(`evreka_orders_${currentTable}`) || '[]');
+        ids.push(String(data.order.id));
+        localStorage.setItem(`evreka_orders_${currentTable}`, JSON.stringify(ids));
+        cart = []; updateCartBar(); closeCartDrawerExplicit();
+        document.getElementById('order-success-modal').classList.remove('hidden');
+        checkActiveOrdersMini();
+      }
+    }
 
-    async function submitOrderToAPI() {
-      if (!currentTable || cart.length === 0) return;
-      const res = await fetch('/api/orders', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ tableName: currentTable, items: cart, totalPrice: cart.reduce((s,i)=>s+i.price,0) }) });
-      const data = await res.json();
-      if (data.success) {
-        let ids = JSON.parse(localStorage.getItem(`evreka_orders_${currentTable}`) || '[]');
-        ids.push(String(data.order.id));
-        localStorage.setItem(`evreka_orders_${currentTable}`, JSON.stringify(ids));
-        cart = []; updateCartBar(); closeCartDrawerExplicit();
-        document.getElementById('order-success-modal').classList.remove('hidden');
-        checkActiveOrdersMini();
-      }
-    }
+    async function checkActiveOrdersMini() {
+      try {
+        const res = await fetch('/api/orders');
+        const data = await res.json();
+        if (data.success) {
+          const tableKey = `evreka_orders_${currentTable}`;
+          let ids = JSON.parse(localStorage.getItem(tableKey) || '[]');
+          if (ids.length === 0) {
+            document.getElementById('mini-tracker-banner').classList.add('hidden');
+            return;
+          }
 
-    async function checkActiveOrdersMini() {
-      try {
-        const res = await fetch('/api/orders');
-        const data = await res.json();
-        if (data.success) {
-          const tableKey = `evreka_orders_${currentTable}`;
-          let ids = JSON.parse(localStorage.getItem(tableKey) || '[]');
-          if (ids.length === 0) {
-            document.getElementById('mini-tracker-banner').classList.add('hidden');
-            return;
-          }
+          const allOrders = data.orders || [];
+          const myOrders = allOrders.filter(o => ids.includes(String(o.id)));
 
-          const allOrders = data.orders || [];
-          const myOrders = allOrders.filter(o => ids.includes(String(o.id)));
+          if (myOrders.length > 0 && myOrders.every(o => {
+            const st = String(o.status || 'WAITING').toUpperCase();
+            return st === 'PAID' || st === 'CANCELLED';
+          })) {
+            localStorage.removeItem(tableKey);
+            document.getElementById('mini-tracker-banner').classList.add('hidden');
+            closeTrackerDrawer();
+            return;
+          }
 
-          if (myOrders.length > 0 && myOrders.every(o => {
-            const st = String(o.status || 'WAITING').toUpperCase();
-            return st === 'PAID' || st === 'CANCELLED';
-          })) {
-            localStorage.removeItem(tableKey);
-            document.getElementById('mini-tracker-banner').classList.add('hidden');
-            closeTrackerDrawer();
-            return;
-          }
+          const activeOrders = myOrders.filter(o => {
+            const st = String(o.status || 'WAITING').toUpperCase();
+            return st !== 'PAID' && st !== 'CANCELLED';
+          });
 
-          const activeOrders = myOrders.filter(o => {
-            const st = String(o.status || 'WAITING').toUpperCase();
-            return st !== 'PAID' && st !== 'CANCELLED';
-          });
+          if (activeOrders.length > 0) {
+            document.getElementById('mini-tracker-banner').classList.remove('hidden');
+            document.getElementById('mini-tracker-text').innerText = `${activeOrders.length} Aktif Siparişiniz Var`;
+            if (document.getElementById('tracker-drawer').classList.contains('active')) {
+              renderTrackerContent(allOrders);
+            }
+          } else {
+            document.getElementById('mini-tracker-banner').classList.add('hidden');
+          }
+        }
+      } catch (e) {}
+    }
 
-          if (activeOrders.length > 0) {
-            document.getElementById('mini-tracker-banner').classList.remove('hidden');
-            document.getElementById('mini-tracker-text').innerText = `${activeOrders.length} Aktif Siparişiniz Var`;
-            if (document.getElementById('tracker-drawer').classList.contains('active')) {
-              renderTrackerContent(allOrders);
-            }
-          } else {
-            document.getElementById('mini-tracker-banner').classList.add('hidden');
-          }
-        }
-      } catch (e) {}
-    }
+    async function toggleTrackerDrawer() {
+      const drawer = document.getElementById('tracker-drawer');
+      const overlay = document.getElementById('tracker-overlay');
+      if (drawer.classList.contains('active')) {
+        closeTrackerDrawer();
+      } else {
+        let allOrders = [];
+        try {
+          const res = await fetch('/api/orders');
+          const data = await res.json();
+          if (data.success) allOrders = data.orders;
+        } catch (e) {}
+        renderTrackerContent(allOrders);
+        drawer.classList.add('active');
+        overlay.classList.remove('hidden');
+      }
+    }
+    function closeTrackerDrawer() { document.getElementById('tracker-drawer').classList.remove('active'); document.getElementById('tracker-overlay').classList.add('hidden'); }
 
-    async function toggleTrackerDrawer() {
-      const drawer = document.getElementById('tracker-drawer');
-      const overlay = document.getElementById('tracker-overlay');
-      if (drawer.classList.contains('active')) {
-        closeTrackerDrawer();
-      } else {
-        let allOrders = [];
-        try {
-          const res = await fetch('/api/orders');
-          const data = await res.json();
-          if (data.success) allOrders = data.orders;
-        } catch (e) {}
-        renderTrackerContent(allOrders);
-        drawer.classList.add('active');
-        overlay.classList.remove('hidden');
-      }
-    }
-    function closeTrackerDrawer() { document.getElementById('tracker-drawer').classList.remove('active'); document.getElementById('tracker-overlay').classList.add('hidden'); }
+    function renderTrackerContent(allOrders) {
+      const ids = JSON.parse(localStorage.getItem(`evreka_orders_${currentTable}`) || '[]');
+      const container = document.getElementById('tracker-items-container');
+      const myOrders = allOrders.filter(o => ids.includes(String(o.id)));
 
-    function renderTrackerContent(allOrders) {
-      const ids = JSON.parse(localStorage.getItem(`evreka_orders_${currentTable}`) || '[]');
-      const container = document.getElementById('tracker-items-container');
-      const myOrders = allOrders.filter(o => ids.includes(String(o.id)));
+      if (myOrders.length === 0) {
+        container.innerHTML = '<div class="text-center text-xs text-slate-400 py-8">Aktif siparişiniz bulunmuyor.</div>';
+        return;
+      }
 
-      if (myOrders.length === 0) {
-        container.innerHTML = '<div class="text-center text-xs text-slate-400 py-8">Aktif siparişiniz bulunmuyor.</div>';
-        return;
-      }
+      container.innerHTML = myOrders.map(o => {
+        const st = String(o.status || 'WAITING').toUpperCase();
+        let badge = '<span class="text-amber-400">⏳ Onay Bekliyor</span>';
+        if (st === 'PREPARING') badge = '<span class="text-emerald-400">🔥 Mutfakta Hazırlanıyor</span>';
+        else if (st === 'SERVED') badge = '<span class="text-indigo-400">🍽️ Masaya Servis Edildi</span>';
+        else if (st === 'PAID') badge = '<span class="text-emerald-300">✅ Ödeme Alındı & Kapatıldı</span>';
 
-      container.innerHTML = myOrders.map(o => {
-        const st = String(o.status || 'WAITING').toUpperCase();
-        let badge = '<span class="text-amber-400">⏳ Onay Bekliyor</span>';
-        if (st === 'PREPARING') badge = '<span class="text-emerald-400">🔥 Mutfakta Hazırlanıyor</span>';
-        else if (st === 'SERVED') badge = '<span class="text-indigo-400">🍽️ Masaya Servis Edildi</span>';
-        else if (st === 'PAID') badge = '<span class="text-emerald-300">✅ Ödeme Alındı & Kapatıldı</span>';
+        return `
+          <div class="bg-slate-800 border border-slate-700 rounded-2xl p-4 space-y-2 text-xs">
+            <div class="flex justify-between items-center font-bold border-b border-slate-700 pb-2">
+              <span class="text-red-400">Sipariş #${o.id}</span><span class="text-amber-400">${o.totalPrice} ₺</span>
+            </div>
+            <div class="space-y-1">${(o.items||[]).map(i=>`<div class="flex justify-between"><span>${i.title}${i.size?`(${i.size})`:''}</span><b>${i.price} ₺</b></div>`).join('')}</div>
+            <div class="pt-2 border-t border-slate-700 font-extrabold text-center">${badge}</div>
+          </div>
+        `;
+      }).join('');
+    }
 
-        return `
-          <div class="bg-slate-800 border border-slate-700 rounded-2xl p-4 space-y-2 text-xs">
-            <div class="flex justify-between items-center font-bold border-b border-slate-700 pb-2">
-              <span class="text-red-400">Sipariş #${o.id}</span><span class="text-amber-400">${o.totalPrice} ₺</span>
-            </div>
-            <div class="space-y-1">${(o.items||[]).map(i=>`<div class="flex justify-between"><span>${i.title}${i.size?`(${i.size})`:''}</span><b>${i.price} ₺</b></div>`).join('')}</div>
-            <div class="pt-2 border-t border-slate-700 font-extrabold text-center">${badge}</div>
-          </div>
-        `;
-      }).join('');
-    }
-
-    function filterCategory(cat, btn) {
-      document.querySelectorAll('.cat-btn').forEach(b => b.className = "cat-btn px-4 py-2 rounded-2xl bg-slate-800 text-slate-300 border border-slate-700 text-xs font-bold whitespace-nowrap transition-all hover:bg-slate-700");
-      btn.className = "cat-btn px-4 py-2 rounded-2xl bg-red-600 text-white text-xs font-black shadow-md whitespace-nowrap transition-all";
-      renderProducts(cat);
-    }
-  </script>
+    function filterCategory(cat, btn) {
+      document.querySelectorAll('.cat-btn').forEach(b => b.className = "cat-btn px-4 py-2 rounded-2xl bg-slate-800 text-slate-300 border border-slate-700 text-xs font-bold whitespace-nowrap transition-all hover:bg-slate-700");
+      btn.className = "cat-btn px-4 py-2 rounded-2xl bg-red-600 text-white text-xs font-black shadow-md whitespace-nowrap transition-all";
+      renderProducts(cat);
+    }
+  </script>
 </body>
 </html>
