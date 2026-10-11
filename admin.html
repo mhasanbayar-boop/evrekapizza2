@@ -338,17 +338,14 @@
           }
           previousOrderCount = waitingCount;
 
-          // Yerel state verilerini koruyarak sunucu verilerini güncelleyelim
+          // Sunucu verilerini yerel state ile birleştirerek imza ve saatlerin kaybolmasını engelliyoruz
           cachedOrders = newOrders.map(serverOrder => {
             const existing = cachedOrders.find(o => String(o.id) === String(serverOrder.id));
-            if (existing) {
-              return {
-                ...serverOrder,
-                handledBy: serverOrder.handledBy || existing.handledBy,
-                timeLogs: serverOrder.timeLogs || existing.timeLogs
-              };
-            }
-            return serverOrder;
+            return {
+              ...serverOrder,
+              handledBy: serverOrder.handledBy || (existing ? existing.handledBy : null),
+              timeLogs: serverOrder.timeLogs || (existing ? existing.timeLogs : null)
+            };
           });
 
           updateCounts();
@@ -469,7 +466,7 @@
             targetOrder.handledBy = staffSignature;
           }
 
-          // Butona basıldığında saatleri eksiksiz kaydet
+          // Butona tıklandığı andaki saatleri eksiksiz kaydet
           if (!targetOrder.timeLogs) targetOrder.timeLogs = {};
           if (!targetOrder.timeLogs.created) {
             targetOrder.timeLogs.created = targetOrder.createdAt || nowTime;
@@ -479,6 +476,7 @@
           if (newStatus === 'PAID' && !targetOrder.timeLogs.paid) targetOrder.timeLogs.paid = nowTime;
         }
 
+        // Sunucuya gönderip kalıcı olarak kaydediyoruz
         await fetch(`/api/orders/${id}/status`, { 
           method: 'PATCH', 
           headers: { 'Content-Type': 'application/json' }, 
@@ -549,14 +547,14 @@
           displayTableName += ' <span class="text-amber-300 text-[11px] font-bold">(- Paket Servis)</span>';
         }
 
-        const orderTime = o.timeLogs && o.timeLogs.created ? o.timeLogs.created : (new Date().toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' }) + ' - ' + new Date().toLocaleDateString('tr-TR'));
+        const orderTime = (o.timeLogs && o.timeLogs.created) ? o.timeLogs.created : (o.createdAt || (new Date().toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' }) + ' - ' + new Date().toLocaleDateString('tr-TR')));
 
-        // Onaylayan Personel İsmi (Kalıcı ve Kesintisiz Gösterim)
+        // Hangi personel onayladıysa ismi her zaman ve her cihazda kalıcı olarak görünür
         const handledBadge = o.handledBy 
           ? `<div class="bg-indigo-500/10 border border-indigo-500/30 text-indigo-300 text-[11px] font-bold px-3 py-1.5 rounded-xl mb-3 flex items-center justify-between shadow-sm"><span class="flex items-center gap-1.5"><i class="fa-solid fa-user-check text-emerald-400"></i> Onaylayan:</span> <span class="text-white">${o.handledBy}</span></div>` 
           : `<div class="bg-amber-500/10 border border-amber-500/30 text-amber-300 text-[11px] font-bold px-3 py-1.5 rounded-xl mb-3 flex items-center gap-2 shadow-sm"><i class="fa-solid fa-clock text-amber-400"></i> Onay Bekliyor</div>`;
 
-        // Tamamlananlar / Arşiv Kısmı İçin Detaylı Saat Dökümü
+        // Tamamlananlar / Arşiv sekmesinde buton saatlerinin tam dökümü
         let timelineBox = '';
         if (st === 'PAID') {
           const logs = o.timeLogs || {};
