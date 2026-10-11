@@ -402,13 +402,31 @@
       const basePrice = document.getElementById('new-price').value;
       const description = document.getElementById('new-desc').value.trim();
       const image = document.getElementById('new-image').value.trim();
+      
       if (!title || !basePrice) { alert('Lütfen ürün adı ve fiyatı giriniz.'); return; }
+      
       try {
-        const res = await fetch('/api/catalog', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ title, category, basePrice, description, image }) });
+        const res = await fetch('/api/catalog', { 
+          method: 'POST', 
+          headers: { 'Content-Type': 'application/json' }, 
+          body: JSON.stringify({ 
+            title, 
+            category, 
+            basePrice: Number(basePrice), 
+            description, 
+            image: image || 'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=300' 
+          }) 
+        });
         const data = await res.json();
         if (data.success) {
-          document.getElementById('new-title').value = ''; document.getElementById('new-price').value = ''; document.getElementById('new-desc').value = ''; document.getElementById('new-image').value = '';
-          fetchCatalogForAdmin(); alert('Ürün eklendi!');
+          document.getElementById('new-title').value = ''; 
+          document.getElementById('new-price').value = ''; 
+          document.getElementById('new-desc').value = ''; 
+          document.getElementById('new-image').value = '';
+          fetchCatalogForAdmin(); 
+          alert('Ürün başarıyla menüye eklendi!');
+        } else {
+          alert('Ürün eklenemedi.');
         }
       } catch (e) {}
     }
@@ -435,7 +453,10 @@
     async function deleteProduct(id) {
       if (currentUserRole !== 'patron') return;
       if (!confirm('Silinsin mi?')) return;
-      try { await fetch(`/api/catalog/${id}`, { method: 'DELETE' }); fetchCatalogForAdmin(); } catch (e) {}
+      try { 
+        await fetch(`/api/catalog/${id}`, { method: 'DELETE' }); 
+        fetchCatalogForAdmin(); 
+      } catch (e) {}
     }
 
     function updateCounts() {
