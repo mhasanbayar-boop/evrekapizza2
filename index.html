@@ -57,6 +57,9 @@
       <p class="text-xs text-white/90 mt-1">Masadan QR kod ile kolayca sipariş verin.</p>
     </div>
 
+    <!-- KAMPANYALAR BANNER ALANI -->
+    <div id="campaigns-container" class="space-y-3"></div>
+
     <!-- Kategori Butonları -->
     <div class="overflow-x-auto no-scrollbar flex gap-2 py-1 sticky top-[65px] z-20 bg-slate-50">
       <button onclick="filterCat('all', this)" class="cat-btn px-4 py-2 rounded-2xl bg-slate-900 text-white text-xs font-black whitespace-nowrap shadow-sm">Tümü</button>
@@ -114,7 +117,7 @@
     <div id="tracker-items" class="flex-1 overflow-y-auto p-5 space-y-4"></div>
   </div>
 
-  <!-- ÜRÜN DETAY MODALI -->
+  <!-- ÜRÜN / KAMPANYA DETAY MODALI -->
   <div id="modal" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
     <div class="bg-white w-full max-w-md rounded-3xl p-6 shadow-2xl space-y-4 relative max-h-[90vh] overflow-y-auto">
       <button onclick="closeModal()" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-600"><i class="fa-solid fa-xmark"></i></button>
@@ -123,15 +126,55 @@
         <h3 id="modal-title" class="font-black text-lg text-slate-900"></h3>
         <p id="modal-desc" class="text-xs text-slate-500 mt-1"></p>
       </div>
+
+      <!-- BOYUT SEÇİMİ -->
       <div id="modal-sizes-box">
-        <label class="block text-xs font-black text-slate-700 uppercase mb-2">Boyut Seçin</label>
+        <label class="block text-xs font-black text-slate-700 uppercase mb-2">Boyut Seçin *</label>
         <div id="modal-sizes" class="grid grid-cols-2 gap-2"></div>
       </div>
+
+      <!-- SERVİS / MENÜ / PAKET SEÇENEKLERİ (Sadece Pizza ve Burger) -->
+      <div id="service-options-section" class="hidden">
+        <label class="block text-xs font-black text-slate-700 uppercase mb-2">Servis ve Menü Seçenekleri *</label>
+        <div class="grid grid-cols-3 gap-2">
+          <button onclick="selectServiceType('normal')" type="button" id="srv-normal" class="srv-btn p-2.5 rounded-xl border text-left text-xs border-red-600 bg-red-50 text-red-600 font-bold">
+            <div>Normal</div>
+            <div class="text-[10px] opacity-70">+0 ₺</div>
+          </button>
+          <button onclick="selectServiceType('menu')" type="button" id="srv-menu" class="srv-btn p-2.5 rounded-xl border text-left text-xs border-slate-200 text-slate-600">
+            <div>Menü (+80 ₺)</div>
+            <div class="text-[10px] opacity-70">Patates + İçecek</div>
+          </button>
+          <button onclick="selectServiceType('paket')" type="button" id="srv-paket" class="srv-btn p-2.5 rounded-xl border text-left text-xs border-slate-200 text-slate-600">
+            <div>Paket (+120 ₺)</div>
+            <div class="text-[10px] opacity-70">Patates + İçecek</div>
+          </button>
+        </div>
+
+        <div id="menu-details-box" class="mt-3 hidden bg-slate-50 border border-slate-200 rounded-2xl p-3.5 space-y-3">
+          <div class="text-xs font-bold text-emerald-700 flex items-center gap-1.5">
+            <i class="fa-solid fa-circle-check"></i> Zorunlu: Orta Boy Patates Kızartması dahildir.
+          </div>
+          <div>
+            <label class="block text-[11px] font-extrabold text-slate-700 uppercase tracking-wider mb-1.5">İçecek Seçin *</label>
+            <div class="grid grid-cols-2 gap-2" id="menu-drinks-container"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- KAMPANYA SEÇENEKLERİ -->
+      <div id="campaign-options-section" class="hidden">
+        <label class="block text-xs font-black text-slate-700 uppercase mb-2">Kampanya Seçenekleri *</label>
+        <div id="modal-campaign-options" class="space-y-3"></div>
+      </div>
+
+      <!-- GARSON NOTU -->
       <div>
         <label class="block text-xs font-black text-slate-700 uppercase mb-1">Garson Notu</label>
         <input type="text" id="modal-note" placeholder="Örn: Soslu olsun..." class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs outline-none focus:border-red-500">
       </div>
-      <button onclick="addToCart()" class="w-full bg-slate-900 text-white font-black py-3.5 rounded-2xl text-sm flex justify-between px-6 shadow-lg">
+
+      <button onclick="handleModalAddButton()" class="w-full bg-slate-900 text-white font-black py-3.5 rounded-2xl text-sm flex justify-between px-6 shadow-lg">
         <span>Sepete Ekle</span>
         <span id="modal-price" class="text-amber-400">0 ₺</span>
       </button>
@@ -139,7 +182,6 @@
   </div>
 
   <script>
-    // GARANTİ KATALOG VERİSİ
     let catalog = [
       { id: '1', title: 'Pepperoni Pizza', category: 'pizza', price: 260, description: 'Mozzarella, yoğun sucuk dilimleri, özel domates sosu', image: 'https://images.unsplash.com/photo-1628840042765-356cda07504e?w=500', sizes: [{name: 'Orta Boy', price: 0}, {name: 'Büyük Boy', price: 70}] },
       { id: '2', title: 'Margherita Pizza', category: 'pizza', price: 240, description: 'Taze mozzarella, fesleğen yaprakları', image: 'https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=500', sizes: [{name: 'Orta Boy', price: 0}, {name: 'Büyük Boy', price: 60}] },
@@ -150,13 +192,36 @@
       { id: '7', title: 'Çikolatalı Sufle', category: 'dessert', price: 150, description: 'Sıcak akışkan çikolatalı sufle', image: 'https://images.unsplash.com/photo-1606313564200-e75d5e30476c?w=500' }
     ];
 
+    let campaigns = [
+      { id: 'camp_1', title: 'Haftanın Özel Menüsü', description: 'Seçeceğiniz orta boy pizza + kutu içecek sadece 320 ₺!', badge: '%15 İNDİRİM', image: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=500' }
+    ];
+
+    let availableMenuDrinks = [
+      { name: 'ColaTurka / Sarıyer (200ml Şişe)', extraPrice: 0 },
+      { name: 'Pepsi (200ml Şişe)', extraPrice: 0 },
+      { name: 'Coca-Cola (200ml Şişe)', extraPrice: 0 },
+      { name: 'Ayran', extraPrice: 0 },
+      { name: 'Sade Soda Şişe', extraPrice: 0 },
+      { name: 'ColaTurka / Sarıyer (330ml Kutu)', extraPrice: 20 },
+      { name: 'Pepsi (330ml Kutu)', extraPrice: 20 },
+      { name: 'Coca-Cola (330ml Kutu)', extraPrice: 20 }
+    ];
+
     let currentTable = 'Masa-1';
     let cart = [];
     let activeProduct = null;
     let selectedSizePrice = 0;
     let selectedSizeName = '';
+    
+    let selectedServiceType = 'normal';
+    let selectedMenuDrink = availableMenuDrinks[0];
 
-    // SAYFA AÇILDIĞI AN ANINDA ÇALIŞIR
+    let isCampaignModal = false;
+    let selectedCampaignForModal = null;
+    let selectedCampPizza = null;
+    let selectedCampaignDrink = availableMenuDrinks[0];
+
+    // SAYFA AÇILDIĞI AN BAŞLAT
     (function initApp() {
       const params = new URLSearchParams(window.location.search);
       currentTable = params.get('masa') || params.get('table') || localStorage.getItem('evreka_table') || 'Masa-1';
@@ -165,6 +230,7 @@
       if (badge) badge.innerText = currentTable;
 
       renderProducts('all');
+      renderCampaigns();
       fetchServerCatalog();
       checkOrders();
       setInterval(checkOrders, 2000);
@@ -174,7 +240,6 @@
       try {
         const res = await fetch('/api/catalog');
         const data = await res.json();
-        
         let rawList = [];
         if (Array.isArray(data)) rawList = data;
         else if (data.catalog && Array.isArray(data.catalog)) rawList = data.catalog;
@@ -193,6 +258,122 @@
           renderProducts('all');
         }
       } catch (e) {}
+    }
+
+    function renderCampaigns() {
+      const container = document.getElementById('campaigns-container');
+      if (!container || campaigns.length === 0) {
+        if (container) container.innerHTML = '';
+        return;
+      }
+      container.innerHTML = campaigns.map(c => `
+        <div onclick="openCampaignModal('${c.id}')" class="bg-gradient-to-r from-red-950 via-slate-900 to-slate-900 border border-red-500/40 rounded-3xl p-4 text-white shadow-xl flex items-center justify-between gap-4 cursor-pointer hover:border-red-500 transition group">
+          <div class="flex items-center gap-3.5">
+            <img src="${c.image}" class="w-16 h-16 rounded-2xl object-cover shadow-md flex-shrink-0 group-hover:scale-105 transition">
+            <div class="space-y-1">
+              <span class="bg-red-600 text-white text-[10px] font-black px-2.5 py-0.5 rounded-lg shadow">${c.badge || 'KAMPANYA'}</span>
+              <h3 class="text-sm font-black text-white leading-snug">${c.title}</h3>
+              <p class="text-[11px] text-slate-300 line-clamp-1">${c.description || ''}</p>
+            </div>
+          </div>
+          <div class="w-10 h-10 rounded-2xl bg-red-600/20 group-hover:bg-red-600 text-red-400 group-hover:text-white flex items-center justify-center transition flex-shrink-0 shadow">
+            <i class="fa-solid fa-plus text-xs"></i>
+          </div>
+        </div>
+      `).join('');
+    }
+    window.renderCampaigns = renderCampaigns;
+
+    function openCampaignModal(id) {
+      const camp = campaigns.find(c => String(c.id) === String(id));
+      if (!camp) return;
+
+      isCampaignModal = true;
+      selectedCampaignForModal = camp;
+      const pizzas = catalog.filter(p => String(p.category || '').toLowerCase() === 'pizza');
+      selectedCampPizza = pizzas.length > 0 ? pizzas[0] : { title: 'Özel Pizza' };
+      selectedCampaignDrink = availableMenuDrinks[0];
+
+      document.getElementById('modal-img').src = camp.image;
+      document.getElementById('modal-title').innerText = camp.title;
+      document.getElementById('modal-desc').innerText = camp.description || '';
+      document.getElementById('modal-note').value = '';
+
+      document.getElementById('modal-sizes-box').classList.add('hidden');
+      document.getElementById('service-options-section').classList.add('hidden');
+      document.getElementById('campaign-options-section').classList.remove('hidden');
+
+      let pizzaSelectorHtml = '';
+      if (pizzas.length > 0) {
+        pizzaSelectorHtml = `
+          <div class="mb-3">
+            <label class="block text-[11px] font-extrabold text-slate-700 uppercase tracking-wider mb-1.5">Pizza Seçin *</label>
+            <div class="grid grid-cols-2 gap-2 max-h-40 overflow-y-auto">
+              ${pizzas.map((p, idx) => `
+                <button onclick="selectCampPizza('${p.id}')" type="button" id="camp-piz-${p.id}" class="camp-piz-btn p-2 rounded-xl border text-left text-[11px] ${idx === 0 ? 'border-red-600 bg-red-50 text-red-600 font-bold' : 'border-slate-200 text-slate-600'}">
+                  <div class="truncate">${p.title}</div>
+                </button>
+              `).join('')}
+            </div>
+          </div>
+        `;
+      }
+
+      document.getElementById('modal-campaign-options').innerHTML = pizzaSelectorHtml + `
+        <div class="text-xs font-bold text-emerald-700 flex items-center gap-1.5 mb-2">
+          <i class="fa-solid fa-circle-check"></i> Zorunlu: Orta Boy Patates Kızartması dahildir.
+        </div>
+        <div>
+          <label class="block text-[11px] font-extrabold text-slate-700 uppercase tracking-wider mb-1.5">İçecek Seçin *</label>
+          <div class="grid grid-cols-2 gap-2 max-h-40 overflow-y-auto">
+            ${availableMenuDrinks.map((d, idx) => `
+              <button onclick="selectCampDrinkByName('${d.name}')" type="button" class="camp-drink-btn p-2 rounded-xl border text-left text-[11px] ${idx === 0 ? 'border-red-600 bg-red-50 text-red-600 font-bold' : 'border-slate-200 text-slate-600'}">
+                <div class="truncate">${d.name}</div>
+                <div class="text-[10px] opacity-70">${d.extraPrice > 0 ? `+${d.extraPrice} ₺` : 'Fiyata Dahil'}</div>
+              </button>
+            `).join('')}
+          </div>
+        </div>
+      `;
+
+      updateCampaignModalTotal();
+      document.getElementById('modal').classList.remove('hidden');
+    }
+    window.openCampaignModal = openCampaignModal;
+
+    function selectCampPizza(pizzaId) {
+      const pizzas = catalog.filter(p => String(p.category || '').toLowerCase() === 'pizza');
+      selectedCampPizza = pizzas.find(p => String(p.id) === String(pizzaId));
+      document.querySelectorAll('.camp-piz-btn').forEach(b => {
+        if (b.id === `camp-piz-${pizzaId}`) {
+          b.className = "camp-piz-btn p-2 rounded-xl border text-left text-[11px] border-red-600 bg-red-50 text-red-600 font-bold";
+        } else {
+          b.className = "camp-piz-btn p-2 rounded-xl border text-left text-[11px] border-slate-200 text-slate-600";
+        }
+      });
+      updateCampaignModalTotal();
+    }
+    window.selectCampPizza = selectCampPizza;
+
+    function selectCampDrinkByName(name) {
+      const found = availableMenuDrinks.find(d => d.name === name);
+      if (found) {
+        selectedCampaignDrink = found;
+        document.querySelectorAll('.camp-drink-btn').forEach(b => {
+          if (b.innerText.includes(name)) {
+            b.className = "camp-drink-btn p-2 rounded-xl border text-left text-[11px] border-red-600 bg-red-50 text-red-600 font-bold";
+          } else {
+            b.className = "camp-drink-btn p-2 rounded-xl border text-left text-[11px] border-slate-200 text-slate-600";
+          }
+        });
+        updateCampaignModalTotal();
+      }
+    }
+    window.selectCampDrinkByName = selectCampDrinkByName;
+
+    function updateCampaignModalTotal() {
+      let total = 320 + selectedCampaignDrink.extraPrice;
+      document.getElementById('modal-price').innerText = `${total} ₺`;
     }
 
     function filterCat(cat, btn) {
@@ -238,25 +419,31 @@
     window.renderProducts = renderProducts;
 
     function openModal(id) {
-      activeProduct = catalog.find(p => String(p.id) === String(id));
-      if (!activeProduct) return;
+      const prod = catalog.find(p => String(p.id) === String(id));
+      if (!prod) return;
 
+      isCampaignModal = false;
+      activeProduct = prod;
       selectedSizePrice = 0;
       selectedSizeName = '';
+      selectedServiceType = 'normal';
+      selectedMenuDrink = availableMenuDrinks[0];
 
-      document.getElementById('modal-img').src = activeProduct.image;
-      document.getElementById('modal-title').innerText = activeProduct.title;
-      document.getElementById('modal-desc').innerText = activeProduct.description;
+      document.getElementById('modal-img').src = prod.image;
+      document.getElementById('modal-title').innerText = prod.title;
+      document.getElementById('modal-desc').innerText = prod.description;
       document.getElementById('modal-note').value = '';
+
+      document.getElementById('campaign-options-section').classList.add('hidden');
 
       const sizesBox = document.getElementById('modal-sizes-box');
       const sizesContainer = document.getElementById('modal-sizes');
 
-      if (activeProduct.sizes && activeProduct.sizes.length > 0) {
+      if (prod.sizes && prod.sizes.length > 0) {
         sizesBox.classList.remove('hidden');
-        selectedSizePrice = activeProduct.sizes[0].price || 0;
-        selectedSizeName = activeProduct.sizes[0].name || '';
-        sizesContainer.innerHTML = activeProduct.sizes.map((sz, idx) => `
+        selectedSizePrice = prod.sizes[0].price || 0;
+        selectedSizeName = prod.sizes[0].name || '';
+        sizesContainer.innerHTML = prod.sizes.map((sz, idx) => `
           <button onclick="selectSize(${sz.price || 0}, '${sz.name}', this)" type="button" class="sz-btn p-2.5 rounded-xl border text-left text-xs ${idx === 0 ? 'border-red-600 bg-red-50 text-red-600 font-bold' : 'border-slate-200 text-slate-600'}">
             <div>${sz.name}</div>
             <div class="text-[10px] opacity-70">+${sz.price || 0} ₺</div>
@@ -264,6 +451,16 @@
         `).join('');
       } else {
         sizesBox.classList.add('hidden');
+      }
+
+      // SADECE PİZZA VE BURGERLERDE MENÜ/PAKET SEÇENEĞİ GÖSTER
+      const serviceSec = document.getElementById('service-options-section');
+      const cat = String(prod.category || '').toLowerCase();
+      if (cat === 'pizza' || cat === 'burger') {
+        serviceSec.classList.remove('hidden');
+        updateServiceUI();
+      } else {
+        serviceSec.classList.add('hidden');
       }
 
       updateModalPrice();
@@ -284,9 +481,75 @@
     }
     window.selectSize = selectSize;
 
+    function selectServiceType(type) {
+      selectedServiceType = type;
+      updateServiceUI();
+      updateModalPrice();
+    }
+    window.selectServiceType = selectServiceType;
+
+    function updateServiceUI() {
+      ['normal', 'menu', 'paket'].forEach(t => {
+        const btn = document.getElementById(`srv-${t}`);
+        if (!btn) return;
+        if (t === selectedServiceType) {
+          btn.className = "srv-btn p-2.5 rounded-xl border text-left text-xs border-red-600 bg-red-50 text-red-600 font-bold";
+        } else {
+          btn.className = "srv-btn p-2.5 rounded-xl border text-left text-xs border-slate-200 text-slate-600";
+        }
+      });
+
+      const menuDetailsBox = document.getElementById('menu-details-box');
+      if (selectedServiceType === 'menu' || selectedServiceType === 'paket') {
+        menuDetailsBox.classList.remove('hidden');
+        renderMenuDrinks();
+      } else {
+        menuDetailsBox.classList.add('hidden');
+      }
+    }
+
+    function renderMenuDrinks() {
+      const container = document.getElementById('menu-drinks-container');
+      if (!container) return;
+      container.innerHTML = availableMenuDrinks.map((d) => {
+        const isSelected = selectedMenuDrink.name === d.name;
+        return `
+          <button onclick="selectMenuDrinkByName('${d.name}')" type="button" class="menu-drink-btn p-2 rounded-xl border text-left text-[11px] ${isSelected ? 'border-red-600 bg-red-50 text-red-600 font-bold' : 'border-slate-200 text-slate-600'}">
+            <div class="truncate">${d.name}</div>
+            <div class="text-[10px] opacity-70">${d.extraPrice > 0 ? `+${d.extraPrice} ₺` : 'Fiyata Dahil'}</div>
+          </button>
+        `;
+      }).join('');
+    }
+    window.renderMenuDrinks = renderMenuDrinks;
+
+    function selectMenuDrinkByName(name) {
+      const found = availableMenuDrinks.find(d => d.name === name);
+      if (found) {
+        selectedMenuDrink = found;
+        renderMenuDrinks();
+        updateModalPrice();
+      }
+    }
+    window.selectMenuDrinkByName = selectMenuDrinkByName;
+
     function updateModalPrice() {
+      if (isCampaignModal) {
+        updateCampaignModalTotal();
+        return;
+      }
       if (!activeProduct) return;
-      const total = Number(activeProduct.price) + Number(selectedSizePrice);
+      let total = Number(activeProduct.price) + Number(selectedSizePrice);
+
+      const cat = String(activeProduct.category || '').toLowerCase();
+      if (cat === 'pizza' || cat === 'burger') {
+        if (selectedServiceType === 'menu') {
+          total += 80 + Number(selectedMenuDrink.extraPrice || 0);
+        } else if (selectedServiceType === 'paket') {
+          total += 120 + Number(selectedMenuDrink.extraPrice || 0);
+        }
+      }
+
       document.getElementById('modal-price').innerText = `${total} ₺`;
     }
 
@@ -295,20 +558,56 @@
     }
     window.closeModal = closeModal;
 
-    function addToCart() {
-      if (!activeProduct) return;
-      const total = Number(activeProduct.price) + Number(selectedSizePrice);
+    function handleModalAddButton() {
+      if (isCampaignModal) {
+        addCampaignToCart();
+      } else {
+        addToCart();
+      }
+      closeModal();
+    }
+    window.handleModalAddButton = handleModalAddButton;
+
+    function addCampaignToCart() {
+      if (!selectedCampaignForModal) return;
+      let total = 320 + selectedCampaignDrink.extraPrice;
       cart.push({
         id: Date.now(),
-        title: activeProduct.title,
-        size: selectedSizeName,
+        title: `🔥 Kampanya: ${selectedCampaignForModal.title}`,
+        size: `Pizza: ${selectedCampPizza ? selectedCampPizza.title : 'Özel Pizza'} • Patates + İçecek: ${selectedCampaignDrink.name}${selectedCampaignDrink.extraPrice > 0 ? ` (+${selectedCampaignDrink.extraPrice}₺)` : ''}`,
         price: total,
         note: document.getElementById('modal-note').value.trim()
       });
-      closeModal();
       updateCartUI();
     }
-    window.addToCart = addToCart;
+
+    function addToCart() {
+      if (!activeProduct) return;
+      let unitPrice = Number(activeProduct.price) + Number(selectedSizePrice);
+      let variantDesc = selectedSizeName ? selectedSizeName : '';
+
+      const cat = String(activeProduct.category || '').toLowerCase();
+      if (cat === 'pizza' || cat === 'burger') {
+        if (selectedServiceType === 'menu') {
+          unitPrice += 80 + Number(selectedMenuDrink.extraPrice || 0);
+          variantDesc += (variantDesc ? ' • ' : '') + `Menü (+80₺, Patates + ${selectedMenuDrink.name}${selectedMenuDrink.extraPrice > 0 ? ` +${selectedMenuDrink.extraPrice}₺` : ''})`;
+        } else if (selectedServiceType === 'paket') {
+          unitPrice += 120 + Number(selectedMenuDrink.extraPrice || 0);
+          variantDesc += (variantDesc ? ' • ' : '') + `Paket (+120₺, Patates + ${selectedMenuDrink.name}${selectedMenuDrink.extraPrice > 0 ? ` +${selectedMenuDrink.extraPrice}₺` : ''})`;
+        } else {
+          variantDesc += (variantDesc ? ' • ' : '') + `Normal Servis`;
+        }
+      }
+
+      cart.push({
+        id: Date.now(),
+        title: activeProduct.title,
+        size: variantDesc,
+        price: unitPrice,
+        note: document.getElementById('modal-note').value.trim()
+      });
+      updateCartUI();
+    }
 
     function updateCartUI() {
       document.getElementById('cart-count').innerText = cart.length;
@@ -324,7 +623,8 @@
       container.innerHTML = cart.map((item, idx) => `
         <div class="bg-slate-50 border border-slate-200 p-3.5 rounded-2xl flex items-center justify-between gap-3">
           <div>
-            <h4 class="font-bold text-slate-900 text-xs">${item.title} ${item.size ? '(' + item.size + ')' : ''}</h4>
+            <h4 class="font-bold text-slate-900 text-xs">${item.title}</h4>
+            <p class="text-[11px] text-slate-500 mt-0.5">${item.size || ''}</p>
             ${item.note ? `<p class="text-[10px] text-amber-600 mt-0.5">Not: ${item.note}</p>` : ''}
             <div class="text-xs font-black text-red-600 mt-1">${item.price} ₺</div>
           </div>
@@ -473,7 +773,7 @@
               <span class="px-2 py-0.5 rounded bg-slate-700 text-white">${o.status || 'WAITING'}</span>
             </div>
             <div class="space-y-1 text-xs">
-              ${(o.items || []).map(i => `<div class="flex justify-between text-slate-300"><span>${i.title || i.name}</span><span class="font-bold">${i.price || i.tutar} ₺</span></div>`).join('')}
+              ${(o.items || []).map(i => `<div class="flex justify-between text-slate-300"><span>${i.title \vert{}\vert{} i.name} (${i.size || ''})</span><span class="font-bold">${i.price || i.tutar} ₺</span></div>`).join('')}
             </div>
           </div>
         `).join('');
