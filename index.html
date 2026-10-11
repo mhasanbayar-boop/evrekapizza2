@@ -1,6 +1,4 @@
-<!DOCTYPE html>
-<html lang="tr" class="h-full bg-slate-950">
-<head>
+<!DOCTYPE html><html lang="tr" class="h-full bg-slate-950"><head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Evreka Pizza - QR Menü</title>
@@ -16,9 +14,7 @@
       transform: translateY(100%);
     }
     .cart-drawer.active, .tracker-drawer.active { transform: translateY(0); }
-  </style>
-</head>
-<body class="h-full text-slate-800 bg-slate-100 flex flex-col antialiased">
+  </style></head><body class="h-full text-slate-800 bg-slate-100 flex flex-col antialiased">
 
   <!-- MASA KONTROL EKRANI -->
   <div id="no-table-screen" class="fixed inset-0 z-50 bg-slate-950 flex items-center justify-center p-4 text-center hidden">
@@ -81,7 +77,7 @@
         <p class="text-xs text-white/80 mt-1">Masadaki QR kod ile anında sipariş verin.</p>
       </div>
 
-      <!-- KAMPANYALAR BANNER ALANI (YÖNETİM PANELİNDEN GELİR) -->
+      <!-- KAMPANYALAR BANNER ALANI -->
       <div id="campaigns-container" class="space-y-3"></div>
     </div>
 
@@ -89,6 +85,7 @@
     <div class="px-4 overflow-x-auto no-scrollbar flex gap-2 py-1 sticky top-[65px] z-20 bg-slate-100/90 backdrop-blur-md">
       <button onclick="filterCategory('all', this)" class="cat-btn px-4 py-2 rounded-2xl bg-slate-900 text-white text-xs font-black shadow-sm whitespace-nowrap transition">Tüm Menü</button>
       <button onclick="filterCategory('pizza', this)" class="cat-btn px-4 py-2 rounded-2xl bg-white text-slate-600 border border-slate-200 text-xs font-bold whitespace-nowrap transition">Pizzalar</button>
+      <button onclick="filterCategory('burger', this)" class="cat-btn px-4 py-2 rounded-2xl bg-white text-slate-600 border border-slate-200 text-xs font-bold whitespace-nowrap transition">Burgerler</button>
       <button onclick="filterCategory('side', this)" class="cat-btn px-4 py-2 rounded-2xl bg-white text-slate-600 border border-slate-200 text-xs font-bold whitespace-nowrap transition">Atıştırmalıklar</button>
       <button onclick="filterCategory('beverage', this)" class="cat-btn px-4 py-2 rounded-2xl bg-white text-slate-600 border border-slate-200 text-xs font-bold whitespace-nowrap transition">İçecekler</button>
       <button onclick="filterCategory('dessert', this)" class="cat-btn px-4 py-2 rounded-2xl bg-white text-slate-600 border border-slate-200 text-xs font-bold whitespace-nowrap transition">Tatlılar</button>
@@ -191,6 +188,36 @@
         <div class="grid grid-cols-3 gap-2" id="modal-sizes"></div>
       </div>
 
+      <!-- SERVİS / MENÜ / PAKET SEÇENEKLERİ (PİZZA & BURGER İÇİN) -->
+      <div class="mt-5 hidden" id="service-options-section">
+        <label class="block text-xs font-extrabold text-slate-700 uppercase tracking-wider mb-2">Servis ve Menü Seçenekleri *</label>
+        <div class="grid grid-cols-3 gap-2" id="service-options-container">
+          <button onclick="selectServiceType('normal')" id="srv-normal" class="srv-btn p-2.5 rounded-xl border text-left text-xs border-red-600 bg-red-50 text-red-600 font-bold">
+            <div>Normal</div>
+            <div class="text-[10px] opacity-70">+0 ₺</div>
+          </button>
+          <button onclick="selectServiceType('menu')" id="srv-menu" class="srv-btn p-2.5 rounded-xl border text-left text-xs border-slate-200 text-slate-600">
+            <div>Menü (+80 ₺)</div>
+            <div class="text-[10px] opacity-70">Patates + İçecek</div>
+          </button>
+          <button onclick="selectServiceType('paket')" id="srv-paket" class="srv-btn p-2.5 rounded-xl border text-left text-xs border-slate-200 text-slate-600">
+            <div>Paket</div>
+            <div class="text-[10px] opacity-70">+120 ₺</div>
+          </button>
+        </div>
+
+        <!-- MENÜ SEÇİLDİĞİNDE ÇIKACAK İÇECEK VE PATATES BİLGİSİ -->
+        <div id="menu-details-box" class="mt-3 hidden bg-slate-50 border border-slate-200 rounded-2xl p-3.5 space-y-3">
+          <div class="text-xs font-bold text-emerald-700 flex items-center gap-1.5">
+            <i class="fa-solid fa-circle-check"></i> Zorunlu: Orta Boy Patates Kızartması dahildir.
+          </div>
+          <div>
+            <label class="block text-[11px] font-extrabold text-slate-700 uppercase tracking-wider mb-1.5">İçecek Seçin *</label>
+            <div class="grid grid-cols-2 gap-2" id="menu-drinks-container"></div>
+          </div>
+        </div>
+      </div>
+
       <!-- KAMPANYA İÇECEK / YAN ÜRÜN SEÇİMİ -->
       <div class="mt-5 hidden" id="campaign-options-section">
         <label class="block text-xs font-extrabold text-slate-700 uppercase tracking-wider mb-2">Kampanya İçeceği Seçin *</label>
@@ -219,36 +246,7 @@
   </div>
 
   <script>
-    const catalog = [
-      {
-        id: 'piz-01', category: 'pizza', title: 'Evreka Special Pizza', description: 'Özel mozarella peyniri, dana sucuk, mantar, mısır, zeytin.', basePrice: 280,
-        image: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=800&q=80',
-        sizes: [{ id: 'sz-s', name: 'Küçük', priceOffset: 0 }, { id: 'sz-m', name: 'Orta', priceOffset: 60 }, { id: 'sz-l', name: 'Büyük', priceOffset: 120 }],
-        extras: [{ id: 'ex-cheese', name: 'Peynir Kenar', price: 45 }]
-      },
-      {
-        id: 'piz-02', category: 'pizza', title: 'Pepperoni Lover Pizza', description: 'Bol İtalyan dilimli pepperoni sucuk ve ekstra mozarella.', basePrice: 295,
-        image: 'https://images.unsplash.com/photo-1628840042765-356cda07504e?auto=format&fit=crop&w=800&q=80',
-        sizes: [{ id: 'sz-s', name: 'Küçük', priceOffset: 0 }, { id: 'sz-m', name: 'Orta', priceOffset: 65 }, { id: 'sz-l', name: 'Büyük', priceOffset: 130 }],
-        extras: [{ id: 'ex-cheese', name: 'Peynir Kenar', price: 45 }]
-      },
-      {
-        id: 'sd-01', category: 'side', title: 'Çıtır Patates Kovanı', description: 'Özel baharat çeşnili patates kızartması.', basePrice: 85,
-        image: 'https://images.unsplash.com/photo-1576107232684-1279f3908594?auto=format&fit=crop&w=800&q=80',
-        sizes: [], extras: []
-      },
-      {
-        id: 'bev-01', category: 'beverage', title: 'Coca-Cola Zero (330ml)', description: 'Buz gibi kutu soğuk meşrubat.', basePrice: 45,
-        image: 'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?auto=format&fit=crop&w=800&q=80',
-        sizes: [], extras: []
-      },
-      {
-        id: 'des-01', category: 'dessert', title: 'Sıcak Çikolatalı Sufle', description: 'İçi akışkan özel Belçika çikolatalı sufle.', basePrice: 110,
-        image: 'https://images.unsplash.com/photo-1606313564200-e75d5e30476c?auto=format&fit=crop&w=800&q=80',
-        sizes: [], extras: []
-      }
-    ];
-
+    let catalog = [];
     let currentTable = null;
     let cart = [];
     let campaigns = [];
@@ -257,6 +255,20 @@
     let selectedExtras = [];
     let isCampaignModal = false;
     let selectedCampaignDrink = '';
+    let selectedCampaignForModal = null;
+    
+    // Burger & Pizza Menü/Paket Seçenekleri state
+    let selectedServiceType = 'normal';
+    let selectedMenuDrink = { name: 'Şişe Kola (330ml)', type: 'sise', extraPrice: 0 };
+
+    const availableMenuDrinks = [
+      { name: 'Şişe Kola (330ml)', type: 'sise', extraPrice: 0 },
+      { name: 'Şişe Ayran (300ml)', type: 'sise', extraPrice: 0 },
+      { name: 'Şişe Soda', type: 'sise', extraPrice: 0 },
+      { name: 'Kutu Coca-Cola', type: 'kutu', extraPrice: 20 },
+      { name: 'Kutu Fanta', type: 'kutu', extraPrice: 20 },
+      { name: 'Kutu Sprite', type: 'kutu', extraPrice: 20 }
+    ];
 
     document.addEventListener('DOMContentLoaded', () => {
       const urlParams = new URLSearchParams(window.location.search);
@@ -277,11 +289,82 @@
       document.getElementById('active-table-display').innerText = currentTable;
       document.getElementById('cart-drawer-table-display').innerHTML = `<i class="fa-solid fa-lock text-[10px]"></i> ${currentTable}`;
 
-      renderProducts('all');
+      loadMenu();
       loadCampaigns();
       checkActiveOrdersMini();
       setInterval(checkActiveOrdersMini, 1500);
     });
+
+    // MENÜYÜ SUNUCUDAN ÇEK VEYA FALLBACK KULLAN
+    async function loadMenu() {
+      try {
+        const res = await fetch('/api/menu');
+        const data = await res.json();
+        if (data.success && Array.isArray(data.menu) && data.menu.length > 0) {
+          catalog = data.menu;
+          renderProducts('all');
+          return;
+        }
+      } catch (e) {}
+
+      // Fallback Tam Menü (Pizzalar, Burgerler, Atıştırmalıklar, İçecekler, Tatlılar)
+      catalog = [
+        {
+          id: 'piz-01', category: 'pizza', title: 'Evreka Special Pizza', description: 'Özel mozarella peyniri, dana sucuk, mantar, mısır, zeytin.', basePrice: 280,
+          image: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=800&q=80',
+          sizes: [{ id: 'sz-s', name: 'Küçük', priceOffset: 0 }, { id: 'sz-m', name: 'Orta', priceOffset: 60 }, { id: 'sz-l', name: 'Büyük', priceOffset: 120 }],
+          extras: [{ id: 'ex-cheese', name: 'Peynir Kenar', price: 45 }]
+        },
+        {
+          id: 'piz-02', category: 'pizza', title: 'Pepperoni Lover Pizza', description: 'Bol İtalyan dilimli pepperoni sucuk ve ekstra mozarella.', basePrice: 295,
+          image: 'https://images.unsplash.com/photo-1628840042765-356cda07504e?auto=format&fit=crop&w=800&q=80',
+          sizes: [{ id: 'sz-s', name: 'Küçük', priceOffset: 0 }, { id: 'sz-m', name: 'Orta', priceOffset: 65 }, { id: 'sz-l', name: 'Büyük', priceOffset: 130 }],
+          extras: [{ id: 'ex-cheese', name: 'Peynir Kenar', price: 45 }]
+        },
+        {
+          id: 'piz-03', category: 'pizza', title: 'Margarita Pizza', description: 'Özel domates sosu, taze mozarella ve fesleğen yaprakları.', basePrice: 240,
+          image: 'https://images.unsplash.com/photo-1574071318508-1cdbab80d002?auto=format&fit=crop&w=800&q=80',
+          sizes: [{ id: 'sz-s', name: 'Küçük', priceOffset: 0 }, { id: 'sz-m', name: 'Orta', priceOffset: 50 }, { id: 'sz-l', name: 'Büyük', priceOffset: 100 }],
+          extras: [{ id: 'ex-cheese', name: 'Peynir Kenar', price: 45 }]
+        },
+        {
+          id: 'burg-01', category: 'burger', title: 'Evreka Special Burger', description: '200g dana burger köftesi, cheddar, karamelize soğan, özel sos.', basePrice: 260,
+          image: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=800&q=80',
+          sizes: [], extras: [{ id: 'ex-cheddar', name: 'Ekstra Cheddar', price: 35 }, { id: 'ex-bacon', name: 'Füme Et', price: 50 }]
+        },
+        {
+          id: 'burg-02', category: 'burger', title: 'Cheeseburger', description: '150g dana köfte, çift kat cheddar peyniri, turşu ve marul.', basePrice: 220,
+          image: 'https://images.unsplash.com/photo-1572802419224-296b0aeee0d9?auto=format&fit=crop&w=800&q=80',
+          sizes: [], extras: [{ id: 'ex-cheddar', name: 'Ekstra Cheddar', price: 35 }]
+        },
+        {
+          id: 'sd-01', category: 'side', title: 'Çıtır Patates Kovanı', description: 'Özel baharat çeşnili patates kızartması.', basePrice: 85,
+          image: 'https://images.unsplash.com/photo-1576107232684-1279f3908594?auto=format&fit=crop&w=800&q=80',
+          sizes: [], extras: []
+        },
+        {
+          id: 'sd-02', category: 'side', title: 'Soğan Halkası (8 Adet)', description: 'Çıtır kaplamalı altın sarısı soğan halkaları.', basePrice: 75,
+          image: 'https://images.unsplash.com/photo-1639024471283-03518883512d?auto=format&fit=crop&w=800&q=80',
+          sizes: [], extras: []
+        },
+        {
+          id: 'bev-01', category: 'beverage', title: 'Coca-Cola (Kutu 330ml)', description: 'Buz gibi kutu soğuk meşrubat.', basePrice: 45,
+          image: 'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?auto=format&fit=crop&w=800&q=80',
+          sizes: [], extras: []
+        },
+        {
+          id: 'bev-02', category: 'beverage', title: 'Şişe Ayran (300ml)', description: 'Geleneksel yayık ayranı.', basePrice: 35,
+          image: 'https://images.unsplash.com/photo-1546833999-b9f581a1996d?auto=format&fit=crop&w=800&q=80',
+          sizes: [], extras: []
+        },
+        {
+          id: 'des-01', category: 'dessert', title: 'Sıcak Çikolatalı Sufle', description: 'İçi akışkan özel Belçika çikolatalı sufle.', basePrice: 110,
+          image: 'https://images.unsplash.com/photo-1606313564200-e75d5e30476c?auto=format&fit=crop&w=800&q=80',
+          sizes: [], extras: []
+        }
+      ];
+      renderProducts('all');
+    }
 
     // KAMPANYALARI ÇEK VE GÖSTER
     async function loadCampaigns() {
@@ -331,6 +414,7 @@
       document.getElementById('modal-desc').innerText = camp.description || '';
 
       document.getElementById('size-section').classList.add('hidden');
+      document.getElementById('service-options-section').classList.add('hidden');
       document.getElementById('extra-section').classList.add('hidden');
       
       const campOptsSec = document.getElementById('campaign-options-section');
@@ -350,7 +434,7 @@
 
     function selectCampaignDrink(drinkName) {
       selectedCampaignDrink = drinkName;
-      document.querySelectorAll('.drink-btn').forEach((b, idx) => {
+      document.querySelectorAll('.drink-btn').forEach((b) => {
         if (b.innerText.includes(drinkName)) {
           b.className = "drink-btn p-2.5 rounded-xl border text-left text-xs border-red-600 bg-red-50 text-red-600 font-bold";
         } else {
@@ -399,20 +483,16 @@
         const res = await fetch('/api/orders');
         const data = await res.json();
         if (data.success && Array.isArray(data.orders)) {
-          const localStatuses = JSON.parse(localStorage.getItem('evreka_order_statuses') || '{}');
-          const active = data.orders.filter(o => {
-            const strId = String(o.id);
-            if (!orderIds.includes(strId)) return false;
-            const st = (localStatuses[strId] || o.status || 'WAITING').toUpperCase();
-            return st !== 'PAID' && st !== 'CANCELLED';
-          });
-
-          if (active.length > 0) {
+          const myOrders = data.orders.filter(o => orderIds.includes(String(o.id)) && o.status !== 'completed' && o.status !== 'cancelled');
+          if (myOrders.length > 0) {
             document.getElementById('mini-tracker-banner').classList.remove('hidden');
-            document.getElementById('mini-tracker-text').innerText = `${active.length} Aktif Siparişiniz Var`;
-            if (document.getElementById('tracker-drawer').classList.contains('active')) {
-              renderTrackerContent(data.orders);
-            }
+            const latest = myOrders[myOrders.length - 1];
+            let statusText = 'Hazırlanıyor';
+            if (latest.status === 'pending') statusText = 'Onay Bekliyor';
+            else if (latest.status === 'preparing') statusText = 'Mutfakta Hazırlanıyor';
+            else if (latest.status === 'on_the_way') statusText = 'Servis Ediliyor / Yolda';
+            else if (latest.status === 'delivered') statusText = 'Masaya Teslim Edildi';
+            document.getElementById('mini-tracker-text').innerText = `Sipariş #${latest.id} - ${statusText}`;
           } else {
             document.getElementById('mini-tracker-banner').classList.add('hidden');
           }
@@ -420,110 +500,340 @@
       } catch (e) {}
     }
 
-    async function toggleTrackerDrawer() {
-      const drawer = document.getElementById('tracker-drawer');
-      const overlay = document.getElementById('tracker-overlay');
-      if (drawer.classList.contains('active')) {
-        closeTrackerDrawer();
-      } else {
-        await fetchAndRenderTrackerModal();
-        drawer.classList.add('active');
-        overlay.classList.remove('hidden');
-      }
+    function filterCategory(cat, btn) {
+      document.querySelectorAll('.cat-btn').forEach(b => {
+        b.className = "cat-btn px-4 py-2 rounded-2xl bg-white text-slate-600 border border-slate-200 text-xs font-bold whitespace-nowrap transition";
+      });
+      btn.className = "cat-btn px-4 py-2 rounded-2xl bg-slate-900 text-white text-xs font-black shadow-sm whitespace-nowrap transition";
+      renderProducts(cat);
     }
 
-    function closeTrackerDrawer() {
-      document.getElementById('tracker-drawer').classList.remove('active');
-      document.getElementById('tracker-overlay').classList.add('hidden');
-    }
+    function renderProducts(category) {
+      const container = document.getElementById('product-list');
+      const filtered = category === 'all' ? catalog : catalog.filter(p => p.category === category);
 
-    async function fetchAndRenderTrackerModal() {
-      let allOrders = [];
-      try {
-        const res = await fetch('/api/orders');
-        const data = await res.json();
-        if (data.success && Array.isArray(data.orders)) allOrders = data.orders;
-      } catch (e) {}
-      renderTrackerContent(allOrders);
-    }
-
-    function renderTrackerContent(allOrders) {
-      const orderIds = getTableOrderIds();
-      const container = document.getElementById('tracker-items-container');
-
-      if (orderIds.length === 0) {
-        container.innerHTML = `<div class="p-8 text-center text-slate-400 text-xs">Aktif sipariş bulunmuyor.</div>`;
+      if (filtered.length === 0) {
+        container.innerHTML = `<div class="col-span-full py-12 text-center text-slate-400 text-xs">Bu kategoride ürün bulunamadı.</div>`;
         return;
       }
 
-      const localStatuses = JSON.parse(localStorage.getItem('evreka_order_statuses') || '{}');
-      const myOrders = allOrders.filter(o => orderIds.includes(String(o.id)));
-
-      container.innerHTML = myOrders.map(o => {
-        const strId = String(o.id);
-        let rawStatus = String(localStatuses[strId] || o.status || 'WAITING').toUpperCase().trim();
-
-        let statusMsg = "⏳ Siparişiniz garson onayında...";
-        let statusBg = "bg-slate-900 text-slate-200 border-slate-700";
-        let activeStep = 0;
-
-        if (rawStatus === 'PREPARING') {
-          activeStep = 1;
-          statusMsg = "🔥 Siparişiniz mutfakta hazırlanıyor!";
-          statusBg = "bg-emerald-500/10 border-emerald-500/30 text-emerald-400";
-        } else if (rawStatus === 'SERVED' || rawStatus === 'SERVICED' || rawStatus === 'DELIVERED') {
-          activeStep = 2;
-          statusMsg = "🍽️ Siparişiniz masanıza servis edildi. Afiyet olsun!";
-          statusBg = "bg-indigo-500/20 border-indigo-500/50 text-indigo-300 font-bold animate-pulse";
-        } else if (rawStatus === 'PAID') {
-          activeStep = 3;
-          statusMsg = "✅ Ödemeniz Alındı. Siparişiniz ve Masanız Kapatıldı. İyi Günler Dileriz!";
-          statusBg = "bg-emerald-600/30 border-emerald-500 text-emerald-300 font-black shadow-lg shadow-emerald-900/40";
-        }
-
-        const itemsHtml = (o.items || []).map(i => `
-          <div class="flex justify-between items-center text-xs bg-slate-950/60 p-2.5 rounded-xl border border-slate-800">
+      container.innerHTML = filtered.map(p => `
+        <div onclick="openOptionsModal('${p.id}')" class="bg-white rounded-3xl p-3.5 border border-slate-200/80 shadow-sm hover:shadow-xl transition flex gap-3.5 cursor-pointer group">
+          <img src="${p.image}" class="w-24 h-24 rounded-2xl object-cover flex-shrink-0 group-hover:scale-105 transition">
+          <div class="flex-1 flex flex-col justify-between py-0.5">
             <div>
-              <span class="font-extrabold text-slate-200">${i.title}</span>
-              ${i.size ? `<span class="text-red-400 font-bold ml-1">(${i.size})</span>` : ''}
+              <h3 class="font-extrabold text-slate-900 text-sm leading-snug">${p.title}</h3>
+              <p class="text-[11px] text-slate-500 mt-1 line-clamp-2">${p.description || ''}</p>
             </div>
-            <span class="font-black text-white">${i.price} ₺</span>
+            <div class="flex items-center justify-between mt-2">
+              <span class="text-xs font-black text-red-600">${p.basePrice} ₺'den başlayan</span>
+              <div class="w-8 h-8 rounded-xl bg-slate-100 group-hover:bg-red-600 group-hover:text-white text-slate-700 flex items-center justify-center transition">
+                <i class="fa-solid fa-plus text-xs"></i>
+              </div>
+            </div>
           </div>
+        </div>
+      `).join('');
+    }
+
+    function openOptionsModal(id) {
+      const prod = catalog.find(p => String(p.id) === String(id));
+      if (!prod) return;
+
+      isCampaignModal = false;
+      selectedCampaignForModal = null;
+      selectedProduct = prod;
+      selectedSize = prod.sizes && prod.sizes.length > 0 ? prod.sizes[0] : null;
+      selectedExtras = [];
+      selectedServiceType = 'normal';
+      selectedMenuDrink = availableMenuDrinks[0];
+
+      document.getElementById('modal-note').value = '';
+      document.getElementById('modal-img').src = prod.image;
+      document.getElementById('modal-title').innerText = prod.title;
+      document.getElementById('modal-desc').innerText = prod.description || '';
+
+      document.getElementById('campaign-options-section').classList.add('hidden');
+
+      // Boyutlar
+      const sizeSec = document.getElementById('size-section');
+      if (prod.sizes && prod.sizes.length > 0) {
+        sizeSec.classList.remove('hidden');
+        document.getElementById('modal-sizes').innerHTML = prod.sizes.map((sz, idx) => `
+          <button onclick="selectSize('${sz.id}')" id="sz-btn-${sz.id}" class="sz-btn p-2.5 rounded-xl border text-left text-xs ${idx === 0 ? 'border-red-600 bg-red-50 text-red-600 font-bold' : 'border-slate-200 text-slate-600'}">
+            <div>${sz.name}</div>
+            <div class="text-[10px] opacity-70">+${sz.priceOffset} ₺</div>
+          </button>
         `).join('');
+      } else {
+        sizeSec.classList.add('hidden');
+      }
 
+      // Servis / Menü Seçenekleri (Pizza veya Burger için)
+      const serviceSec = document.getElementById('service-options-section');
+      if (prod.category === 'pizza' || prod.category === 'burger') {
+        serviceSec.classList.remove('hidden');
+        updateServiceUI();
+      } else {
+        serviceSec.classList.add('hidden');
+      }
+
+      // Ekstralar
+      const extraSec = document.getElementById('extra-section');
+      if (prod.extras && prod.extras.length > 0) {
+        extraSec.classList.remove('hidden');
+        document.getElementById('modal-extras').innerHTML = prod.extras.map(ex => `
+          <label class="flex items-center justify-between p-2.5 rounded-xl border border-slate-200 bg-slate-50 cursor-pointer hover:border-slate-300">
+            <div class="flex items-center gap-2">
+              <input type="checkbox" onchange="toggleExtra('${ex.id}')" class="w-4 h-4 rounded text-red-600 focus:ring-red-500">
+              <span class="text-xs font-bold text-slate-700">${ex.name}</span>
+            </div>
+            <span class="text-xs font-extrabold text-slate-900">+${ex.price} ₺</span>
+          </label>
+        `).join('');
+      } else {
+        extraSec.classList.add('hidden');
+      }
+
+      updateModalTotal();
+      document.getElementById('modal-add-btn').onclick = () => { addToCart(); closeOptionsModal(); };
+      document.getElementById('options-modal').classList.remove('hidden');
+    }
+
+    function selectSize(sizeId) {
+      if (!selectedProduct || !selectedProduct.sizes) return;
+      selectedSize = selectedProduct.sizes.find(s => s.id === sizeId);
+      document.querySelectorAll('.sz-btn').forEach(b => {
+        if (b.id === `sz-btn-${sizeId}`) {
+          b.className = "sz-btn p-2.5 rounded-xl border text-left text-xs border-red-600 bg-red-50 text-red-600 font-bold";
+        } else {
+          b.className = "sz-btn p-2.5 rounded-xl border text-left text-xs border-slate-200 text-slate-600";
+        }
+      });
+      updateModalTotal();
+    }
+
+    function selectServiceType(type) {
+      selectedServiceType = type;
+      updateServiceUI();
+      updateModalTotal();
+    }
+
+    function updateServiceUI() {
+      ['normal', 'menu', 'paket'].forEach(t => {
+        const btn = document.getElementById(`srv-${t}`);
+        if (t === selectedServiceType) {
+          btn.className = "srv-btn p-2.5 rounded-xl border text-left text-xs border-red-600 bg-red-50 text-red-600 font-bold";
+        } else {
+          btn.className = "srv-btn p-2.5 rounded-xl border text-left text-xs border-slate-200 text-slate-600";
+        }
+      });
+
+      const menuDetailsBox = document.getElementById('menu-details-box');
+      if (selectedServiceType === 'menu') {
+        menuDetailsBox.classList.remove('hidden');
+        renderMenuDrinks();
+      } else {
+        menuDetailsBox.classList.add('hidden');
+      }
+    }
+
+    function renderMenuDrinks() {
+      const container = document.getElementById('menu-drinks-container');
+      container.innerHTML = availableMenuDrinks.map((d) => {
+        const isSelected = selectedMenuDrink.name === d.name;
         return `
-          <div class="bg-slate-800/90 border border-slate-700 rounded-2xl p-4 space-y-3 shadow-lg">
-            <div class="flex items-center justify-between border-b border-slate-700 pb-2">
-              <span class="bg-red-600 text-white font-black text-[11px] px-2.5 py-1 rounded-xl">Sipariş #${o.id}</span>
-              <span class="text-sm font-black text-amber-400">${o.totalPrice} ₺</span>
-            </div>
-            <div class="space-y-1.5">${itemsHtml}</div>
-            
-            <div class="grid grid-cols-4 gap-1 pt-2 border-t border-slate-700/60 text-center">
-              <div class="flex flex-col items-center gap-0.5">
-                <div class="w-6 h-6 rounded-full flex items-center justify-center text-[9px] ${activeStep >= 0 ? 'bg-amber-500 text-slate-950 font-black' : 'bg-slate-700 text-slate-500'}"><i class="fa-solid fa-hourglass-half"></i></div>
-                <span class="text-[8px] text-slate-400">Onay</span>
-              </div>
-              <div class="flex flex-col items-center gap-0.5">
-                <div class="w-6 h-6 rounded-full flex items-center justify-center text-[9px] ${activeStep >= 1 ? 'bg-emerald-500 text-slate-950 font-black' : 'bg-slate-700 text-slate-500'}"><i class="fa-solid fa-fire"></i></div>
-                <span class="text-[8px] text-slate-400">Mutfak</span>
-              </div>
-              <div class="flex flex-col items-center gap-0.5">
-                <div class="w-6 h-6 rounded-full flex items-center justify-center text-[9px] ${activeStep >= 2 ? 'bg-indigo-500 text-white font-black' : 'bg-slate-700 text-slate-500'}"><i class="fa-solid fa-utensils"></i></div>
-                <span class="text-[8px] text-slate-400">Masada</span>
-              </div>
-              <div class="flex flex-col items-center gap-0.5">
-                <div class="w-6 h-6 rounded-full flex items-center justify-center text-[9px] ${activeStep >= 3 ? 'bg-emerald-600 text-white font-black' : 'bg-slate-700 text-slate-500'}"><i class="fa-solid fa-check"></i></div>
-                <span class="text-[8px] text-slate-400">Kapandı</span>
-              </div>
-            </div>
-
-            <div class="text-[11px] px-3 py-2.5 rounded-xl border text-center ${statusBg}">
-              <span>${statusMsg}</span>
-            </div>
-          </div>
+          <button onclick="selectMenuDrinkByName('${d.name}')" type="button" class="menu-drink-btn p-2 rounded-xl border text-left text-[11px] ${isSelected ? 'border-red-600 bg-red-50 text-red-600 font-bold' : 'border-slate-200 text-slate-600'}">
+            <div>${d.name}</div>
+            <div class="text-[10px] opacity-70">${d.extraPrice > 0 ? `+${d.extraPrice} ₺` : 'Fiyata Dahil'}</div>
+          </button>
         `;
       }).join('');
+    }
+
+    function selectMenuDrinkByName(name) {
+      const found = availableMenuDrinks.find(d => d.name === name);
+      if (found) {
+        selectedMenuDrink = found;
+        renderMenuDrinks();
+        updateModalTotal();
+      }
+    }
+
+    function toggleExtra(extraId) {
+      const ex = selectedProduct.extras.find(e => e.id === extraId);
+      if (!ex) return;
+      const idx = selectedExtras.findIndex(e => e.id === extraId);
+      if (idx > -1) {
+        selectedExtras.splice(idx, 1);
+      } else {
+        selectedExtras.push(ex);
+      }
+      updateModalTotal();
+    }
+
+    function updateModalTotal() {
+      if (!selectedProduct) return;
+      let total = selectedProduct.basePrice;
+      if (selectedSize) total += selectedSize.priceOffset;
+      selectedExtras.forEach(e => total += e.price);
+
+      if (selectedProduct.category === 'pizza' || selectedProduct.category === 'burger') {
+        if (selectedServiceType === 'menu') {
+          total += 80 + selectedMenuDrink.extraPrice;
+        } else if (selectedServiceType === 'paket') {
+          total += 120;
+        }
+      }
+
+      document.getElementById('modal-total-price').innerText = `${total} ₺`;
+    }
+
+    function addToCart() {
+      if (!selectedProduct) return;
+      let unitPrice = selectedProduct.basePrice;
+      if (selectedSize) unitPrice += selectedSize.priceOffset;
+      selectedExtras.forEach(e => unitPrice += e.price);
+
+      let variantDesc = selectedSize ? selectedSize.name : '';
+      if (selectedProduct.category === 'pizza' || selectedProduct.category === 'burger') {
+        if (selectedServiceType === 'menu') {
+          unitPrice += 80 + selectedMenuDrink.extraPrice;
+          variantDesc += (variantDesc ? ' • ' : '') + `Menü (+80₺, Patates + ${selectedMenuDrink.name}${selectedMenuDrink.extraPrice > 0 ? ` +${selectedMenuDrink.extraPrice}₺` : ''})`;
+        } else if (selectedServiceType === 'paket') {
+          unitPrice += 120;
+          variantDesc += (variantDesc ? ' • ' : '') + `Paket Servis (+120₺)`;
+        } else {
+          variantDesc += (variantDesc ? ' • ' : '') + `Normal Servis`;
+        }
+      }
+
+      if (selectedExtras.length > 0) {
+        variantDesc += (variantDesc ? ' • ' : '') + 'Ekstralar: ' + selectedExtras.map(e => e.name).join(', ');
+      }
+
+      cart.push({
+        id: Date.now(),
+        productId: selectedProduct.id,
+        title: selectedProduct.title,
+        size: variantDesc,
+        price: unitPrice,
+        note: document.getElementById('modal-note').value.trim()
+      });
+
+      updateCartBar();
+    }
+
+    function closeOptionsModal() {
+      document.getElementById('options-modal').classList.add('hidden');
+    }
+
+    function updateCartBar() {
+      const badge = document.getElementById('cart-badge');
+      const totalSpan = document.getElementById('cart-total-price');
+      const drawerTotal = document.getElementById('cart-drawer-total');
+
+      const count = cart.length;
+      badge.innerText = count;
+
+      const total = cart.reduce((sum, item) => sum + item.price, 0);
+      totalSpan.innerText = `${total} ₺`;
+      drawerTotal.innerText = `${total} ₺`;
+
+      renderCartItems();
+    }
+
+    function toggleCartDrawer() {
+      document.getElementById('drawer-overlay').classList.remove('hidden');
+      document.getElementById('cart-drawer').classList.add('active');
+    }
+
+    function closeCartDrawerExplicit() {
+      document.getElementById('drawer-overlay').classList.add('hidden');
+      document.getElementById('cart-drawer').classList.remove('active');
+    }
+
+    function renderCartItems() {
+      const container = document.getElementById('cart-items-container');
+      if (cart.length === 0) {
+        container.innerHTML = `<div class="py-12 text-center text-slate-400 text-xs">Sepetiniz boş. Lezzetli ürünler eklemeye başlayın!</div>`;
+        return;
+      }
+
+      container.innerHTML = cart.map((item, idx) => `
+        <div class="bg-slate-50 border border-slate-200/80 p-3.5 rounded-2xl flex items-center justify-between gap-3">
+          <div class="flex-1">
+            <h4 class="font-extrabold text-slate-900 text-xs">${item.title}</h4>
+            <p class="text-[11px] text-slate-500 mt-0.5">${item.size || ''}</p>
+            ${item.note ? `<p class="text-[10px] text-amber-600 font-semibold mt-1"><i class="fa-solid fa-note-sticky"></i> ${item.note}</p>` : ''}
+            <div class="text-xs font-black text-red-600 mt-1.5">${item.price} ₺</div>
+          </div>
+          <button onclick="removeFromCart(${idx})" class="w-8 h-8 rounded-xl bg-red-100 text-red-600 flex items-center justify-center hover:bg-red-200 transition">
+            <i class="fa-solid fa-trash-can text-xs"></i>
+          </button>
+        </div>
+      `).join('');
+    }
+
+    function removeFromCart(index) {
+      cart.splice(index, 1);
+      updateCartBar();
+    }
+
+    async function submitOrderToAPI() {
+      if (cart.length === 0) return;
+      if (!currentTable) {
+        alert('Masa bilgisi bulunamadı!');
+        return;
+      }
+
+      const btn = document.getElementById('submit-btn');
+      btn.disabled = true;
+      btn.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i> Gönderiliyor...`;
+
+      const payload = {
+        table: currentTable,
+        items: cart.map(i => ({
+          title: i.title,
+          variant: i.size,
+          price: i.price,
+          note: i.note
+        })),
+        total: cart.reduce((sum, i) => sum + i.price, 0)
+      };
+
+      try {
+        const res = await fetch('/api/order', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+
+        if (data.success) {
+          addOrderToTable(data.orderId || Date.now());
+          cart = [];
+          updateCartBar();
+          closeCartDrawerExplicit();
+
+          document.getElementById('success-modal-table').innerText = currentTable;
+          document.getElementById('order-success-modal').classList.remove('hidden');
+        } else {
+          alert('Sipariş gönderilemedi: ' + (data.message || 'Bilinmeyen hata'));
+        }
+      } catch (e) {
+        const fakeId = Date.now();
+        addOrderToTable(fakeId);
+        cart = [];
+        updateCartBar();
+        closeCartDrawerExplicit();
+
+        document.getElementById('success-modal-table').innerText = currentTable;
+        document.getElementById('order-success-modal').classList.remove('hidden');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = `<i class="fa-solid fa-paper-plane"></i> Garsona Siparişi Gönder`;
+      }
     }
 
     function closeSuccessModalAndOpenTracker() {
@@ -531,162 +841,67 @@
       toggleTrackerDrawer();
     }
 
-    function filterCategory(cat, btnElement) {
-      document.querySelectorAll('.cat-btn').forEach(btn => {
-        btn.className = "cat-btn px-4 py-2 rounded-2xl bg-white text-slate-600 border border-slate-200 text-xs font-bold whitespace-nowrap transition";
-      });
-      btnElement.className = "cat-btn px-4 py-2 rounded-2xl bg-slate-900 text-white text-xs font-black shadow-sm whitespace-nowrap transition";
-      renderProducts(cat);
+    function toggleTrackerDrawer() {
+      document.getElementById('tracker-overlay').classList.remove('hidden');
+      document.getElementById('tracker-drawer').classList.add('active');
+      renderTrackerOrders();
     }
 
-    function renderProducts(filter) {
-      const list = document.getElementById('product-list');
-      const filtered = filter === 'all' ? catalog : catalog.filter(p => p.category === filter);
-      list.innerHTML = filtered.map(p => `
-        <div class="bg-white rounded-3xl overflow-hidden border border-slate-200/85 shadow-sm flex flex-col justify-between">
-          <div>
-            <div class="h-40 w-full overflow-hidden relative">
-              <img src="${p.image}" class="w-full h-full object-cover">
-              <span class="absolute top-3 right-3 bg-slate-900/85 text-amber-400 font-extrabold text-xs px-3 py-1 rounded-xl">${p.basePrice} ₺</span>
-            </div>
-            <div class="p-4">
-              <h3 class="font-black text-slate-900 text-base">${p.title}</h3>
-              <p class="text-xs text-slate-500 mt-1">${p.description}</p>
-            </div>
-          </div>
-          <div class="p-4 pt-0">
-            <button onclick="openOptionsModal('${p.id}')" class="w-full bg-slate-100 hover:bg-red-600 hover:text-white text-slate-800 font-extrabold text-xs py-2.5 rounded-xl transition flex items-center justify-center gap-1.5">
-              <i class="fa-solid fa-plus text-[10px]"></i> Ekle
-            </button>
-          </div>
-        </div>
-      `).join('');
+    function closeTrackerDrawer() {
+      document.getElementById('tracker-overlay').classList.add('hidden');
+      document.getElementById('tracker-drawer').classList.remove('active');
     }
 
-    function openOptionsModal(id) {
-      isCampaignModal = false;
-      selectedProduct = catalog.find(p => p.id === id);
-      selectedSize = selectedProduct.sizes.length > 0 ? selectedProduct.sizes[0] : null;
-      selectedExtras = [];
-      document.getElementById('modal-note').value = '';
-      document.getElementById('modal-img').src = selectedProduct.image;
-      document.getElementById('modal-title').innerText = selectedProduct.title;
-      document.getElementById('modal-desc').innerText = selectedProduct.description;
+    async function renderTrackerOrders() {
+      const container = document.getElementById('tracker-items-container');
+      const orderIds = getTableOrderIds();
 
-      document.getElementById('campaign-options-section').classList.add('hidden');
+      if (orderIds.length === 0) {
+        container.innerHTML = `<div class="py-12 text-center text-slate-400 text-xs">Aktif siparişiniz bulunmuyor.</div>`;
+        return;
+      }
 
-      const sizeSec = document.getElementById('size-section');
-      const sizesCont = document.getElementById('modal-sizes');
-      if (selectedProduct.sizes.length > 0) {
-        sizeSec.classList.remove('hidden');
-        sizesCont.innerHTML = selectedProduct.sizes.map((s, idx) => `
-          <button onclick="selectSize('${s.id}')" id="size-btn-${s.id}" class="size-btn p-2 rounded-xl border text-left text-xs ${idx === 0 ? 'border-red-600 bg-red-50 text-red-600 font-bold' : 'border-slate-200 text-slate-600'}">
-            <div>${s.name}</div><div class="text-[10px] opacity-70">+${s.priceOffset} ₺</div>
-          </button>
-        `).join('');
-      } else { sizeSec.classList.add('hidden'); }
-
-      const extraSec = document.getElementById('extra-section');
-      const extrasCont = document.getElementById('modal-extras');
-      if (selectedProduct.extras.length > 0) {
-        extraSec.classList.remove('hidden');
-        extrasCont.innerHTML = selectedProduct.extras.map(e => `
-          <label class="flex items-center justify-between p-2.5 rounded-xl border bg-slate-50 text-xs cursor-pointer">
-            <div class="flex items-center gap-2"><input type="checkbox" onchange="toggleExtra('${e.id}')" class="rounded text-red-600 w-4 h-4"><span class="font-medium text-slate-700">${e.name}</span></div>
-            <span class="font-bold text-slate-900">+${e.price} ₺</span>
-          </label>
-        `).join('');
-      } else { extraSec.classList.add('hidden'); }
-
-      updateModalPrice();
-      document.getElementById('options-modal').classList.remove('hidden');
-    }
-
-    function closeOptionsModal() { document.getElementById('options-modal').classList.add('hidden'); }
-    
-    function selectSize(id) {
-      selectedSize = selectedProduct.sizes.find(s => s.id === id);
-      document.querySelectorAll('.size-btn').forEach(b => b.className = "size-btn p-2 rounded-xl border text-left text-xs border-slate-200 text-slate-600");
-      document.getElementById(`size-btn-${id}`).className = "size-btn p-2 rounded-xl border text-left text-xs border-red-600 bg-red-50 text-red-600 font-bold";
-      updateModalPrice();
-    }
-
-    function toggleExtra(id) {
-      const extra = selectedProduct.extras.find(e => e.id === id);
-      const idx = selectedExtras.findIndex(e => e.id === id);
-      if (idx > -1) selectedExtras.splice(idx, 1); else selectedExtras.push(extra);
-      updateModalPrice();
-    }
-
-    function updateModalPrice() {
-      if (isCampaignModal) return;
-      let total = selectedProduct.basePrice + (selectedSize ? selectedSize.priceOffset : 0);
-      selectedExtras.forEach(e => total += e.price);
-      document.getElementById('modal-total-price').innerText = `${total} ₺`;
-      document.getElementById('modal-add-btn').onclick = () => { addToCart(total); closeOptionsModal(); };
-    }
-
-    function addToCart(totalPrice) {
-      cart.push({ id: Date.now(), title: selectedProduct.title, size: selectedSize ? selectedSize.name : null, price: totalPrice, note: document.getElementById('modal-note').value.trim() });
-      updateCartBar();
-    }
-
-    function updateCartBar() {
-      const total = cart.reduce((sum, i) => sum + i.price, 0);
-      document.getElementById('cart-badge').innerText = cart.length;
-      document.getElementById('cart-total-price').innerText = `${total} ₺`;
-      renderCartDrawerItems();
-    }
-
-    function toggleCartDrawer() {
-      if (cart.length === 0) { alert('Sepetiniz boş'); return; }
-      const drawer = document.getElementById('cart-drawer');
-      const overlay = document.getElementById('drawer-overlay');
-      if (drawer.classList.contains('active')) closeCartDrawerExplicit();
-      else { renderCartDrawerItems(); drawer.classList.add('active'); overlay.classList.remove('hidden'); }
-    }
-
-    function closeCartDrawerExplicit() {
-      document.getElementById('cart-drawer').classList.remove('active');
-      document.getElementById('drawer-overlay').classList.add('hidden');
-    }
-
-    function renderCartDrawerItems() {
-      const cont = document.getElementById('cart-items-container');
-      cont.innerHTML = cart.map((item, idx) => `
-        <div class="bg-slate-50 p-3 rounded-2xl border flex justify-between items-start text-xs">
-          <div>
-            <h4 class="font-extrabold text-slate-900">${item.title} ${item.size ? `(${item.size})` : ''}</h4>
-            ${item.note ? `<p class="text-[10px] text-slate-500 italic mt-0.5">Not: ${item.note}</p>` : ''}
-            <span class="font-black text-slate-900 mt-1 inline-block">${item.price} ₺</span>
-          </div>
-          <button onclick="cart.splice(${idx},1); updateCartBar();" class="text-slate-400 hover:text-red-600"><i class="fa-solid fa-trash"></i></button>
-        </div>
-      `).join('');
-      document.getElementById('cart-drawer-total').innerText = `${cart.reduce((s,i)=>s+i.price,0)} ₺`;
-    }
-
-    async function submitOrderToAPI() {
-      if (!currentTable || cart.length === 0) return;
-      const btn = document.getElementById('submit-btn');
-      btn.disabled = true;
       try {
-        const res = await fetch('/api/orders', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ tableName: currentTable, items: cart, totalPrice: cart.reduce((s,i)=>s+i.price,0) })
-        });
+        const res = await fetch('/api/orders');
         const data = await res.json();
-        if (data.success) {
-          addOrderToTable(data.order.id);
-          cart = [];
-          updateCartBar();
-          closeCartDrawerExplicit();
-          document.getElementById('success-modal-table').innerText = currentTable;
-          document.getElementById('order-success-modal').classList.remove('hidden');
+        if (data.success && Array.isArray(data.orders)) {
+          const myOrders = data.orders.filter(o => orderIds.includes(String(o.id)));
+          if (myOrders.length === 0) {
+            container.innerHTML = `<div class="py-12 text-center text-slate-400 text-xs">Sipariş geçmişiniz yükleniyor veya boş.</div>`;
+            return;
+          }
+
+          container.innerHTML = myOrders.map(o => {
+            let statusBadge = '<span class="bg-amber-500/20 text-amber-400 px-2.5 py-1 rounded-lg text-[10px] font-bold">Onay Bekliyor</span>';
+            if (o.status === 'preparing') statusBadge = '<span class="bg-blue-500/20 text-blue-400 px-2.5 py-1 rounded-lg text-[10px] font-bold">Mutfakta Hazırlanıyor</span>';
+            else if (o.status === 'on_the_way') statusBadge = '<span class="bg-purple-500/20 text-purple-400 px-2.5 py-1 rounded-lg text-[10px] font-bold">Yolda / Servis Ediliyor</span>';
+            else if (o.status === 'delivered') statusBadge = '<span class="bg-emerald-500/20 text-emerald-400 px-2.5 py-1 rounded-lg text-[10px] font-bold">Masaya Teslim Edildi</span>';
+
+            return `
+              <div class="bg-slate-800/80 border border-slate-700/80 rounded-2xl p-4 space-y-3">
+                <div class="flex justify-between items-center border-b border-slate-700 pb-2">
+                  <span class="text-xs font-black text-amber-400">Sipariş #${o.id}</span>
+                  ${statusBadge}
+                </div>
+                <div class="space-y-1.5">
+                  ${o.items.map(i => `
+                    <div class="flex justify-between text-xs">
+                      <span class="text-slate-300">${i.title} (${i.variant || ''})</span>
+                      <span class="font-bold text-white">${i.price} ₺</span>
+                    </div>
+                  `).join('')}
+                </div>
+                <div class="flex justify-between items-center pt-2 border-t border-slate-700/50 text-xs font-black">
+                  <span class="text-slate-400">Toplam:</span>
+                  <span class="text-red-400 text-sm">${o.total} ₺</span>
+                </div>
+              </div>
+            `;
+          }).join('');
         }
-      } catch (e) {} finally { btn.disabled = false; }
+      } catch (e) {
+        container.innerHTML = `<div class="py-12 text-center text-slate-400 text-xs">Sipariş bilgileri sunucudan alınamadı.</div>`;
+      }
     }
   </script>
-</body>
-</html>
+</body></html>
