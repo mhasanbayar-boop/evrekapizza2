@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="tr" class="h-full bg-slate-950 text-white">
+<html lang="tr" class="h-full bg-slate-50 text-slate-900">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -9,58 +9,58 @@
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style> body { font-family: 'Plus Jakarta Sans', sans-serif; } </style>
 </head>
-<body class="h-full bg-slate-900 p-4 sm:p-6">
+<body class="h-full bg-slate-50 p-4 sm:p-6 text-slate-900">
 
   <!-- GİRİŞ EKRANI -->
-  <div id="login-screen" class="max-w-md mx-auto mt-20 bg-slate-800 p-8 rounded-3xl border border-slate-700 shadow-2xl text-center space-y-4">
-    <div class="w-16 h-16 bg-red-600/20 text-red-500 rounded-2xl flex items-center justify-center mx-auto text-2xl font-black shadow-inner">🔐</div>
-    <h2 class="text-xl font-black">Yönetim Paneli Girişi</h2>
-    <p class="text-xs text-slate-400">Patron veya Garson Hesabınızla Giriş Yapın</p>
+  <div id="login-screen" class="max-w-md mx-auto mt-20 bg-white p-8 rounded-3xl border border-slate-200 shadow-xl text-center space-y-4">
+    <div class="w-16 h-16 bg-red-50 text-red-600 rounded-2xl flex items-center justify-center mx-auto text-2xl font-black shadow-inner">🔐</div>
+    <h2 class="text-xl font-black text-slate-900">Yönetim Paneli Girişi</h2>
+    <p class="text-xs text-slate-500">Patron veya Garson Hesabınızla Giriş Yapın</p>
     
-    <input type="text" id="user-input" placeholder="Kullanıcı Adı (Örn: patron veya garson1)" class="w-full text-center bg-slate-900 border border-slate-700 rounded-2xl py-3 text-sm font-bold text-white focus:outline-none focus:ring-2 focus:ring-red-500">
-    <input type="password" id="pass-input" placeholder="Şifre" class="w-full text-center bg-slate-900 border border-slate-700 rounded-2xl py-3 text-sm font-bold text-white focus:outline-none focus:ring-2 focus:ring-red-500">
+    <input type="text" id="user-input" placeholder="Kullanıcı Adı (Örn: patron veya garson1)" class="w-full text-center bg-slate-50 border border-slate-300 rounded-2xl py-3 text-sm font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-red-500">
+    <input type="password" id="pass-input" placeholder="Şifre" class="w-full text-center bg-slate-50 border border-slate-300 rounded-2xl py-3 text-sm font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-red-500">
     
     <button onclick="handleLogin()" class="w-full bg-red-600 hover:bg-red-700 text-white font-extrabold py-3 rounded-2xl text-xs transition shadow-lg">Giriş Yap</button>
   </div>
 
   <!-- ANA DASHBOARD -->
   <div id="dashboard" class="max-w-7xl mx-auto hidden space-y-6">
-    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-5">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 pb-5">
       <div>
-        <h1 class="text-2xl font-black flex items-center gap-3">
+        <h1 class="text-2xl font-black flex items-center gap-3 text-slate-900">
           <span class="w-3.5 h-3.5 rounded-full bg-emerald-500 animate-pulse"></span> 
-          Evreka Pizza <span id="role-title-badge" class="text-xs px-2.5 py-1 rounded-lg bg-red-600/20 text-red-400 border border-red-500/30 font-bold">Yükleniyor...</span>
+          Evreka Pizza <span id="role-title-badge" class="text-xs px-2.5 py-1 rounded-lg bg-red-50 text-red-600 border border-red-200 font-bold">Yükleniyor...</span>
         </h1>
-        <p class="text-xs text-slate-400 mt-1">Aktif Oturum: <b id="active-user-name" class="text-amber-400"></b></p>
+        <p class="text-xs text-slate-500 mt-1">Aktif Oturum: <b id="active-user-name" class="text-amber-600"></b></p>
       </div>
       <div class="flex items-center gap-2.5 flex-wrap">
         <button onclick="switchMainTab('orders')" id="tab-btn-orders" class="bg-red-600 text-white text-xs px-5 py-2.5 rounded-xl font-extrabold transition shadow-md">Siparişler & POS</button>
         
         <!-- SADECE PATRON GÖREBİLİR -->
-        <button onclick="switchMainTab('finance')" id="tab-btn-finance" class="hidden bg-slate-800 text-slate-300 hover:bg-slate-700 text-xs px-5 py-2.5 rounded-xl font-bold transition">📊 Ciro & Finans</button>
-        <button onclick="switchMainTab('menu')" id="tab-btn-menu" class="hidden bg-slate-800 text-slate-300 hover:bg-slate-700 text-xs px-5 py-2.5 rounded-xl font-bold transition">🍕 Menü & Ürünler</button>
-        <button onclick="switchMainTab('campaigns')" id="tab-btn-campaigns" class="hidden bg-slate-800 text-slate-300 hover:bg-slate-700 text-xs px-5 py-2.5 rounded-xl font-bold transition">📢 Kampanya Yönetimi</button>
-        <button onclick="switchMainTab('users')" id="tab-btn-users" class="hidden bg-slate-800 text-slate-300 hover:bg-slate-700 text-xs px-5 py-2.5 rounded-xl font-bold transition">👥 Personel Yönetimi</button>
+        <button onclick="switchMainTab('finance')" id="tab-btn-finance" class="hidden bg-white text-slate-700 hover:bg-slate-100 border border-slate-200 text-xs px-5 py-2.5 rounded-xl font-bold transition">📊 Ciro & Finans</button>
+        <button onclick="switchMainTab('menu')" id="tab-btn-menu" class="hidden bg-white text-slate-700 hover:bg-slate-100 border border-slate-200 text-xs px-5 py-2.5 rounded-xl font-bold transition">🍕 Menü & Ürünler</button>
+        <button onclick="switchMainTab('campaigns')" id="tab-btn-campaigns" class="hidden bg-white text-slate-700 hover:bg-slate-100 border border-slate-200 text-xs px-5 py-2.5 rounded-xl font-bold transition">📢 Kampanya Yönetimi</button>
+        <button onclick="switchMainTab('users')" id="tab-btn-users" class="hidden bg-white text-slate-700 hover:bg-slate-100 border border-slate-200 text-xs px-5 py-2.5 rounded-xl font-bold transition">👥 Personel Yönetimi</button>
         
-        <button onclick="logout()" class="bg-red-600/20 text-red-400 hover:bg-red-600 hover:text-white text-xs px-4 py-2.5 rounded-xl font-bold transition">Çıkış</button>
+        <button onclick="logout()" class="bg-red-50 text-red-600 hover:bg-red-600 hover:text-white text-xs px-4 py-2.5 rounded-xl font-bold transition border border-red-200">Çıkış</button>
       </div>
     </div>
 
     <!-- SİPARİŞLER SEKMESİ -->
     <div id="section-orders" class="space-y-6">
       <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs">
-        <div class="bg-slate-800 p-4 rounded-2xl border border-slate-700 shadow-sm"><span class="text-slate-400 font-bold block mb-1">Toplam Ciro (Aktif Kasa)</span><span class="text-xl font-black text-emerald-400" id="stat-ciro">0 ₺</span></div>
-        <div class="bg-slate-800 p-4 rounded-2xl border border-slate-700 shadow-sm"><span class="text-slate-400 font-bold block mb-1">Onay Bekleyen</span><span class="text-xl font-black text-amber-400" id="stat-bekleyen">0</span></div>
-        <div class="bg-slate-800 p-4 rounded-2xl border border-slate-700 shadow-sm"><span class="text-slate-400 font-bold block mb-1">Mutfakta</span><span class="text-xl font-black text-emerald-400" id="stat-mutfakta">0</span></div>
-        <div class="bg-slate-800 p-4 rounded-2xl border border-slate-700 shadow-sm"><span class="text-slate-400 font-bold block mb-1">Ödeme Bekleyen</span><span class="text-xl font-black text-indigo-400" id="stat-servis">0</span></div>
+        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm"><span class="text-slate-500 font-bold block mb-1">Toplam Ciro (Aktif Kasa)</span><span class="text-xl font-black text-emerald-600" id="stat-ciro">0 ₺</span></div>
+        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm"><span class="text-slate-500 font-bold block mb-1">Onay Bekleyen</span><span class="text-xl font-black text-amber-600" id="stat-bekleyen">0</span></div>
+        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm"><span class="text-slate-500 font-bold block mb-1">Mutfakta</span><span class="text-xl font-black text-emerald-600" id="stat-mutfakta">0</span></div>
+        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm"><span class="text-slate-500 font-bold block mb-1">Ödeme Bekleyen</span><span class="text-xl font-black text-indigo-600" id="stat-servis">0</span></div>
       </div>
 
       <div class="flex gap-2.5 overflow-x-auto pb-1 text-xs">
         <button onclick="setFilter('ALL')" id="filter-ALL" class="px-4 py-2.5 rounded-xl font-extrabold bg-red-600 text-white transition shadow">Aktif Siparişler</button>
-        <button onclick="setFilter('WAITING')" id="filter-WAITING" class="px-4 py-2.5 rounded-xl font-bold bg-slate-800 text-slate-300 border border-slate-700 transition">Yeni Gelenler</button>
-        <button onclick="setFilter('PREPARING')" id="filter-PREPARING" class="px-4 py-2.5 rounded-xl font-bold bg-slate-800 text-slate-300 border border-slate-700 transition">Mutfakta</button>
-        <button onclick="setFilter('SERVED')" id="filter-SERVED" class="px-4 py-2.5 rounded-xl font-bold bg-slate-800 text-slate-300 border border-slate-700 transition">Ödeme Bekleyenler</button>
-        <button onclick="setFilter('PAID')" id="filter-PAID" class="px-4 py-2.5 rounded-xl font-bold bg-slate-800 text-slate-300 border border-slate-700 transition">Tamamlananlar (Arşiv)</button>
+        <button onclick="setFilter('WAITING')" id="filter-WAITING" class="px-4 py-2.5 rounded-xl font-bold bg-white text-slate-700 border border-slate-200 transition">Yeni Gelenler</button>
+        <button onclick="setFilter('PREPARING')" id="filter-PREPARING" class="px-4 py-2.5 rounded-xl font-bold bg-white text-slate-700 border border-slate-200 transition">Mutfakta</button>
+        <button onclick="setFilter('SERVED')" id="filter-SERVED" class="px-4 py-2.5 rounded-xl font-bold bg-white text-slate-700 border border-slate-200 transition">Ödeme Bekleyenler</button>
+        <button onclick="setFilter('PAID')" id="filter-PAID" class="px-4 py-2.5 rounded-xl font-bold bg-white text-slate-700 border border-slate-200 transition">Tamamlananlar (Arşiv)</button>
       </div>
 
       <div id="orders-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5"></div>
@@ -69,20 +69,20 @@
     <!-- CİRO & FİNANS SEKMESİ (SADECE PATRON) -->
     <div id="section-finance" class="hidden space-y-6">
       <div class="grid grid-cols-1 sm:grid-cols-3 gap-5 text-xs">
-        <div class="bg-slate-800 p-6 rounded-3xl border border-slate-700 shadow-xl space-y-2">
-          <span class="text-slate-400 font-bold uppercase tracking-wider block">📅 Günlük Ciro (Bugün)</span>
-          <span class="text-3xl font-black text-emerald-400 block" id="patron-daily-ciro">0 ₺</span>
+        <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-xl space-y-2">
+          <span class="text-slate-500 font-bold uppercase tracking-wider block">📅 Günlük Ciro (Bugün)</span>
+          <span class="text-3xl font-black text-emerald-600 block" id="patron-daily-ciro">0 ₺</span>
           <p class="text-[11px] text-slate-500">Bugün tahsil edilen toplam ödemeler.</p>
         </div>
-        <div class="bg-slate-800 p-6 rounded-3xl border border-slate-700 shadow-xl space-y-2">
-          <span class="text-slate-400 font-bold uppercase tracking-wider block">🗓️ Aylık Ciro (Bu Ay)</span>
-          <span class="text-3xl font-black text-amber-400 block" id="patron-monthly-ciro">0 ₺</span>
+        <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-xl space-y-2">
+          <span class="text-slate-500 font-bold uppercase tracking-wider block">🗓️ Aylık Ciro (Bu Ay)</span>
+          <span class="text-3xl font-black text-amber-600 block" id="patron-monthly-ciro">0 ₺</span>
           <p class="text-[11px] text-slate-500">Bu ay içerisinde elde edilen toplam ciro.</p>
         </div>
-        <div class="bg-slate-800 p-6 rounded-3xl border border-slate-700 shadow-xl space-y-3 flex flex-col justify-between">
+        <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-xl space-y-3 flex flex-col justify-between">
           <div>
-            <span class="text-slate-400 font-bold uppercase tracking-wider block">⚙️ Kasa & Gün Sonu</span>
-            <p class="text-[11px] text-slate-400 mt-1">Gün sonu yaparak bugünkü tamamlanan kayıtları arşivleyebilir veya kasayı sıfırlayabilirsiniz.</p>
+            <span class="text-slate-500 font-bold uppercase tracking-wider block">⚙️ Kasa & Gün Sonu</span>
+            <p class="text-[11px] text-slate-500 mt-1">Gün sonu yaparak bugünkü tamamlanan kayıtları arşivleyebilir veya kasayı sıfırlayabilirsiniz.</p>
           </div>
           <button onclick="executeDayEnd()" class="w-full bg-red-600 hover:bg-red-700 text-white font-extrabold py-3 rounded-xl text-xs transition shadow-lg">🔒 Gün Sonu Yap & Kasayı Sıfırla</button>
         </div>
@@ -91,69 +91,98 @@
 
     <!-- MENÜ YÖNETİMİ SEKMESİ (SADECE PATRON) -->
     <div id="section-menu" class="hidden space-y-6">
-      <div class="bg-slate-800 p-6 rounded-3xl border border-slate-700 shadow-xl space-y-4">
-        <h3 class="text-base font-black text-white flex items-center gap-2"><i class="fa-solid fa-plus-circle text-red-500"></i> Yeni Ürün Ekle (Otomatik En Üste Eklenir)</h3>
+      <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-xl space-y-4">
+        <h3 class="text-base font-black text-slate-900 flex items-center gap-2"><i class="fa-solid fa-plus-circle text-red-500"></i> Yeni Ürün Ekle (Otomatik En Üste Eklenir)</h3>
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-xs">
-          <input type="text" id="new-title" placeholder="Ürün Adı" class="bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-white">
-          <select id="new-category" class="bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-white">
+          <input type="text" id="new-title" placeholder="Ürün Adı" class="bg-slate-50 border border-slate-300 rounded-xl px-3 py-2.5 text-slate-900">
+          <select id="new-category" class="bg-slate-50 border border-slate-300 rounded-xl px-3 py-2.5 text-slate-900">
             <option value="pizza">Pizza</option><option value="burger">Burger</option><option value="salad">Salata</option><option value="side">Atıştırmalık</option><option value="beverage">İçecek</option><option value="dessert">Tatlı</option>
           </select>
-          <input type="number" id="new-price" placeholder="Fiyat (₺)" class="bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-white">
-          <input type="text" id="new-image" placeholder="Görsel URL" class="bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-white">
+          <input type="number" id="new-price" placeholder="Fiyat (₺)" class="bg-slate-50 border border-slate-300 rounded-xl px-3 py-2.5 text-slate-900">
+          <input type="text" id="new-image" placeholder="Görsel URL" class="bg-slate-50 border border-slate-300 rounded-xl px-3 py-2.5 text-slate-900">
         </div>
-        <textarea id="new-desc" placeholder="Ürün Açıklaması..." class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-xs text-white"></textarea>
+        <textarea id="new-desc" placeholder="Ürün Açıklaması..." class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2.5 text-xs text-slate-900"></textarea>
         <button onclick="addNewProduct()" class="bg-red-600 hover:bg-red-700 text-white font-extrabold text-xs px-6 py-3 rounded-xl transition shadow-lg">Ürünü Menüye Ekle</button>
       </div>
-      <div class="bg-slate-800 p-6 rounded-3xl border border-slate-700 shadow-xl space-y-4">
-        <h3 class="text-base font-black text-white flex items-center gap-2"><i class="fa-solid fa-utensils text-amber-400"></i> Menüdeki Ürünler ve Sıralama (▲ / ▼ ile Taşıyabilirsiniz)</h3>
+      <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-xl space-y-4">
+        <h3 class="text-base font-black text-slate-900 flex items-center gap-2"><i class="fa-solid fa-utensils text-amber-600"></i> Menüdeki Ürünler ve Sıralama (▲ / ▼ ile Taşıyabilirsiniz)</h3>
         <div id="admin-menu-list" class="space-y-3"></div>
       </div>
     </div>
 
     <!-- KAMPANYA YÖNETİMİ SEKMESİ (SADECE PATRON) -->
     <div id="section-campaigns" class="hidden space-y-6">
-      <div class="bg-slate-800 p-6 rounded-3xl border border-slate-700 shadow-xl space-y-4">
-        <h3 class="text-base font-black text-white flex items-center gap-2"><i class="fa-solid fa-bullhorn text-amber-400"></i> Yeni Kampanya Banner Ekle</h3>
+      <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-xl space-y-4">
+        <h3 class="text-base font-black text-slate-900 flex items-center gap-2"><i class="fa-solid fa-bullhorn text-amber-600"></i> Menüden Ürün Seçerek Kampanya Oluştur</h3>
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
-          <input type="text" id="camp-title" placeholder="Kampanya Başlığı" class="bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-white">
-          <input type="text" id="camp-badge" placeholder="Rozet (Örn: %20 İNDİRİM)" class="bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-white">
-          <input type="text" id="camp-image" placeholder="Görsel URL" class="bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-white">
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Kampanya Başlığı</label>
+            <input type="text" id="camp-title" placeholder="Örn: Hafta Sonu Fırsatı" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2.5 text-slate-900">
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Rozet</label>
+            <input type="text" id="camp-badge" placeholder="Örn: %15 İNDİRİM" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2.5 text-slate-900">
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Görsel URL</label>
+            <input type="text" id="camp-image" placeholder="https://..." class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2.5 text-slate-900">
+          </div>
         </div>
-        <textarea id="camp-desc" placeholder="Kampanya Açıklaması..." class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-xs text-white"></textarea>
-        <button onclick="addNewCampaign()" class="bg-red-600 hover:bg-red-700 text-white font-extrabold text-xs px-6 py-3 rounded-xl transition shadow-lg">Kampanyayı Yayınla</button>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs pt-1">
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Kampanyaya Dahil Pizza Seçimi</label>
+            <select id="camp-pizza-select" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2.5 text-slate-900 font-bold">
+              <option value="">Yükleniyor...</option>
+            </select>
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Kampanyaya Dahil İçecek Seçimi</label>
+            <select id="camp-drink-select" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2.5 text-slate-900 font-bold">
+              <option value="">Yükleniyor...</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Açıklama / Fırsat Detayı</label>
+          <textarea id="camp-desc" placeholder="Örn: Seçeceğiniz pizza + içecek + orta boy patates kızartması sadece 320 ₺!" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2.5 text-xs text-slate-900"></textarea>
+        </div>
+        <button onclick="addNewCampaign()" class="bg-red-600 hover:bg-red-700 text-white font-extrabold text-xs px-6 py-3 rounded-xl transition shadow-lg">Kampanyayı Yayınla & Müşteri Menüsüne Yansıt</button>
       </div>
-      <div class="bg-slate-800 p-6 rounded-3xl border border-slate-700 shadow-xl space-y-4">
-        <h3 class="text-base font-black text-white flex items-center gap-2"><i class="fa-solid fa-list text-amber-400"></i> Yayındaki Kampanyalar</h3>
+
+      <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-xl space-y-4">
+        <h3 class="text-base font-black text-slate-900 flex items-center gap-2"><i class="fa-solid fa-list text-amber-600"></i> Yayındaki Kampanyalar</h3>
         <div id="admin-campaign-list" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
       </div>
     </div>
 
     <!-- PERSONEL VE ŞİFRE YÖNETİMİ SEKMESİ (SADECE PATRON) -->
     <div id="section-users" class="hidden space-y-6">
-      <div class="bg-slate-800 p-6 rounded-3xl border border-slate-700 shadow-xl space-y-4">
-        <h3 class="text-base font-black text-white flex items-center gap-2"><i class="fa-solid fa-user-plus text-emerald-400"></i> Yeni Garson / Personel Hesabı Ekle</h3>
+      <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-xl space-y-4">
+        <h3 class="text-base font-black text-slate-900 flex items-center gap-2"><i class="fa-solid fa-user-plus text-emerald-600"></i> Yeni Garson / Personel Hesabı Ekle</h3>
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
-          <input type="text" id="new-staff-user" placeholder="Kullanıcı Adı (Örn: garson_ali)" class="bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-white">
-          <input type="password" id="new-staff-pass" placeholder="Şifre" class="bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-white">
+          <input type="text" id="new-staff-user" placeholder="Kullanıcı Adı (Örn: garson_ali)" class="bg-slate-50 border border-slate-300 rounded-xl px-3 py-2.5 text-slate-900">
+          <input type="password" id="new-staff-pass" placeholder="Şifre" class="bg-slate-50 border border-slate-300 rounded-xl px-3 py-2.5 text-slate-900">
           <button onclick="addNewStaff()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold py-2.5 rounded-xl transition shadow">Personel Ekle</button>
         </div>
       </div>
 
-      <div class="bg-slate-800 p-6 rounded-3xl border border-slate-700 shadow-xl space-y-4">
-        <h3 class="text-base font-black text-white flex items-center gap-2"><i class="fa-solid fa-users-gear text-amber-400"></i> Mevcut Personel Listesi ve Şifre Güncelleme</h3>
+      <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-xl space-y-4">
+        <h3 class="text-base font-black text-slate-900 flex items-center gap-2"><i class="fa-solid fa-users-gear text-amber-600"></i> Mevcut Personel Listesi ve Şifre Güncelleme</h3>
         <div id="staff-list-container" class="space-y-3"></div>
       </div>
     </div>
   </div>
 
   <!-- ÖDEME MODALI -->
-  <div id="payment-modal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
-    <div class="bg-slate-800 border border-slate-700 w-full max-w-md rounded-3xl p-6 shadow-2xl space-y-5">
-      <div class="flex justify-between items-center border-b border-slate-700 pb-3">
-        <div><h3 class="text-lg font-black text-white" id="pay-modal-table">Masa - Ödeme Al</h3><p class="text-xs text-slate-400" id="pay-modal-id">Sipariş #000</p></div>
-        <button onclick="closePaymentModal()" class="w-8 h-8 rounded-full bg-slate-700 text-slate-300 flex items-center justify-center"><i class="fa-solid fa-xmark"></i></button>
+  <div id="payment-modal" class="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-white border border-slate-200 w-full max-w-md rounded-3xl p-6 shadow-2xl space-y-5">
+      <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+        <div><h3 class="text-lg font-black text-slate-900" id="pay-modal-table">Masa - Ödeme Al</h3><p class="text-xs text-slate-500" id="pay-modal-id">Sipariş #000</p></div>
+        <button onclick="closePaymentModal()" class="w-8 h-8 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center"><i class="fa-solid fa-xmark"></i></button>
       </div>
-      <div class="bg-slate-900 p-4 rounded-2xl border border-slate-700 text-center"><span class="text-xs text-slate-400 font-bold uppercase block">Tahsil Edilecek Tutar</span><span class="text-3xl font-black text-emerald-400 mt-1 block" id="pay-modal-amount">0 ₺</span></div>
+      <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 text-center"><span class="text-xs text-slate-500 font-bold uppercase block">Tahsil Edilecek Tutar</span><span class="text-3xl font-black text-emerald-600 mt-1 block" id="pay-modal-amount">0 ₺</span></div>
       <button id="confirm-pay-btn" onclick="processPayment()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold py-3.5 rounded-2xl text-xs shadow-lg transition">Ödemeyi Onayla ve Masayı Kapat</button>
     </div>
   </div>
@@ -202,14 +231,14 @@
 
       if (currentUserRole === 'patron') {
         badge.innerText = 'Patron Paneli';
-        badge.className = "text-xs px-2.5 py-1 rounded-lg bg-amber-500/20 text-amber-400 border border-amber-500/30 font-extrabold";
+        badge.className = "text-xs px-2.5 py-1 rounded-lg bg-amber-50 text-amber-700 border border-amber-200 font-extrabold";
         if(tabFinance) tabFinance.classList.remove('hidden');
         if(tabMenu) tabMenu.classList.remove('hidden');
         if(tabCampaigns) tabCampaigns.classList.remove('hidden');
         if(tabUsers) tabUsers.classList.remove('hidden');
       } else {
         badge.innerText = 'Garson Paneli';
-        badge.className = "text-xs px-2.5 py-1 rounded-lg bg-indigo-500/20 text-indigo-400 border border-indigo-500/30 font-extrabold";
+        badge.className = "text-xs px-2.5 py-1 rounded-lg bg-indigo-50 text-indigo-700 border border-indigo-200 font-extrabold";
         if(tabFinance) tabFinance.classList.add('hidden');
         if(tabMenu) tabMenu.classList.add('hidden');
         if(tabCampaigns) tabCampaigns.classList.add('hidden');
@@ -274,10 +303,10 @@
       if(secCampaigns) secCampaigns.classList.add('hidden');
       if(secUsers) secUsers.classList.add('hidden');
 
-      document.getElementById('tab-btn-orders').className = "bg-slate-800 text-slate-300 hover:bg-slate-700 text-xs px-5 py-2.5 rounded-xl font-bold transition";
+      document.getElementById('tab-btn-orders').className = "bg-white text-slate-700 hover:bg-slate-100 border border-slate-200 text-xs px-5 py-2.5 rounded-xl font-bold transition";
       ['tab-btn-finance', 'tab-btn-menu', 'tab-btn-campaigns', 'tab-btn-users'].forEach(id => {
         const el = document.getElementById(id);
-        if(el) el.className = "bg-slate-800 text-slate-300 hover:bg-slate-700 text-xs px-5 py-2.5 rounded-xl font-bold transition";
+        if(el) el.className = "bg-white text-slate-700 hover:bg-slate-100 border border-slate-200 text-xs px-5 py-2.5 rounded-xl font-bold transition";
       });
 
       if (tab === 'orders') {
@@ -306,18 +335,18 @@
       const accounts = getStaffAccounts();
       const container = document.getElementById('staff-list-container');
       container.innerHTML = accounts.map((acc, idx) => `
-        <div class="bg-slate-900 p-4 rounded-2xl border border-slate-700 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
+        <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
           <div class="flex items-center gap-3">
-            <div class="w-9 h-9 rounded-xl bg-slate-800 text-amber-400 flex items-center justify-center font-black"><i class="fa-solid fa-user"></i></div>
+            <div class="w-9 h-9 rounded-xl bg-white border border-slate-200 text-amber-600 flex items-center justify-center font-black"><i class="fa-solid fa-user"></i></div>
             <div>
-              <h4 class="font-black text-white text-sm">${acc.username}</h4>
-              <span class="text-[10px] uppercase font-bold px-2 py-0.5 rounded ${acc.role === 'patron' ? 'bg-amber-500/20 text-amber-400' : 'bg-indigo-500/20 text-indigo-400'}">${acc.role}</span>
+              <h4 class="font-black text-slate-900 text-sm">${acc.username}</h4>
+              <span class="text-[10px] uppercase font-bold px-2 py-0.5 rounded ${acc.role === 'patron' ? 'bg-amber-50 text-amber-700 border border-amber-200' : 'bg-indigo-50 text-indigo-700 border border-indigo-200'}">${acc.role}</span>
             </div>
           </div>
           <div class="flex items-center gap-2 w-full sm:w-auto">
-            <input type="text" id="pass-edit-${idx}" value="${acc.pass}" placeholder="Yeni Şifre" class="bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-white font-bold w-32">
-            <button onclick="updateStaffPass(${idx})" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-2 rounded-xl font-bold">Güncelle</button>
-            ${acc.username !== 'patron' ? `<button onclick="deleteStaff(${idx})" class="bg-slate-800 hover:bg-red-600/30 text-slate-400 hover:text-red-400 px-3 py-2 rounded-xl"><i class="fa-solid fa-trash"></i></button>` : ''}
+            <input type="text" id="pass-edit-${idx}" value="${acc.pass}" placeholder="Yeni Şifre" class="bg-white border border-slate-300 rounded-xl px-3 py-2 text-slate-900 font-bold w-32">
+            <button onclick="updateStaffPass(${idx})" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-2 rounded-xl font-bold shadow-sm">Güncelle</button>
+            ${acc.username !== 'patron' ? `<button onclick="deleteStaff(${idx})" class="bg-white hover:bg-red-50 text-slate-400 hover:text-red-600 border border-slate-200 px-3 py-2 rounded-xl"><i class="fa-solid fa-trash"></i></button>` : ''}
           </div>
         </div>
       `).join('');
@@ -410,22 +439,22 @@
     function renderAdminCatalog() {
       const container = document.getElementById('admin-menu-list');
       container.innerHTML = cachedCatalog.map((item, index) => `
-        <div class="bg-slate-900 p-3.5 rounded-2xl border border-slate-700 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
+        <div class="bg-slate-50 p-3.5 rounded-2xl border border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs shadow-sm">
           <div class="flex items-center gap-3">
-            <img src="${item.image}" class="w-12 h-12 rounded-xl object-cover">
+            <img src="${item.image}" class="w-12 h-12 rounded-xl object-cover border border-slate-200">
             <div>
-              <h4 class="font-extrabold text-white">${item.title}</h4>
-              <span class="text-[10px] text-slate-400 uppercase">${item.category}</span>
+              <h4 class="font-extrabold text-slate-900">${item.title}</h4>
+              <span class="text-[10px] text-slate-500 uppercase font-semibold">${item.category}</span>
             </div>
           </div>
           <div class="flex items-center gap-2">
             <div class="flex flex-col gap-1">
-              <button onclick="moveProduct(${index}, -1)" title="Yukarı Taşı" class="bg-slate-800 hover:bg-slate-700 text-amber-400 px-2 py-0.5 rounded text-[10px]"><i class="fa-solid fa-arrow-up"></i></button>
-              <button onclick="moveProduct(${index}, 1)" title="Aşağı Taşı" class="bg-slate-800 hover:bg-slate-700 text-amber-400 px-2 py-0.5 rounded text-[10px]"><i class="fa-solid fa-arrow-down"></i></button>
+              <button onclick="moveProduct(${index}, -1)" title="Yukarı Taşı" class="bg-white border border-slate-200 hover:bg-slate-100 text-amber-600 px-2 py-0.5 rounded text-[10px]"><i class="fa-solid fa-arrow-up"></i></button>
+              <button onclick="moveProduct(${index}, 1)" title="Aşağı Taşı" class="bg-white border border-slate-200 hover:bg-slate-100 text-amber-600 px-2 py-0.5 rounded text-[10px]"><i class="fa-solid fa-arrow-down"></i></button>
             </div>
-            <input type="number" id="price-input-${item.id}" value="${item.basePrice}" class="w-20 bg-slate-800 border border-slate-700 rounded-xl px-2 py-1.5 text-amber-400 font-bold text-center">
-            <button onclick="updatePrice('${item.id}')" class="bg-emerald-600 hover:bg-emerald-500 text-white px-2.5 py-1.5 rounded-xl font-bold" title="Fiyatı Güncelle"><i class="fa-solid fa-check"></i></button>
-            <button onclick="deleteProduct('${item.id}')" class="bg-slate-800 hover:bg-red-600/30 text-slate-400 hover:text-red-400 px-2.5 py-1.5 rounded-xl" title="Ürünü Sil"><i class="fa-solid fa-trash"></i></button>
+            <input type="number" id="price-input-${item.id}" value="${item.basePrice}" class="w-20 bg-white border border-slate-300 rounded-xl px-2 py-1.5 text-amber-600 font-bold text-center">
+            <button onclick="updatePrice('${item.id}')" class="bg-emerald-600 hover:bg-emerald-500 text-white px-2.5 py-1.5 rounded-xl font-bold shadow-sm" title="Fiyatı Güncelle"><i class="fa-solid fa-check"></i></button>
+            <button onclick="deleteProduct('${item.id}')" class="bg-white border border-slate-200 hover:bg-red-50 text-slate-400 hover:text-red-600 px-2.5 py-1.5 rounded-xl" title="Ürünü Sil"><i class="fa-solid fa-trash"></i></button>
           </div>
         </div>
       `).join('');
@@ -452,32 +481,58 @@
     async function fetchCampaignsForAdmin() {
       if (currentUserRole !== 'patron') return;
       try {
-        const res = await fetch('/api/campaigns');
-        const data = await res.json();
-        if (data.success) {
-          cachedCampaigns = data.campaigns || [];
+        const [campRes, catRes] = await Promise.all([
+          fetch('/api/campaigns'),
+          fetch('/api/catalog')
+        ]);
+        const campData = await campRes.json();
+        const catData = await catRes.json();
+
+        if (campData.success) {
+          cachedCampaigns = campData.campaigns || [];
           renderAdminCampaigns();
         }
+        if (catData.success) {
+          cachedCatalog = catData.catalog || [];
+          populateCampaignSelectors();
+        }
       } catch (e) {}
+    }
+
+    function populateCampaignSelectors() {
+      const pizzaSelect = document.getElementById('camp-pizza-select');
+      const drinkSelect = document.getElementById('camp-drink-select');
+      if (!pizzaSelect || !drinkSelect) return;
+
+      const pizzas = cachedCatalog.filter(p => String(p.category || '').toLowerCase() === 'pizza');
+      const drinks = cachedCatalog.filter(p => String(p.category || '').toLowerCase() === 'beverage' || String(p.category || '').toLowerCase() === 'icecek');
+
+      pizzaSelect.innerHTML = pizzas.length > 0 
+        ? pizzas.map(p => `<option value="${p.title}">${p.title}</option>`).join('')
+        : '<option value="">Pizza bulunamadı</option>';
+
+      drinkSelect.innerHTML = drinks.length > 0 
+        ? drinks.map(d => `<option value="${d.title}">${d.title}</option>`).join('')
+        : '<option value="">İçecek bulunamadı</option>';
     }
 
     function renderAdminCampaigns() {
       const container = document.getElementById('admin-campaign-list');
       if (cachedCampaigns.length === 0) {
-        container.innerHTML = '<div class="col-span-full p-6 text-center text-slate-500 text-xs">Henüz aktif kampanya bulunmuyor.</div>';
+        container.innerHTML = '<div class="col-span-full p-6 text-center text-slate-400 text-xs">Henüz aktif kampanya bulunmuyor.</div>';
         return;
       }
       container.innerHTML = cachedCampaigns.map(c => `
-        <div class="bg-slate-900 p-4 rounded-2xl border border-slate-700 flex items-center justify-between gap-3 text-xs">
+        <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 flex items-center justify-between gap-3 text-xs shadow-sm">
           <div class="flex items-center gap-3">
-            <img src="${c.image}" class="w-12 h-12 rounded-xl object-cover">
+            <img src="${c.image}" class="w-12 h-12 rounded-xl object-cover border border-slate-200">
             <div>
-              <span class="bg-amber-500/20 text-amber-400 text-[10px] font-extrabold px-2 py-0.5 rounded">${c.badge}</span>
-              <h4 class="font-black text-white mt-1">${c.title}</h4>
-              <p class="text-[11px] text-slate-400 line-clamp-1">${c.description}</p>
+              <span class="bg-amber-50 text-amber-700 border border-amber-200 text-[10px] font-extrabold px-2 py-0.5 rounded">${c.badge}</span>
+              <h4 class="font-black text-slate-900 mt-1">${c.title}</h4>
+              <p class="text-[11px] text-slate-500 line-clamp-1">${c.description}</p>
             </div>
           </div>
-          <button onclick="deleteCampaign('${c.id}')" class="bg-slate-800 hover:bg-red-600/30 text-slate-400 hover:text-red-400 p-2.5 rounded-xl"><i class="fa-solid fa-trash"></i></button>
+          <button onclick="deleteCampaign('${c.id}')" class="bg-white border border-slate-200 hover:bg-red-50 text-slate-400 hover:text-red-600 p-2.5 rounded-xl"><i class="fa-solid fa-trash"></i></button>
         </div>
       `).join('');
     }
@@ -486,16 +541,28 @@
       if (currentUserRole !== 'patron') return;
       const title = document.getElementById('camp-title').value.trim();
       const badge = document.getElementById('camp-badge').value.trim();
-      const description = document.getElementById('camp-desc').value.trim();
+      const userDesc = document.getElementById('camp-desc').value.trim();
       const image = document.getElementById('camp-image').value.trim();
+      const selectedPizza = document.getElementById('camp-pizza-select').value;
+      const selectedDrink = document.getElementById('camp-drink-select').value;
 
       if (!title) { alert('Kampanya başlığı zorunludur!'); return; }
+
+      let description = userDesc;
+      if (!description) {
+        description = `Dahil Olanlar: ${selectedPizza || 'Seçilen Pizza'} + ${selectedDrink || 'Seçilen İçecek'} + Orta Boy Patates Kızartması!`;
+      }
 
       try {
         const res = await fetch('/api/campaigns', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ title, badge, description, image })
+          body: JSON.stringify({ 
+            title, 
+            badge: badge || 'KAMPANYA', 
+            description, 
+            image: image || 'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=500'
+          })
         });
         const data = await res.json();
         if (data.success) {
@@ -504,7 +571,7 @@
           document.getElementById('camp-desc').value = '';
           document.getElementById('camp-image').value = '';
           fetchCampaignsForAdmin();
-          alert('Kampanya başarıyla yayınlandı!');
+          alert('Kampanya başarıyla yayınlandı ve müşteri menüsüne yansıtıldı!');
         }
       } catch (e) {}
     }
@@ -598,7 +665,7 @@
           if (key === f) {
             btn.className = "px-4 py-2.5 rounded-xl font-extrabold bg-red-600 text-white transition shadow";
           } else {
-            btn.className = "px-4 py-2.5 rounded-xl font-bold bg-slate-800 text-slate-300 border border-slate-700 transition";
+            btn.className = "px-4 py-2.5 rounded-xl font-bold bg-white text-slate-700 border border-slate-200 transition";
           }
         }
       });
@@ -682,7 +749,7 @@
       }
 
       if (filtered.length === 0) {
-        container.innerHTML = '<div class="col-span-full p-12 text-center text-slate-500 text-xs bg-slate-800/40 rounded-3xl border border-slate-800">Bu aşamada sipariş bulunmuyor.</div>';
+        container.innerHTML = '<div class="col-span-full p-12 text-center text-slate-400 text-xs bg-white rounded-3xl border border-slate-200">Bu aşamada sipariş bulunmuyor.</div>';
         return;
       }
 
@@ -694,53 +761,53 @@
         const isPaket = (o.items || []).some(i => i.size && i.size.includes('Paket'));
         let displayTableName = o.tableName;
         if (isPaket) {
-          displayTableName += ' <span class="text-amber-300 text-[11px] font-bold">(- Paket Servis)</span>';
+          displayTableName += ' <span class="text-amber-600 text-[11px] font-bold">(- Paket Servis)</span>';
         }
 
         const orderTime = (o.timeLogs && o.timeLogs.created) ? o.timeLogs.created : (o.createdAt || (new Date().toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' }) + ' - ' + new Date().toLocaleDateString('tr-TR')));
 
         const handledBadge = o.handledBy 
-          ? `<div class="bg-indigo-500/10 border border-indigo-500/30 text-indigo-300 text-[11px] font-bold px-3 py-1.5 rounded-xl mb-3 flex items-center justify-between shadow-sm"><span class="flex items-center gap-1.5"><i class="fa-solid fa-user-check text-emerald-400"></i> Onaylayan:</span> <span class="text-white">${o.handledBy}</span></div>` 
-          : `<div class="bg-amber-500/10 border border-amber-500/30 text-amber-300 text-[11px] font-bold px-3 py-1.5 rounded-xl mb-3 flex items-center gap-2 shadow-sm"><i class="fa-solid fa-clock text-amber-400"></i> Onay Bekliyor</div>`;
+          ? `<div class="bg-indigo-50 border border-indigo-200 text-indigo-700 text-[11px] font-bold px-3 py-1.5 rounded-xl mb-3 flex items-center justify-between shadow-sm"><span class="flex items-center gap-1.5"><i class="fa-solid fa-user-check text-emerald-600"></i> Onaylayan:</span> <span class="text-slate-900">${o.handledBy}</span></div>` 
+          : `<div class="bg-amber-50 border border-amber-200 text-amber-700 text-[11px] font-bold px-3 py-1.5 rounded-xl mb-3 flex items-center gap-2 shadow-sm"><i class="fa-solid fa-clock text-amber-600"></i> Onay Bekliyor</div>`;
 
         let timelineBox = '';
         if (st === 'PAID') {
           const logs = o.timeLogs || {};
           timelineBox = `
-            <div class="bg-slate-900/95 border border-emerald-500/30 p-3 rounded-2xl text-[11px] space-y-1.5 mb-3 text-slate-300 shadow-inner">
-              <div class="font-black text-emerald-400 mb-1 flex items-center gap-1.5"><i class="fa-solid fa-clock-rotate-left"></i> İşlem Zaman Damgaları</div>
-              <div class="flex justify-between"><span>📥 Sipariş Alınma:</span> <b class="text-white">${logs.created || orderTime}</b></div>
-              <div class="flex justify-between"><span>👨‍🍳 Mutfağa Onay:</span> <b class="text-white">${logs.preparing || '-'}</b></div>
-              <div class="flex justify-between"><span>🛎️ Servis / Hazır:</span> <b class="text-white">${logs.served || '-'}</b></div>
-              <div class="flex justify-between"><span>💳 Ödeme Alındı:</span> <b class="text-emerald-400">${logs.paid || '-'}</b></div>
+            <div class="bg-slate-50 border border-emerald-200 p-3 rounded-2xl text-[11px] space-y-1.5 mb-3 text-slate-600 shadow-inner">
+              <div class="font-black text-emerald-600 mb-1 flex items-center gap-1.5"><i class="fa-solid fa-clock-rotate-left"></i> İşlem Zaman Damgaları</div>
+              <div class="flex justify-between"><span>📥 Sipariş Alınma:</span> <b class="text-slate-900">${logs.created || orderTime}</b></div>
+              <div class="flex justify-between"><span>👨‍🍳 Mutfağa Onay:</span> <b class="text-slate-900">${logs.preparing || '-'}</b></div>
+              <div class="flex justify-between"><span>🛎️ Servis / Hazır:</span> <b class="text-slate-900">${logs.served || '-'}</b></div>
+              <div class="flex justify-between"><span>💳 Ödeme Alındı:</span> <b class="text-emerald-600">${logs.paid || '-'}</b></div>
             </div>
           `;
         }
 
         if (st === 'PREPARING') {
-          statusBadge = '<span class="bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-3 py-1 rounded-xl text-[11px] font-black">Mutfakta</span>';
+          statusBadge = '<span class="bg-emerald-50 text-emerald-700 border border-emerald-200 px-3 py-1 rounded-xl text-[11px] font-black">Mutfakta</span>';
           action = `<button onclick="updateOrderStatus('${o.id}', 'SERVED')" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-extrabold text-xs py-3 rounded-xl shadow transition">Hazır / Servis Et (Ödeme Beklet)</button>`;
         } else if (st === 'SERVED') {
-          statusBadge = '<span class="bg-indigo-500/20 text-indigo-400 border border-indigo-500/30 px-3 py-1 rounded-xl text-[11px] font-black">Masada / Ödeme Bekliyor</span>';
+          statusBadge = '<span class="bg-indigo-50 text-indigo-700 border border-indigo-200 px-3 py-1 rounded-xl text-[11px] font-black">Masada / Ödeme Bekliyor</span>';
           action = `<button onclick="openPaymentModal('${o.id}')" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs py-3 rounded-xl shadow transition">💳 Ödeme Al (POS)</button>`;
         } else if (st === 'PAID') {
-          statusBadge = '<span class="bg-slate-700 text-slate-300 border border-slate-600 px-3 py-1 rounded-xl text-[11px] font-black">Tamamlandı & Arşivlendi</span>';
-          action = `<div class="text-center text-xs text-slate-500 font-bold py-1">Kasa Kapatıldı ✅</div>`;
+          statusBadge = '<span class="bg-slate-100 text-slate-600 border border-slate-200 px-3 py-1 rounded-xl text-[11px] font-black">Tamamlandı & Arşivlendi</span>';
+          action = `<div class="text-center text-xs text-slate-400 font-bold py-1">Kasa Kapatıldı ✅</div>`;
         } else if (st === 'CANCELLED') {
-          statusBadge = '<span class="bg-slate-700 text-slate-400 border border-slate-600 px-3 py-1 rounded-xl text-[11px] font-black">İptal Edildi</span>';
-          action = `<div class="text-center text-xs text-slate-500 font-bold py-1">İptal ❌</div>`;
+          statusBadge = '<span class="bg-slate-100 text-slate-500 border border-slate-200 px-3 py-1 rounded-xl text-[11px] font-black">İptal Edildi</span>';
+          action = `<div class="text-center text-xs text-slate-400 font-bold py-1">İptal ❌</div>`;
         } else {
-          statusBadge = '<span class="bg-amber-500/20 text-amber-400 border border-amber-500/30 px-3 py-1 rounded-xl text-[11px] font-black">Onay Bekliyor</span>';
-          action = `<div class="grid grid-cols-2 gap-2"><button onclick="updateOrderStatus('${o.id}', 'PREPARING')" class="bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs py-3 rounded-xl shadow transition">Onay (Mutfağa)</button><button onclick="cancelOrder('${o.id}')" class="bg-slate-700 hover:bg-red-600/30 text-slate-300 font-bold text-xs py-3 rounded-xl transition">İptal Et</button></div>`;
+          statusBadge = '<span class="bg-amber-50 text-amber-700 border border-amber-200 px-3 py-1 rounded-xl text-[11px] font-black">Onay Bekliyor</span>';
+          action = `<div class="grid grid-cols-2 gap-2"><button onclick="updateOrderStatus('${o.id}', 'PREPARING')" class="bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs py-3 rounded-xl shadow transition">Onay (Mutfağa)</button><button onclick="cancelOrder('${o.id}')" class="bg-slate-100 hover:bg-red-50 text-slate-600 font-bold text-xs py-3 rounded-xl border border-slate-200 transition">İptal Et</button></div>`;
         }
 
         return `
-          <div class="bg-slate-800 border border-slate-700 rounded-3xl p-5 shadow-xl flex flex-col justify-between gap-4">
+          <div class="bg-white border border-slate-200 rounded-3xl p-5 shadow-xl flex flex-col justify-between gap-4">
             <div>
-              <div class="flex justify-between items-center border-b border-slate-700/80 pb-3 mb-3">
+              <div class="flex justify-between items-center border-b border-slate-100 pb-3 mb-3">
                 <div>
                   <span class="bg-red-600 text-white font-black text-xs px-3.5 py-1.5 rounded-xl shadow-sm inline-block mb-1">${displayTableName}</span>
-                  <span class="text-[10px] text-slate-400 block font-bold"><i class="fa-regular fa-clock text-amber-400"></i> Alınma: ${orderTime}</span>
+                  <span class="text-[10px] text-slate-500 block font-bold"><i class="fa-regular fa-clock text-amber-600"></i> Alınma: ${orderTime}</span>
                 </div>
                 <span class="text-xs font-mono font-bold text-slate-400">#${o.id}</span>
               </div>
@@ -750,20 +817,20 @@
 
               <div class="space-y-2.5">
                  ${(o.items||[]).map(i=>`
-                  <div class="bg-slate-900/90 p-3 rounded-2xl border border-slate-700/50 text-xs space-y-1">
+                  <div class="bg-slate-50 p-3 rounded-2xl border border-slate-200 text-xs space-y-1">
                     <div class="flex justify-between items-start font-extrabold">
-                      <span class="text-slate-100">${i.title}${i.size ? `<span class="text-amber-400 font-semibold block text-[11px] mt-0.5">${i.size}</span>` : ''}</span>
-                      <b class="text-amber-400 font-black text-sm">${i.price} ₺</b>
+                      <span class="text-slate-900">${i.title}${i.size ? `<span class="text-amber-600 font-semibold block text-[11px] mt-0.5">${i.size}</span>` : ''}</span>
+                      <b class="text-amber-600 font-black text-sm">${i.price} ₺</b>
                     </div>
-                    ${i.note ? `<div class="text-[11px] text-amber-300 font-medium bg-amber-500/10 border border-amber-500/20 px-2.5 py-1.5 rounded-xl mt-1.5 flex items-center gap-1.5"><i class="fa-solid fa-comment-dots"></i> Not: ${i.note}</div>` : ''}
+                    ${i.note ? `<div class="text-[11px] text-amber-800 font-medium bg-amber-50 border border-amber-200 px-2.5 py-1.5 rounded-xl mt-1.5 flex items-center gap-1.5"><i class="fa-solid fa-comment-dots"></i> Not: ${i.note}</div>` : ''}
                   </div>
                 `).join('')}
               </div>
             </div>
-            <div class="border-t border-slate-700/80 pt-3.5 flex flex-col gap-3">
+            <div class="border-t border-slate-100 pt-3.5 flex flex-col gap-3">
               <div class="flex justify-between items-center">
                 ${statusBadge}
-                <div class="text-right"><span class="text-[10px] text-slate-400 block uppercase font-bold tracking-wider">Toplam Tutar</span><span class="text-xl font-black text-emerald-400">${o.totalPrice} ₺</span></div>
+                <div class="text-right"><span class="text-[10px] text-slate-400 block uppercase font-bold tracking-wider">Toplam Tutar</span><span class="text-xl font-black text-emerald-600">${o.totalPrice} ₺</span></div>
               </div>
               ${action}
             </div>
