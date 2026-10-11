@@ -30,7 +30,7 @@ function saveOrders(orders) {
   } catch (err) {}
 }
 
-// --- MENÜ / KATALOG (TÜM KATEGORİLER VE BOYUTLAR EKSİKSİZ) ---
+// --- TÜM MENÜ VE KATEGORİLER (EKSİKSİZ) ---
 const initialCatalog = [
   // 1. KLASİK PİZZALAR (Orta ve Jumbo Boy Seçenekleriyle)
   {
@@ -604,7 +604,35 @@ app.get('/api/catalog', (req, res) => {
   res.json({ success: true, catalog: getCatalog() });
 });
 
-// Tüm Kataloğu / Menüyü Güncelle (Patron Paneli Toplu Kayıt)
+// Yeni Ürün Ekle (POST)
+app.post('/api/catalog', (req, res) => {
+  const { title, category, basePrice, description, image, sizes } = req.body;
+  if (!title || basePrice === undefined) {
+    return res.status(400).json({ success: false, error: 'Ürün adı ve fiyatı zorunludur' });
+  }
+
+  let catalog = getCatalog();
+  const newId = 'item_' + Date.now();
+  
+  const newItem = {
+    id: newId,
+    title,
+    category: category || 'pizza',
+    basePrice: Number(basePrice),
+    description: description || '',
+    image: image || 'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=300',
+    sizes: sizes || (category === 'pizza' ? [
+      { id: 'medium', name: 'Orta Boy (Medium)', priceOffset: 0 },
+      { id: 'jumbo', name: 'Büyük Boy (Jumbo)', priceOffset: 70 }
+    ] : undefined)
+  };
+
+  catalog.push(newItem);
+  saveCatalog(catalog);
+  res.json({ success: true, item: newItem });
+});
+
+// Tüm Kataloğu / Menüyü Güncelle (Toplu Kayıt)
 app.put('/api/catalog', (req, res) => {
   const { catalog } = req.body;
   if (!catalog || !Array.isArray(catalog)) {
@@ -630,12 +658,21 @@ app.patch('/api/catalog/:id', (req, res) => {
   res.json({ success: true, item: catalog[index] });
 });
 
+// Ürün Silme
+app.delete('/api/catalog/:id', (req, res) => {
+  const { id } = req.params;
+  let catalog = getCatalog();
+  const filtered = catalog.filter(item => String(item.id) !== String(id));
+  saveCatalog(filtered);
+  res.json({ success: true, catalog: filtered });
+});
+
 // Siparişleri Listele
 app.get('/api/orders', (req, res) => {
   res.json({ success: true, orders: getOrders() });
 });
 
-// Yeni Sipariş Oluştur (Türkiye Saat Dilimi Düzeltmesiyle)
+// Yeni Sipariş Oluştur (Türkiye Saat Dilimi Uyumlu)
 app.post('/api/orders', (req, res) => {
   const { tableName, items, totalPrice } = req.body;
   if (!tableName || !items || items.length === 0) {
