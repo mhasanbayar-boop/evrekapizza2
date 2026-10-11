@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="tr" class="h-full bg-slate-100">
+<html lang="tr">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -11,538 +11,211 @@
     body { font-family: 'Plus Jakarta Sans', sans-serif; }
     .no-scrollbar::-webkit-scrollbar { display: none; }
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-    .cart-drawer, .tracker-drawer {
-      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-      transform: translateY(100%);
-    }
-    .cart-drawer.active, .tracker-drawer.active { transform: translateY(0); }
+    .drawer { transition: transform 0.3s ease-in-out; transform: translateY(100%); }
+    .drawer.active { transform: translateY(0); }
   </style>
 </head>
-<body class="h-full text-slate-800 bg-slate-100 flex flex-col antialiased">
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col antialiased">
 
   <!-- ÜST BAR -->
-  <header class="bg-slate-900 text-white sticky top-0 z-40 shadow-xl border-b border-slate-800">
-    <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
+  <header class="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-sm">
+    <div class="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between">
       <div class="flex items-center gap-3">
-        <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-amber-500 via-red-600 to-red-700 flex items-center justify-center text-white text-xl shadow-lg shadow-red-900/40">
+        <div class="w-10 h-10 rounded-2xl bg-red-600 flex items-center justify-center text-white text-xl shadow-md">
           🍕
         </div>
         <div>
-          <h1 class="font-black text-base tracking-wider text-white leading-none">EVREKA PIZZA</h1>
-          <p class="text-[11px] text-amber-400 font-semibold mt-0.5">Gurme Taş Fırın Lezzetleri</p>
+          <h1 class="font-black text-base text-slate-900 leading-none">EVREKA PİZZA</h1>
+          <p class="text-[11px] text-slate-500 font-semibold mt-0.5">Taş Fırın Lezzetleri</p>
         </div>
       </div>
-
-      <div class="bg-emerald-600/20 text-emerald-400 font-extrabold text-xs px-3.5 py-2 rounded-2xl border border-emerald-500/40 flex items-center gap-2 shadow-inner">
+      <div class="bg-emerald-50 text-emerald-700 font-extrabold text-xs px-3.5 py-2 rounded-2xl border border-emerald-200 flex items-center gap-2">
         <i class="fa-solid fa-lock text-[10px]"></i>
-        <span id="active-table-display">Masa-1</span>
+        <span id="table-badge">Masa-1</span>
       </div>
     </div>
   </header>
 
   <!-- CANLI TAKİP BARI -->
-  <div id="mini-tracker-banner" class="hidden bg-slate-900 text-white border-b border-slate-800 px-4 py-2.5 sticky top-[57px] z-30 shadow-lg">
-    <div class="max-w-6xl mx-auto flex items-center justify-between">
-      <div class="flex items-center gap-2 text-xs">
-        <span class="relative flex h-2.5 w-2.5">
-          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-          <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
-        </span>
-        <span class="text-slate-200 font-bold" id="mini-tracker-text">Aktif Siparişiniz Var</span>
+  <div id="tracker-banner" class="hidden bg-slate-900 text-white px-4 py-2.5 sticky top-[57px] z-30 shadow-md">
+    <div class="max-w-4xl mx-auto flex items-center justify-between">
+      <div class="flex items-center gap-2 text-xs font-bold">
+        <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+        <span id="tracker-banner-text">Aktif Siparişiniz Var</span>
       </div>
-      <button onclick="toggleTrackerDrawer()" class="bg-gradient-to-r from-amber-500 to-red-600 text-white font-extrabold text-[11px] px-3.5 py-1.5 rounded-xl shadow-md transition flex items-center gap-1.5">
-        <i class="fa-solid fa-clock-rotate-left"></i> Canlı Takip Et ➔
+      <button onclick="openTracker()" class="bg-red-600 text-white text-xs font-bold px-3 py-1.5 rounded-xl shadow">
+        Takip Et ➔
       </button>
     </div>
   </div>
 
   <!-- ANA İÇERİK -->
-  <main class="flex-1 max-w-6xl w-full mx-auto pb-28">
-    <div class="p-4 space-y-4">
-      <div class="bg-gradient-to-r from-red-600 via-amber-600 to-orange-600 rounded-3xl p-6 md:p-8 text-white shadow-xl relative overflow-hidden">
-        <div class="absolute -right-4 -bottom-4 opacity-15 text-9xl">🍕</div>
-        <span class="bg-white/20 backdrop-blur-md px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider text-amber-100">
-          %100 Doğal Ekşi Maya
-        </span>
-        <h2 class="text-2xl md:text-3xl font-black mt-2 leading-tight">İtalyan Usulü Taş Fırın</h2>
-        <p class="text-xs md:text-sm text-white/80 mt-1">Masadaki QR kod ile anında sipariş verin.</p>
-      </div>
-
-      <!-- KAMPANYALAR BANNER ALANI -->
-      <div id="campaigns-container" class="space-y-3"></div>
+  <main class="flex-1 max-w-4xl w-full mx-auto p-4 pb-28 space-y-4">
+    <!-- Banner -->
+    <div class="bg-gradient-to-r from-red-600 to-amber-600 rounded-3xl p-6 text-white shadow-lg relative overflow-hidden">
+      <h2 class="text-2xl font-black">Geleneksel Taş Fırın</h2>
+      <p class="text-xs text-white/90 mt-1">Masadan QR kod ile kolayca sipariş verin.</p>
     </div>
 
-    <!-- Kategori Filtreleri -->
-    <div class="px-4 overflow-x-auto no-scrollbar flex gap-2 py-2 sticky top-[65px] z-20 bg-slate-100/95 backdrop-blur-md border-b border-slate-200">
-      <button onclick="filterCategory('all', this)" class="cat-btn px-4 py-2 rounded-2xl bg-slate-900 text-white text-xs font-black shadow-sm whitespace-nowrap transition">Tüm Menü</button>
-      <button onclick="filterCategory('pizza', this)" class="cat-btn px-4 py-2 rounded-2xl bg-white text-slate-600 border border-slate-200 text-xs font-bold whitespace-nowrap transition">Pizzalar</button>
-      <button onclick="filterCategory('burger', this)" class="cat-btn px-4 py-2 rounded-2xl bg-white text-slate-600 border border-slate-200 text-xs font-bold whitespace-nowrap transition">Burgerler</button>
-      <button onclick="filterCategory('salad', this)" class="cat-btn px-4 py-2 rounded-2xl bg-white text-slate-600 border border-slate-200 text-xs font-bold whitespace-nowrap transition">Salatalar</button>
-      <button onclick="filterCategory('side', this)" class="cat-btn px-4 py-2 rounded-2xl bg-white text-slate-600 border border-slate-200 text-xs font-bold whitespace-nowrap transition">Atıştırmalıklar</button>
-      <button onclick="filterCategory('beverage', this)" class="cat-btn px-4 py-2 rounded-2xl bg-white text-slate-600 border border-slate-200 text-xs font-bold whitespace-nowrap transition">İçecekler</button>
-      <button onclick="filterCategory('dessert', this)" class="cat-btn px-4 py-2 rounded-2xl bg-white text-slate-600 border border-slate-200 text-xs font-bold whitespace-nowrap transition">Tatlılar</button>
+    <!-- Kategori Butonları -->
+    <div class="overflow-x-auto no-scrollbar flex gap-2 py-1 sticky top-[65px] z-20 bg-slate-50">
+      <button onclick="filterCat('all', this)" class="cat-btn px-4 py-2 rounded-2xl bg-slate-900 text-white text-xs font-black whitespace-nowrap shadow-sm">Tümü</button>
+      <button onclick="filterCat('pizza', this)" class="cat-btn px-4 py-2 rounded-2xl bg-white text-slate-700 border border-slate-200 text-xs font-bold whitespace-nowrap">Pizzalar</button>
+      <button onclick="filterCat('burger', this)" class="cat-btn px-4 py-2 rounded-2xl bg-white text-slate-700 border border-slate-200 text-xs font-bold whitespace-nowrap">Burgerler</button>
+      <button onclick="filterCat('salad', this)" class="cat-btn px-4 py-2 rounded-2xl bg-white text-slate-700 border border-slate-200 text-xs font-bold whitespace-nowrap">Salatalar</button>
+      <button onclick="filterCat('side', this)" class="cat-btn px-4 py-2 rounded-2xl bg-white text-slate-700 border border-slate-200 text-xs font-bold whitespace-nowrap">Atıştırmalık</button>
+      <button onclick="filterCat('beverage', this)" class="cat-btn px-4 py-2 rounded-2xl bg-white text-slate-700 border border-slate-200 text-xs font-bold whitespace-nowrap">İçecekler</button>
+      <button onclick="filterCat('dessert', this)" class="cat-btn px-4 py-2 rounded-2xl bg-white text-slate-700 border border-slate-200 text-xs font-bold whitespace-nowrap">Tatlılar</button>
     </div>
 
-    <!-- ÜRÜN LİSTESİ (Beyaz, Belirgin Çerçeveli Kartlar) -->
-    <div class="px-4 mt-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4" id="product-list"></div>
+    <!-- ÜRÜN LİSTESİ (Çerçeveli Beyaz Kartlar) -->
+    <div id="product-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-4"></div>
   </main>
 
-  <!-- YÜZEN SEPET BARI -->
-  <div class="fixed bottom-0 left-0 right-0 z-40 p-4 bg-gradient-to-t from-slate-100 via-slate-100/90 to-transparent">
-    <div class="max-w-6xl mx-auto">
-      <button onclick="toggleCartDrawer()" class="w-full bg-gradient-to-r from-red-600 to-amber-600 text-white font-extrabold py-3.5 px-6 rounded-2xl shadow-xl flex items-center justify-between transition">
+  <!-- SEPET BARI -->
+  <div class="fixed bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-slate-50 via-slate-50/90 to-transparent z-40">
+    <div class="max-w-4xl mx-auto">
+      <button onclick="toggleCart()" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-black py-4 px-6 rounded-2xl shadow-xl flex items-center justify-between">
         <div class="flex items-center gap-3">
-          <span id="cart-badge" class="bg-white text-red-600 w-7 h-7 rounded-full flex items-center justify-center text-xs font-black">0</span>
-          <span class="text-sm">Sepeti İncele & Gönder</span>
+          <span id="cart-count" class="bg-red-600 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs">0</span>
+          <span class="text-sm">Sepeti Görüntüle</span>
         </div>
-        <span id="cart-total-price" class="text-base font-black">0 ₺</span>
+        <span id="cart-total" class="text-amber-400 text-base">0 ₺</span>
       </button>
     </div>
   </div>
 
   <!-- SEPET ÇEKMECESİ -->
-  <div id="drawer-overlay" onclick="closeCartDrawerExplicit()" class="fixed inset-0 bg-slate-950/70 backdrop-blur-sm z-50 hidden"></div>
-  <div id="cart-drawer" class="cart-drawer fixed bottom-0 right-0 left-0 sm:left-auto sm:top-0 sm:w-96 bg-white z-50 rounded-t-3xl sm:rounded-l-3xl max-h-[85vh] flex flex-col shadow-2xl">
-    <div class="p-5 border-b border-slate-100 flex justify-between items-center bg-slate-50/50 rounded-t-3xl">
-      <div>
-        <h3 class="text-lg font-black text-slate-900">Sipariş Özetiniz</h3>
-        <p class="text-xs text-emerald-600 font-extrabold flex items-center gap-1" id="cart-drawer-table-display">
-          <i class="fa-solid fa-lock text-[10px]"></i> Masa-1
-        </p>
-      </div>
-      <button onclick="closeCartDrawerExplicit()" class="w-8 h-8 rounded-full bg-slate-200/60 flex items-center justify-center text-slate-600">
-        <i class="fa-solid fa-xmark"></i>
-      </button>
+  <div id="cart-overlay" onclick="toggleCart()" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-50 hidden"></div>
+  <div id="cart-drawer" class="drawer fixed bottom-0 left-0 right-0 bg-white z-50 rounded-t-3xl max-h-[85vh] flex flex-col shadow-2xl">
+    <div class="p-5 border-b border-slate-100 flex justify-between items-center">
+      <h3 class="font-black text-base text-slate-900">Sipariş Sepetiniz</h3>
+      <button onclick="toggleCart()" class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-600"><i class="fa-solid fa-xmark"></i></button>
     </div>
-    <div id="cart-items-container" class="flex-1 overflow-y-auto p-5 space-y-3"></div>
-    <div class="p-5 border-t border-slate-100 bg-slate-50/80 space-y-3">
-      <div class="flex justify-between items-center text-sm">
-        <span class="text-slate-500 font-bold">Toplam Tutar:</span>
-        <span id="cart-drawer-total" class="text-2xl font-black text-red-600">0 ₺</span>
+    <div id="cart-items" class="flex-1 overflow-y-auto p-5 space-y-3"></div>
+    <div class="p-5 border-t border-slate-100 bg-slate-50 space-y-3">
+      <div class="flex justify-between items-center font-bold text-sm">
+        <span class="text-slate-600">Toplam:</span>
+        <span id="drawer-total" class="text-red-600 text-xl font-black">0 ₺</span>
       </div>
-      <button id="submit-btn" onclick="submitOrderToAPI()" class="w-full bg-red-600 hover:bg-red-700 text-white font-extrabold py-3.5 rounded-2xl text-sm flex items-center justify-center gap-2 shadow-lg">
-        <i class="fa-solid fa-paper-plane"></i> Garsona Siparişi Gönder
+      <button onclick="sendOrder()" id="send-btn" class="w-full bg-red-600 hover:bg-red-700 text-white font-black py-3.5 rounded-2xl text-sm shadow-lg">
+        Garsona Siparişi Gönder
       </button>
     </div>
   </div>
 
-  <!-- CANLI TAKİP ÇEKMECESİ -->
-  <div id="tracker-overlay" onclick="closeTrackerDrawer()" class="fixed inset-0 bg-slate-950/70 backdrop-blur-sm z-50 hidden"></div>
-  <div id="tracker-drawer" class="tracker-drawer fixed bottom-0 right-0 left-0 bg-slate-900 text-white z-50 rounded-t-3xl max-h-[85vh] flex flex-col shadow-2xl border-t border-slate-800">
-    <div class="p-5 border-b border-slate-800 flex justify-between items-center bg-slate-950/50 rounded-t-3xl">
-      <div class="flex items-center gap-2">
-        <span class="w-3 h-3 rounded-full bg-emerald-500 animate-pulse"></span>
-        <h3 class="text-lg font-black">Canlı Sipariş Takibi</h3>
-      </div>
-      <button onclick="closeTrackerDrawer()" class="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center text-slate-400">
-        <i class="fa-solid fa-xmark"></i>
-      </button>
+  <!-- TAKİP ÇEKMECESİ -->
+  <div id="tracker-overlay" onclick="openTracker()" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-50 hidden"></div>
+  <div id="tracker-drawer" class="drawer fixed bottom-0 left-0 right-0 bg-slate-900 text-white z-50 rounded-t-3xl max-h-[85vh] flex flex-col shadow-2xl">
+    <div class="p-5 border-b border-slate-800 flex justify-between items-center">
+      <h3 class="font-black text-base">Canlı Sipariş Takibi</h3>
+      <button onclick="openTracker()" class="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center text-slate-400"><i class="fa-solid fa-xmark"></i></button>
     </div>
-    <div id="tracker-items-container" class="flex-1 overflow-y-auto p-5 space-y-4"></div>
+    <div id="tracker-items" class="flex-1 overflow-y-auto p-5 space-y-4"></div>
   </div>
 
-  <!-- SİPARİŞ BAŞARI MODALI -->
-  <div id="order-success-modal" class="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md hidden flex items-center justify-center p-4">
-    <div class="bg-white border border-slate-200 w-full max-w-sm rounded-3xl p-6 shadow-2xl text-center space-y-5">
-      <div class="w-16 h-16 bg-emerald-500/20 text-emerald-600 rounded-2xl flex items-center justify-center mx-auto text-3xl border border-emerald-500/30">
-        <i class="fa-solid fa-check animate-bounce"></i>
-      </div>
+  <!-- ÜRÜN DETAY MODALI -->
+  <div id="modal" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white w-full max-w-md rounded-3xl p-6 shadow-2xl space-y-4 relative max-h-[90vh] overflow-y-auto">
+      <button onclick="closeModal()" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-600"><i class="fa-solid fa-xmark"></i></button>
+      <img id="modal-img" src="" class="w-full h-44 object-cover rounded-2xl">
       <div>
-        <h3 class="text-xl font-black text-slate-900">Siparişiniz Alındı!</h3>
-        <p class="text-xs text-slate-500 mt-1">Siparişiniz mutfağımıza iletildi.</p>
-      </div>
-      <div class="bg-slate-100 p-3 rounded-2xl border border-slate-200 text-xs flex justify-between items-center font-bold">
-        <span class="text-slate-500">Atanan Masa:</span>
-        <span class="text-red-600" id="success-modal-table">Masa-1</span>
-      </div>
-      <button onclick="closeSuccessModalAndOpenTracker()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold py-3.5 rounded-2xl text-xs flex items-center justify-center gap-2">
-        <i class="fa-solid fa-clock-rotate-left"></i> Canlı Takip Ekranını Aç ➔
-      </button>
-    </div>
-  </div>
-
-  <!-- ÜRÜN / KAMPANYA DETAY MODALI -->
-  <div id="options-modal" class="fixed inset-0 z-50 bg-slate-950/75 backdrop-blur-sm hidden flex items-end sm:items-center justify-center p-0 sm:p-4">
-    <div class="bg-white w-full max-w-md rounded-t-3xl sm:rounded-3xl max-h-[90vh] overflow-y-auto p-6 shadow-2xl flex flex-col">
-      <div class="relative h-48 -mx-6 -mt-6 mb-4 overflow-hidden rounded-t-3xl bg-slate-100">
-        <img id="modal-img" src="" alt="" class="w-full h-full object-cover">
-        <button onclick="closeOptionsModal()" class="absolute top-4 right-4 w-9 h-9 rounded-full bg-black/50 text-white flex items-center justify-center">
-          <i class="fa-solid fa-xmark"></i>
-        </button>
-      </div>
-      <div>
-        <h3 id="modal-title" class="text-xl font-black text-slate-900"></h3>
+        <h3 id="modal-title" class="font-black text-lg text-slate-900"></h3>
         <p id="modal-desc" class="text-xs text-slate-500 mt-1"></p>
       </div>
-
-      <!-- BOYUT SEÇİMİ -->
-      <div class="mt-5" id="size-section">
-        <label class="block text-xs font-extrabold text-slate-700 uppercase tracking-wider mb-2">Boyut Seçin *</label>
-        <div class="grid grid-cols-2 gap-2" id="modal-sizes"></div>
+      <div id="modal-sizes-box">
+        <label class="block text-xs font-black text-slate-700 uppercase mb-2">Boyut Seçin</label>
+        <div id="modal-sizes" class="grid grid-cols-2 gap-2"></div>
       </div>
-
-      <!-- SERVİS / MENÜ / PAKET SEÇENEKLERİ -->
-      <div class="mt-5 hidden" id="service-options-section">
-        <label class="block text-xs font-extrabold text-slate-700 uppercase tracking-wider mb-2">Servis ve Menü Seçenekleri *</label>
-        <div class="grid grid-cols-3 gap-2">
-          <button onclick="selectServiceType('normal')" id="srv-normal" class="srv-btn p-2.5 rounded-xl border text-left text-xs border-red-600 bg-red-50 text-red-600 font-bold">
-            <div>Normal</div>
-            <div class="text-[10px] opacity-70">+0 ₺</div>
-          </button>
-          <button onclick="selectServiceType('menu')" id="srv-menu" class="srv-btn p-2.5 rounded-xl border text-left text-xs border-slate-200 text-slate-600">
-            <div>Menü (+80 ₺)</div>
-            <div class="text-[10px] opacity-70">Patates + İçecek</div>
-          </button>
-          <button onclick="selectServiceType('paket')" id="srv-paket" class="srv-btn p-2.5 rounded-xl border text-left text-xs border-slate-200 text-slate-600">
-            <div>Paket (+120 ₺)</div>
-            <div class="text-[10px] opacity-70">Patates + İçecek</div>
-          </button>
-        </div>
-
-        <div id="menu-details-box" class="mt-3 hidden bg-slate-50 border border-slate-200 rounded-2xl p-3.5 space-y-3">
-          <div class="text-xs font-bold text-emerald-700 flex items-center gap-1.5">
-            <i class="fa-solid fa-circle-check"></i> Zorunlu: Orta Boy Patates Kızartması dahildir.
-          </div>
-          <div>
-            <label class="block text-[11px] font-extrabold text-slate-700 uppercase tracking-wider mb-1.5">İçecek Seçin *</label>
-            <div class="grid grid-cols-2 gap-2" id="menu-drinks-container"></div>
-          </div>
-        </div>
+      <div>
+        <label class="block text-xs font-black text-slate-700 uppercase mb-1">Garson Notu</label>
+        <input type="text" id="modal-note" placeholder="Örn: Soslu olsun..." class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs outline-none focus:border-red-500">
       </div>
-
-      <!-- KAMPANYA SEÇENEKLERİ -->
-      <div class="mt-5 hidden" id="campaign-options-section">
-        <label class="block text-xs font-extrabold text-slate-700 uppercase tracking-wider mb-2">Kampanya Seçenekleri *</label>
-        <div id="modal-campaign-options" class="space-y-3"></div>
-      </div>
-
-      <!-- NOT -->
-      <div class="mt-5">
-        <label class="block text-xs font-extrabold text-slate-700 uppercase tracking-wider mb-1">Garson Notu</label>
-        <input type="text" id="modal-note" maxlength="200" placeholder="Örn: Acısı bol olsun..." class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs focus:ring-2 focus:ring-red-500 focus:outline-none">
-      </div>
-
-      <div class="mt-6 pt-3 border-t border-slate-100">
-        <button id="modal-add-btn" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-extrabold py-3.5 rounded-2xl text-sm flex items-center justify-between px-6 shadow-lg">
-          <span>Sepete Ekle</span>
-          <span id="modal-total-price" class="text-amber-400">0 ₺</span>
-        </button>
-      </div>
+      <button onclick="addToCartModal()" class="w-full bg-slate-900 text-white font-black py-3.5 rounded-2xl text-sm flex justify-between px-6 shadow-lg">
+        <span>Sepete Ekle</span>
+        <span id="modal-price" class="text-amber-400">0 ₺</span>
+      </button>
     </div>
   </div>
 
   <script>
-    // KESİN ÇALIŞAN GÜVENLİ VARSAYILAN KATALOG
+    // KESİN ÇALIŞAN GÜVENLİ MENÜ LİSTESİ
     let catalog = [
-      { id: 'p1', title: 'Pepperoni Pizza', category: 'pizza', basePrice: 260, description: 'Mozzarella, yoğun sucuk dilimleri, özel domates sosu', image: 'https://images.unsplash.com/photo-1628840042765-356cda07504e?w=500', sizes: [{ id: 's1', name: 'Orta Boy', priceOffset: 0 }, { id: 's2', name: 'Büyük Boy', priceOffset: 70 }] },
-      { id: 'p2', title: 'Margherita Pizza', category: 'pizza', basePrice: 240, description: 'Taze mozzarella, fesleğen yaprakları, sızma zeytinyağı', image: 'https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=500', sizes: [{ id: 's1', name: 'Orta Boy', priceOffset: 0 }, { id: 's2', name: 'Büyük Boy', priceOffset: 60 }] },
-      { id: 'b1', title: 'Cheeseburger', category: 'burger', basePrice: 260, description: '150gr dana köfte, cheddar peyniri, karamelize soğan', image: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=500' },
-      { id: 's1', title: 'Sezar Salatası', category: 'salad', basePrice: 190, description: 'Izgara tavuk dilimleri, marul, kruton, sezar sos', image: 'https://images.unsplash.com/photo-1550304943-4f24f54ddde9?w=500' },
-      { id: 'st1', title: 'Patates Kızartması', category: 'side', basePrice: 110, description: 'Çıtır patates, özel baharatlar ve soslar ile', image: 'https://images.unsplash.com/photo-1573080496219-bb080dd4f877?w=500' },
-      { id: 'bev1', title: 'Coca-Cola (330ml)', category: 'beverage', basePrice: 60, description: 'Soğuk kutu içecek', image: 'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=500' },
-      { id: 'd1', title: 'Souffle', category: 'dessert', basePrice: 150, description: 'Sıcak çikolatalı sufle, dondurma eşliğinde', image: 'https://images.unsplash.com/photo-1606313564200-e75d5e30476c?w=500' }
-    ];
-
-    let campaigns = [
-      { id: 'camp_1', title: 'Haftanın Özel Menüsü', description: 'Seçeceğiniz orta boy pizza + kutu içecek sadece 320 ₺!', badge: '%15 İNDİRİM', image: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=500' }
+      { id: '1', title: 'Pepperoni Pizza', category: 'pizza', price: 260, description: 'Mozzarella, yoğun sucuk dilimleri, özel domates sosu', image: 'https://images.unsplash.com/photo-1628840042765-356cda07504e?w=500', sizes: [{name: 'Orta Boy', price: 0}, {name: 'Büyük Boy', price: 70}] },
+      { id: '2', title: 'Margherita Pizza', category: 'pizza', basePrice: 240, price: 240, description: 'Taze mozzarella, fesleğen yaprakları', image: 'https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=500', sizes: [{name: 'Orta Boy', price: 0}, {name: 'Büyük Boy', price: 60}] },
+      { id: '3', title: 'Cheeseburger', category: 'burger', price: 260, description: '150gr dana köfte, cheddar peyniri, karamelize soğan', image: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=500' },
+      { id: '4', title: 'Sezar Salatası', category: 'salad', price: 190, description: 'Izgara tavuk dilimleri, marul, kruton, sezar sos', image: 'https://images.unsplash.com/photo-1550304943-4f24f54ddde9?w=500' },
+      { id: '5', title: 'Patates Kızartması', category: 'side', price: 110, description: 'Çıtır patates, özel baharatlar ile', image: 'https://images.unsplash.com/photo-1573080496219-bb080dd4f877?w=500' },
+      { id: '6', title: 'Coca-Cola (330ml)', category: 'beverage', price: 60, description: 'Soğuk kutu içecek', image: 'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=500' },
+      { id: '7', title: 'Çikolatalı Sufle', category: 'dessert', price: 150, description: 'Sıcak akışkan çikolatalı sufle', image: 'https://images.unsplash.com/photo-1606313564200-e75d5e30476c?w=500' }
     ];
 
     let currentTable = 'Masa-1';
     let cart = [];
-    let selectedProduct = null;
-    let selectedSize = null;
-    let selectedCampPizza = null;
-    let selectedCampaignDrink = { name: 'ColaTurka / Sarıyer (200ml Şişe)', extraPrice: 0 };
-    let selectedCampaignForModal = null;
-    let selectedServiceType = 'normal';
-    let selectedMenuDrink = { name: 'ColaTurka / Sarıyer (200ml Şişe)', type: 'sise', extraPrice: 0 };
-
-    const availableMenuDrinks = [
-      { name: 'ColaTurka / Sarıyer (200ml Şişe)', type: 'sise', extraPrice: 0 },
-      { name: 'Pepsi (200ml Şişe)', type: 'sise', extraPrice: 0 },
-      { name: 'Coca-Cola (200ml Şişe)', type: 'sise', extraPrice: 0 },
-      { name: 'Ayran', type: 'sise', extraPrice: 0 },
-      { name: 'Sade Soda Şişe', type: 'sise', extraPrice: 0 },
-      { name: 'ColaTurka / Sarıyer (330ml Kutu)', type: 'kutu', extraPrice: 20 },
-      { name: 'Pepsi (330ml Kutu)', type: 'kutu', extraPrice: 20 },
-      { name: 'Coca-Cola (330ml Kutu)', type: 'kutu', extraPrice: 20 }
-    ];
+    let activeProduct = null;
+    let selectedSizePrice = 0;
+    let selectedSizeName = '';
 
     document.addEventListener('DOMContentLoaded', () => {
-      const urlParams = new URLSearchParams(window.location.search);
-      let masaParam = urlParams.get('masa') || urlParams.get('table') || urlParams.get('m');
+      const params = new URLSearchParams(window.location.search);
+      currentTable = params.get('masa') || params.get('table') || localStorage.getItem('evreka_table') || 'Masa-1';
+      localStorage.setItem('evreka_table', currentTable);
+      document.getElementById('table-badge').innerText = currentTable;
 
-      if (masaParam) {
-        currentTable = decodeURIComponent(masaParam).trim();
-        localStorage.setItem('evreka_customer_table', currentTable);
-      } else {
-        currentTable = localStorage.getItem('evreka_customer_table') || 'Masa-1';
-        localStorage.setItem('evreka_customer_table', currentTable);
-      }
-
-      document.getElementById('active-table-display').innerText = currentTable;
-      document.getElementById('cart-drawer-table-display').innerHTML = `<i class="fa-solid fa-lock text-[10px]"></i> ${currentTable}`;
-
-      // Hemen render et
       renderProducts('all');
-      renderCampaigns();
-
-      // Sunucudan güncelleme almayı dene
-      fetchDataFromAPI();
-
-      checkActiveOrdersMini();
-      setInterval(checkActiveOrdersMini, 2000);
+      fetchServerCatalog();
+      checkOrders();
+      setInterval(checkOrders, 2000);
     });
 
-    async function fetchDataFromAPI() {
+    async function fetchServerCatalog() {
       try {
-        const resCat = await fetch('/api/catalog');[cite: 1]
-        const dataCat = await resCat.json();
-        if (dataCat.success && Array.isArray(dataCat.catalog) && dataCat.catalog.length > 0) {
-          catalog = dataCat.catalog.map(p => ({
-            id: p.id,
-            title: p.title || p.name,
-            category: p.category,
-            basePrice: Number(p.basePrice || p.price || 250),
-            description: p.description || '',
-            image: p.image || 'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=500',
-            sizes: p.sizes || []
+        const res = await fetch('/api/catalog');[cite: 1]
+        const data = await res.json();
+        if (data.success && Array.isArray(data.catalog) && data.catalog.length > 0) {
+          catalog = data.catalog.map(item => ({
+            id: item.id,
+            title: item.title || item.name,
+            category: item.category,
+            price: Number(item.basePrice || item.price || 250),
+            description: item.description || '',
+            image: item.image || 'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=500',
+            sizes: item.sizes || []
           }));
           renderProducts('all');
         }
       } catch (e) {}
-
-      try {
-        const resCamp = await fetch('/api/campaigns');[cite: 1]
-        const dataCamp = await resCamp.json();
-        if (dataCamp.success && Array.isArray(dataCamp.campaigns) && dataCamp.campaigns.length > 0) {
-          campaigns = dataCamp.campaigns;
-          renderCampaigns();
-        }
-      } catch (e) {}
     }
 
-    function renderCampaigns() {
-      const container = document.getElementById('campaigns-container');
-      if (!campaigns || campaigns.length === 0) {
-        container.innerHTML = '';
-        return;
-      }
-      container.innerHTML = campaigns.map(c => `
-        <div onclick="openCampaignModal('${c.id}')" class="bg-gradient-to-r from-red-950 via-slate-900 to-slate-900 border border-red-500/40 rounded-3xl p-4 text-white shadow-xl flex items-center justify-between gap-4 cursor-pointer hover:border-red-500 transition group">
-          <div class="flex items-center gap-3.5">
-            <img src="${c.image}" class="w-16 h-16 rounded-2xl object-cover shadow-md flex-shrink-0 group-hover:scale-105 transition">
-            <div class="space-y-1">
-              <span class="bg-red-600 text-white text-[10px] font-black px-2.5 py-0.5 rounded-lg shadow">${c.badge || 'KAMPANYA'}</span>
-              <h3 class="text-sm font-black text-white leading-snug">${c.title}</h3>
-              <p class="text-[11px] text-slate-300 line-clamp-1">${c.description || ''}</p>
-            </div>
-          </div>
-          <div class="w-10 h-10 rounded-2xl bg-red-600/20 group-hover:bg-red-600 text-red-400 group-hover:text-white flex items-center justify-center transition flex-shrink-0 shadow">
-            <i class="fa-solid fa-plus text-xs"></i>
-          </div>
-        </div>
-      `).join('');
-    }
-
-    function openCampaignModal(id) {
-      const camp = campaigns.find(c => String(c.id) === String(id));
-      if (!camp) return;
-
-      selectedCampaignForModal = camp;
-      const pizzas = catalog.filter(p => String(p.category || '').toLowerCase() === 'pizza');
-      selectedCampPizza = pizzas.length > 0 ? pizzas[0] : { title: 'Özel Pizza' };
-      selectedCampaignDrink = availableMenuDrinks[0];
-
-      document.getElementById('modal-note').value = '';
-      document.getElementById('modal-img').src = camp.image;
-      document.getElementById('modal-title').innerText = camp.title;
-      document.getElementById('modal-desc').innerText = camp.description || '';
-
-      document.getElementById('size-section').classList.add('hidden');
-      document.getElementById('service-options-section').classList.add('hidden');
-      document.getElementById('campaign-options-section').classList.remove('hidden');
-
-      let pizzaSelectorHtml = '';
-      if (pizzas.length > 0) {
-        pizzaSelectorHtml = `
-          <div class="mb-3">
-            <label class="block text-[11px] font-extrabold text-slate-700 uppercase tracking-wider mb-1.5">Pizza Seçin *</label>
-            <div class="grid grid-cols-2 gap-2 max-h-40 overflow-y-auto" id="camp-pizza-container">
-              ${pizzas.map((p, idx) => `
-                <button onclick="selectCampPizza('${p.id}')" type="button" id="camp-piz-${p.id}" class="camp-piz-btn p-2 rounded-xl border text-left text-[11px] ${idx === 0 ? 'border-red-600 bg-red-50 text-red-600 font-bold' : 'border-slate-200 text-slate-600'}">
-                  <div class="truncate">${p.title}</div>
-                </button>
-              `).join('')}
-            </div>
-          </div>
-        `;
-      }
-
-      document.getElementById('modal-campaign-options').innerHTML = pizzaSelectorHtml + `
-        <div class="text-xs font-bold text-emerald-700 flex items-center gap-1.5 mb-2">
-          <i class="fa-solid fa-circle-check"></i> Zorunlu: Orta Boy Patates Kızartması dahildir.
-        </div>
-        <div>
-          <label class="block text-[11px] font-extrabold text-slate-700 uppercase tracking-wider mb-1.5">İçecek Seçin *</label>
-          <div class="grid grid-cols-2 gap-2 max-h-40 overflow-y-auto">
-            ${availableMenuDrinks.map((d, idx) => `
-              <button onclick="selectCampDrinkByName('${d.name}')" type="button" class="camp-drink-btn p-2 rounded-xl border text-left text-[11px] ${idx === 0 ? 'border-red-600 bg-red-50 text-red-600 font-bold' : 'border-slate-200 text-slate-600'}">
-                <div class="truncate">${d.name}</div>
-                <div class="text-[10px] opacity-70">${d.extraPrice > 0 ? `+${d.extraPrice} ₺` : 'Fiyata Dahil'}</div>
-              </button>
-            `).join('')}
-          </div>
-        </div>
-      `;
-
-      updateCampaignModalTotal();
-      document.getElementById('modal-add-btn').onclick = () => { addCampaignToCart(); closeOptionsModal(); };
-      document.getElementById('options-modal').classList.remove('hidden');
-    }
-
-    function selectCampPizza(pizzaId) {
-      const pizzas = catalog.filter(p => String(p.category || '').toLowerCase() === 'pizza');
-      selectedCampPizza = pizzas.find(p => String(p.id) === String(pizzaId));
-      document.querySelectorAll('.camp-piz-btn').forEach(b => {
-        if (b.id === `camp-piz-${pizzaId}`) {
-          b.className = "camp-piz-btn p-2 rounded-xl border text-left text-[11px] border-red-600 bg-red-50 text-red-600 font-bold";
-        } else {
-          b.className = "camp-piz-btn p-2 rounded-xl border text-left text-[11px] border-slate-200 text-slate-600";
-        }
-      });
-      updateCampaignModalTotal();
-    }
-
-    function selectCampDrinkByName(name) {
-      const found = availableMenuDrinks.find(d => d.name === name);
-      if (found) {
-        selectedCampaignDrink = found;
-        document.querySelectorAll('.camp-drink-btn').forEach(b => {
-          if (b.innerText.includes(name)) {
-            b.className = "camp-drink-btn p-2 rounded-xl border text-left text-[11px] border-red-600 bg-red-50 text-red-600 font-bold";
-          } else {
-            b.className = "camp-drink-btn p-2 rounded-xl border text-left text-[11px] border-slate-200 text-slate-600";
-          }
-        });
-        updateCampaignModalTotal();
-      }
-    }
-
-    function updateCampaignModalTotal() {
-      let total = 320 + selectedCampaignDrink.extraPrice;
-      document.getElementById('modal-total-price').innerText = `${total} ₺`;
-    }
-
-    function addCampaignToCart() {
-      if (!selectedCampaignForModal) return;
-      let total = 320 + selectedCampaignDrink.extraPrice;
-      cart.push({
-        id: Date.now(),
-        title: `🔥 Kampanya: ${selectedCampaignForModal.title}`,
-        size: `Pizza: ${selectedCampPizza ? selectedCampPizza.title : 'Özel Pizza'} • Patates + İçecek: ${selectedCampaignDrink.name}${selectedCampaignDrink.extraPrice > 0 ? ` (+${selectedCampaignDrink.extraPrice}₺)` : ''}`,
-        price: total,
-        note: document.getElementById('modal-note').value.trim()
-      });
-      updateCartBar();
-    }
-
-    function getTableOrderIds() {
-      if (!currentTable) return [];
-      const list = localStorage.getItem(`evreka_orders_${currentTable}`);
-      return list ? JSON.parse(list) : [];
-    }
-
-    function addOrderToTable(orderId) {
-      if (!currentTable) return;
-      let ids = getTableOrderIds();
-      const strId = String(orderId);
-      if (!ids.includes(strId)) {
-        ids.push(strId);
-        localStorage.setItem(`evreka_orders_${currentTable}`, JSON.stringify(ids));
-      }
-    }
-
-    async function checkActiveOrdersMini() {
-      if (!currentTable) return;
-      let orderIds = getTableOrderIds();
-      if (orderIds.length === 0) {
-        document.getElementById('mini-tracker-banner').classList.add('hidden');
-        return;
-      }
-
-      let allOrders = [];
-      try {
-        const res = await fetch('/api/orders');[cite: 1]
-        const data = await res.json();
-        if (data.success && Array.isArray(data.orders)) {
-          allOrders = data.orders;
-        }
-      } catch (e) {}
-
-      // Ödeme alındığında (PAID) veya iptal edildiğinde müşteri ekranından tamamen silinir
-      const activeOrderIds = orderIds.filter(id => {
-        const found = allOrders.find(o => String(o.id) === String(id));
-        if (!found) return true;
-        const st = String(found.status || '').toUpperCase();
-        return st !== 'PAID' && st !== 'CANCELLED';
-      });
-
-      if (activeOrderIds.length !== orderIds.length) {
-        localStorage.setItem(`evreka_orders_${currentTable}`, JSON.stringify(activeOrderIds));
-        orderIds = activeOrderIds;
-      }
-
-      if (orderIds.length === 0) {
-        document.getElementById('mini-tracker-banner').classList.add('hidden');
-        return;
-      }
-
-      const myOrders = allOrders.filter(o => orderIds.includes(String(o.id)) && String(o.status || '').toUpperCase() !== 'PAID' && String(o.status || '').toUpperCase() !== 'CANCELLED');
-      if (myOrders.length > 0) {
-        document.getElementById('mini-tracker-banner').classList.remove('hidden');
-        const latest = myOrders[myOrders.length - 1];
-        let statusText = 'Hazırlanıyor';
-        const st = String(latest.status || 'WAITING').toUpperCase();
-        if (st === 'WAITING') statusText = 'Onay Bekliyor';
-        else if (st === 'PREPARING') statusText = 'Mutfakta Hazırlanıyor';
-        else if (st === 'SERVED') statusText = 'Servis Edildi / Ödeme Bekliyor';
-        document.getElementById('mini-tracker-text').innerText = `Sipariş #${latest.id} - ${statusText}`;
-      } else {
-        document.getElementById('mini-tracker-banner').classList.add('hidden');
-      }
-    }
-
-    function filterCategory(cat, btn) {
+    function filterCat(cat, btn) {
       document.querySelectorAll('.cat-btn').forEach(b => {
-        b.className = "cat-btn px-4 py-2 rounded-2xl bg-white text-slate-600 border border-slate-200 text-xs font-bold whitespace-nowrap transition";
+        b.className = "cat-btn px-4 py-2 rounded-2xl bg-white text-slate-700 border border-slate-200 text-xs font-bold whitespace-nowrap";
       });
-      btn.className = "cat-btn px-4 py-2 rounded-2xl bg-slate-900 text-white text-xs font-black shadow-sm whitespace-nowrap transition";
+      btn.className = "cat-btn px-4 py-2 rounded-2xl bg-slate-900 text-white text-xs font-black whitespace-nowrap shadow-sm";
       renderProducts(cat);
     }
 
-    function renderProducts(category) {
-      const container = document.getElementById('product-list');
-      const filtered = category === 'all' ? catalog : catalog.filter(p => String(p.category || '').toLowerCase() === String(category).toLowerCase());
+    function renderProducts(cat) {
+      const grid = document.getElementById('product-grid');
+      const filtered = cat === 'all' ? catalog : catalog.filter(p => String(p.category || '').toLowerCase() === cat.toLowerCase());
 
       if (filtered.length === 0) {
-        container.innerHTML = `<div class="col-span-full py-12 text-center text-slate-400 text-xs">Bu kategoride ürün bulunamadı.</div>`;
+        grid.innerHTML = `<div class="col-span-full py-12 text-center text-slate-400 text-xs">Bu kategoride ürün bulunamadı.</div>`;
         return;
       }
 
-      // İstediğin gibi açık tema, beyaz kartlar ve belirgin çerçeveler (border border-slate-200)
-      container.innerHTML = filtered.map(p => `
-        <div onclick="openOptionsModal('${p.id}')" class="bg-white rounded-3xl p-3.5 border border-slate-200 shadow-sm hover:shadow-md transition flex gap-3.5 cursor-pointer group">
-          <img src="${p.image}" class="w-24 h-24 rounded-2xl object-cover flex-shrink-0 group-hover:scale-105 transition">
-          <div class="flex-1 flex flex-col justify-between py-0.5">
+      grid.innerHTML = filtered.map(p => `
+        <div onclick="openModal('${p.id}')" class="bg-white rounded-3xl p-3.5 border border-slate-200 shadow-sm hover:shadow-md transition flex gap-3.5 cursor-pointer">
+          <img src="${p.image}" class="w-24 h-24 rounded-2xl object-cover flex-shrink-0">
+          <div class="flex-1 flex flex-col justify-between">
             <div>
-              <h3 class="font-extrabold text-slate-900 text-sm leading-snug">${p.title}</h3>
-              <p class="text-[11px] text-slate-500 mt-1 line-clamp-2">${p.description || ''}</p>
+              <h3 class="font-black text-slate-900 text-sm leading-snug">${p.title}</h3>
+              <p class="text-[11px] text-slate-500 mt-1 line-clamp-2">${p.description}</p>
             </div>
             <div class="flex items-center justify-between mt-2">
-              <span class="text-xs font-black text-red-600">${p.basePrice} ₺</span>
-              <div class="w-8 h-8 rounded-xl bg-slate-100 group-hover:bg-red-600 group-hover:text-white text-slate-700 flex items-center justify-center transition">
-                <i class="fa-solid fa-plus text-xs"></i>
+              <span class="text-xs font-black text-red-600">${p.price} ₺</span>
+              <div class="w-7 h-7 rounded-xl bg-slate-100 text-slate-700 flex items-center justify-center text-xs">
+                <i class="fa-solid fa-plus"></i>
               </div>
             </div>
           </div>
@@ -550,208 +223,122 @@
       `).join('');
     }
 
-    function openOptionsModal(id) {
-      const prod = catalog.find(p => String(p.id) === String(id));
-      if (!prod) return;
+    function openModal(id) {
+      activeProduct = catalog.find(p => String(p.id) === String(id));
+      if (!activeProduct) return;
 
-      selectedProduct = prod;
-      selectedSize = prod.sizes && prod.sizes.length > 0 ? prod.sizes[0] : null;
-      selectedServiceType = 'normal';
-      selectedMenuDrink = availableMenuDrinks[0];
+      selectedSizePrice = 0;
+      selectedSizeName = '';
 
+      document.getElementById('modal-img').src = activeProduct.image;
+      document.getElementById('modal-title').innerText = activeProduct.title;
+      document.getElementById('modal-desc').innerText = activeProduct.description;
       document.getElementById('modal-note').value = '';
-      document.getElementById('modal-img').src = prod.image;
-      document.getElementById('modal-title').innerText = prod.title;
-      document.getElementById('modal-desc').innerText = prod.description || '';
 
-      document.getElementById('campaign-options-section').classList.add('hidden');
+      const sizesBox = document.getElementById('modal-sizes-box');
+      const sizesContainer = document.getElementById('modal-sizes');
 
-      const sizeSec = document.getElementById('size-section');
-      if (prod.sizes && prod.sizes.length > 0) {
-        sizeSec.classList.remove('hidden');
-        document.getElementById('modal-sizes').innerHTML = prod.sizes.map((sz, idx) => `
-          <button onclick="selectSize('${sz.id}')" id="sz-btn-${sz.id}" class="sz-btn p-2.5 rounded-xl border text-left text-xs ${idx === 0 ? 'border-red-600 bg-red-50 text-red-600 font-bold' : 'border-slate-200 text-slate-600'}">
+      if (activeProduct.sizes && activeProduct.sizes.length > 0) {
+        sizesBox.classList.remove('hidden');
+        selectedSizePrice = activeProduct.sizes[0].price || 0;
+        selectedSizeName = activeProduct.sizes[0].name || '';
+        sizesContainer.innerHTML = activeProduct.sizes.map((sz, idx) => `
+          <button onclick="selectSize(${sz.price || 0}, '${sz.name}', this)" type="button" class="sz-btn p-2.5 rounded-xl border text-left text-xs ${idx === 0 ? 'border-red-600 bg-red-50 text-red-600 font-bold' : 'border-slate-200 text-slate-600'}">
             <div>${sz.name}</div>
-            <div class="text-[10px] opacity-70">+${sz.priceOffset} ₺</div>
+            <div class="text-[10px] opacity-70">+${sz.price || 0} ₺</div>
           </button>
         `).join('');
       } else {
-        sizeSec.classList.add('hidden');
+        sizesBox.classList.add('hidden');
       }
 
-      const serviceSec = document.getElementById('service-options-section');
-      const cat = String(prod.category || '').toLowerCase();
-      if (cat === 'pizza' || cat === 'burger') {
-        serviceSec.classList.remove('hidden');
-        updateServiceUI();
-      } else {
-        serviceSec.classList.add('hidden');
-      }
-
-      updateModalTotal();
-      document.getElementById('modal-add-btn').onclick = () => { addToCart(); closeOptionsModal(); };
-      document.getElementById('options-modal').classList.remove('hidden');
+      updateModalPrice();
+      document.getElementById('modal').classList.remove('hidden');
     }
 
-    function selectSize(sizeId) {
-      if (!selectedProduct || !selectedProduct.sizes) return;
-      selectedSize = selectedProduct.sizes.find(s => s.id === sizeId);
+    function selectSize(price, name, btn) {
+      selectedSizePrice = price;
+      selectedSizeName = name;
       document.querySelectorAll('.sz-btn').forEach(b => {
-        if (b.id === `sz-btn-${sizeId}`) {
-          b.className = "sz-btn p-2.5 rounded-xl border text-left text-xs border-red-600 bg-red-50 text-red-600 font-bold";
-        } else {
-          b.className = "sz-btn p-2.5 rounded-xl border text-left text-xs border-slate-200 text-slate-600";
-        }
+        b.className = "sz-btn p-2.5 rounded-xl border text-left text-xs border-slate-200 text-slate-600";
       });
-      updateModalTotal();
+      btn.className = "sz-btn p-2.5 rounded-xl border text-left text-xs border-red-600 bg-red-50 text-red-600 font-bold";
+      updateModalPrice();
     }
 
-    function selectServiceType(type) {
-      selectedServiceType = type;
-      updateServiceUI();
-      updateModalTotal();
+    function updateModalPrice() {
+      if (!activeProduct) return;
+      const total = Number(activeProduct.price) + Number(selectedSizePrice);
+      document.getElementById('modal-price').innerText = `${total} ₺`;
     }
 
-    function updateServiceUI() {
-      ['normal', 'menu', 'paket'].forEach(t => {
-        const btn = document.getElementById(`srv-${t}`);
-        if (t === selectedServiceType) {
-          btn.className = "srv-btn p-2.5 rounded-xl border text-left text-xs border-red-600 bg-red-50 text-red-600 font-bold";
-        } else {
-          btn.className = "srv-btn p-2.5 rounded-xl border text-left text-xs border-slate-200 text-slate-600";
-        }
-      });
-
-      const menuDetailsBox = document.getElementById('menu-details-box');
-      if (selectedServiceType === 'menu' || selectedServiceType === 'paket') {
-        menuDetailsBox.classList.remove('hidden');
-        renderMenuDrinks();
-      } else {
-        menuDetailsBox.classList.add('hidden');
-      }
-    }
-
-    function renderMenuDrinks() {
-      const container = document.getElementById('menu-drinks-container');
-      container.innerHTML = availableMenuDrinks.map((d) => {
-        const isSelected = selectedMenuDrink.name === d.name;
-        return `
-          <button onclick="selectMenuDrinkByName('${d.name}')" type="button" class="menu-drink-btn p-2 rounded-xl border text-left text-[11px] ${isSelected ? 'border-red-600 bg-red-50 text-red-600 font-bold' : 'border-slate-200 text-slate-600'}">
-            <div class="truncate">${d.name}</div>
-            <div class="text-[10px] opacity-70">${d.extraPrice > 0 ? `+${d.extraPrice} ₺` : 'Fiyata Dahil'}</div>
-          </button>
-        `;
-      }).join('');
-    }
-
-    function selectMenuDrinkByName(name) {
-      const found = availableMenuDrinks.find(d => d.name === name);
-      if (found) {
-        selectedMenuDrink = found;
-        renderMenuDrinks();
-        updateModalTotal();
-      }
-    }
-
-    function updateModalTotal() {
-      if (!selectedProduct) return;
-      let total = Number(selectedProduct.basePrice || 0);
-      if (selectedSize) total += Number(selectedSize.priceOffset || 0);
-
-      const cat = String(selectedProduct.category || '').toLowerCase();
-      if (cat === 'pizza' || cat === 'burger') {
-        if (selectedServiceType === 'menu') {
-          total += 80 + Number(selectedMenuDrink.extraPrice || 0);
-        } else if (selectedServiceType === 'paket') {
-          total += 120 + Number(selectedMenuDrink.extraPrice || 0);
-        }
-      }
-      document.getElementById('modal-total-price').innerText = `${total} ₺`;
+    function closeModal() {
+      document.getElementById('modal').classList.add('hidden');
     }
 
     function addToCart() {
-      if (!selectedProduct) return;
-      let unitPrice = Number(selectedProduct.basePrice || 0);
-      if (selectedSize) unitPrice += Number(selectedSize.priceOffset || 0);
-
-      let variantDesc = selectedSize ? selectedSize.name : '';
-      const cat = String(selectedProduct.category || '').toLowerCase();
-      if (cat === 'pizza' || cat === 'burger') {
-        if (selectedServiceType === 'menu') {
-          unitPrice += 80 + Number(selectedMenuDrink.extraPrice || 0);
-          variantDesc += (variantDesc ? ' • ' : '') + `Menü (+80₺, Patates + ${selectedMenuDrink.name})`;
-        } else if (selectedServiceType === 'paket') {
-          unitPrice += 120 + Number(selectedMenuDrink.extraPrice || 0);
-          variantDesc += (variantDesc ? ' • ' : '') + `Paket (+120₺, Patates + ${selectedMenuDrink.name})`;
-        } else {
-          variantDesc += (variantDesc ? ' • ' : '') + `Normal Servis`;
-        }
-      }
-
+      if (!activeProduct) return;
+      const total = Number(activeProduct.price) + Number(selectedSizePrice);
       cart.push({
         id: Date.now(),
-        title: selectedProduct.title,
-        size: variantDesc,
-        price: unitPrice,
+        title: activeProduct.title,
+        size: selectedSizeName,
+        price: total,
         note: document.getElementById('modal-note').value.trim()
       });
-
-      updateCartBar();
+      closeModal();
+      updateCartUI();
     }
+    window.addToCartModal = addToCart;
 
-    function closeOptionsModal() {
-      document.getElementById('options-modal').classList.add('hidden');
-    }
-
-    function updateCartBar() {
-      document.getElementById('cart-badge').innerText = cart.length;
+    function updateCartUI() {
+      document.getElementById('cart-count').innerText = cart.length;
       const total = cart.reduce((sum, item) => sum + item.price, 0);
-      document.getElementById('cart-total-price').innerText = `${total} ₺`;
-      document.getElementById('cart-drawer-total').innerText = `${total} ₺`;
-      renderCartItems();
-    }
+      document.getElementById('cart-total').innerText = `${total} ₺`;
+      document.getElementById('drawer-total').innerText = `${total} ₺`;
 
-    function toggleCartDrawer() {
-      document.getElementById('drawer-overlay').classList.remove('hidden');
-      document.getElementById('cart-drawer').classList.add('active');
-    }
-
-    function closeCartDrawerExplicit() {
-      document.getElementById('drawer-overlay').classList.add('hidden');
-      document.getElementById('cart-drawer').classList.remove('active');
-    }
-
-    function renderCartItems() {
-      const container = document.getElementById('cart-items-container');
+      const container = document.getElementById('cart-items');
       if (cart.length === 0) {
         container.innerHTML = `<div class="py-12 text-center text-slate-400 text-xs">Sepetiniz boş.</div>`;
         return;
       }
       container.innerHTML = cart.map((item, idx) => `
         <div class="bg-slate-50 border border-slate-200 p-3.5 rounded-2xl flex items-center justify-between gap-3">
-          <div class="flex-1">
-            <h4 class="font-extrabold text-slate-900 text-xs">${item.title}</h4>
-            <p class="text-[11px] text-slate-500 mt-0.5">${item.size || ''}</p>
-            ${item.note ? `<p class="text-[10px] text-amber-600 font-semibold mt-1"><i class="fa-solid fa-note-sticky"></i> ${item.note}</p>` : ''}
-            <div class="text-xs font-black text-red-600 mt-1.5">${item.price} ₺</div>
+          <div>
+            <h4 class="font-bold text-slate-900 text-xs">${item.title} ${item.size ? '(' + item.size + ')' : ''}</h4>
+            ${item.note ? `<p class="text-[10px] text-amber-600 mt-0.5">Not: ${item.note}</p>` : ''}
+            <div class="text-xs font-black text-red-600 mt-1">${item.price} ₺</div>
           </div>
-          <button onclick="removeFromCart(${idx})" class="w-8 h-8 rounded-xl bg-red-100 text-red-600 flex items-center justify-center hover:bg-red-200 transition">
-            <i class="fa-solid fa-trash-can text-xs"></i>
-          </button>
+          <button onclick="removeFromCart(${idx})" class="w-7 h-7 rounded-lg bg-red-50 text-red-600 flex items-center justify-center text-xs"><i class="fa-solid fa-trash"></i></button>
         </div>
       `).join('');
     }
 
-    function removeFromCart(index) {
-      cart.splice(index, 1);
-      updateCartBar();
+    function removeFromCart(idx) {
+      cart.splice(idx, 1);
+      updateCartUI();
     }
 
-    async function submitOrderToAPI() {
+    function toggleCart() {
+      const drawer = document.getElementById('cart-drawer');
+      const overlay = document.getElementById('cart-overlay');
+      drawer.classList.toggle('active');
+      overlay.classList.toggle('hidden');
+    }
+
+    function openTracker() {
+      const drawer = document.getElementById('tracker-drawer');
+      const overlay = document.getElementById('tracker-overlay');
+      drawer.classList.toggle('active');
+      overlay.classList.toggle('hidden');
+      renderTrackerOrders();
+    }
+
+    async function sendOrder() {
       if (cart.length === 0) return;
-      const btn = document.getElementById('submit-btn');
+      const btn = document.getElementById('send-btn');
       btn.disabled = true;
-      btn.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i> Gönderiliyor...`;
+      btn.innerText = "Gönderiliyor...";
 
       const payload = {
         tableName: currentTable,
@@ -766,92 +353,100 @@
           body: JSON.stringify(payload)
         });
         const data = await res.json();
-        if (data.success && data.order) {
-          addOrderToTable(data.order.id);
-        } else {
-          addOrderToTable(Date.now());
-        }
+        const orderId = data.success && data.order ? data.order.id : Date.now();
+        saveOrderIdLocally(orderId);
       } catch (e) {
-        addOrderToTable(Date.now());
+        saveOrderIdLocally(Date.now());
       } finally {
         cart = [];
-        updateCartBar();
-        closeCartDrawerExplicit();
-        document.getElementById('success-modal-table').innerText = currentTable;
-        document.getElementById('order-success-modal').classList.remove('hidden');
+        updateCartUI();
+        toggleCart();
         btn.disabled = false;
-        btn.innerHTML = `<i class="fa-solid fa-paper-plane"></i> Garsona Siparişi Gönder`;
+        btn.innerText = "Garsona Siparişi Gönder";
+        openTracker();
       }
     }
 
-    function closeSuccessModalAndOpenTracker() {
-      document.getElementById('order-success-modal').classList.add('hidden');
-      toggleTrackerDrawer();
+    function getLocalOrders() {
+      const list = localStorage.getItem(`orders_${currentTable}`);
+      return list ? JSON.parse(list) : [];
     }
 
-    function toggleTrackerDrawer() {
-      document.getElementById('tracker-overlay').classList.remove('hidden');
-      document.getElementById('tracker-drawer').classList.add('active');
-      renderTrackerOrders();
+    function saveOrderIdLocally(id) {
+      let list = getLocalOrders();
+      if (!list.includes(String(id))) {
+        list.push(String(id));
+        localStorage.setItem(`orders_${currentTable}`, JSON.stringify(list));
+      }
     }
 
-    function closeTrackerDrawer() {
-      document.getElementById('tracker-overlay').classList.add('hidden');
-      document.getElementById('tracker-drawer').classList.remove('active');
+    async function checkOrders() {
+      const orderIds = getLocalOrders();
+      if (orderIds.length === 0) {
+        document.getElementById('tracker-banner').classList.add('hidden');
+        return;
+      }
+
+      try {
+        const res = await fetch('/api/orders');[cite: 1]
+        const data = await res.json();
+        if (data.success && Array.isArray(data.orders)) {
+          // Ödeme alındığında (PAID) veya iptal edildiğinde listeden tamamen temizle
+          const activeIds = orderIds.filter(id => {
+            const found = data.orders.find(o => String(o.id) === String(id));
+            if (!found) return true;
+            const st = String(found.status || '').toUpperCase();
+            return st !== 'PAID' && st !== 'CANCELLED';
+          });
+
+          if (activeIds.length !== orderIds.length) {
+            localStorage.setItem(`orders_${currentTable}`, JSON.stringify(activeIds));
+          }
+
+          if (activeIds.length > 0) {
+            document.getElementById('tracker-banner').classList.remove('hidden');
+          } else {
+            document.getElementById('tracker-banner').classList.add('hidden');
+          }
+        }
+      } catch (e) {}
     }
 
     async function renderTrackerOrders() {
-      const container = document.getElementById('tracker-items-container');
-      const orderIds = getTableOrderIds();
+      const container = document.getElementById('tracker-items');
+      const orderIds = getLocalOrders();
 
       if (orderIds.length === 0) {
         container.innerHTML = `<div class="py-12 text-center text-slate-400 text-xs">Aktif siparişiniz bulunmuyor.</div>`;
         return;
       }
 
-      let allOrders = [];
       try {
         const res = await fetch('/api/orders');[cite: 1]
         const data = await res.json();
         if (data.success && Array.isArray(data.orders)) {
-          allOrders = data.orders;
+          const myOrders = data.orders.filter(o => orderIds.includes(String(o.id)) && String(o.status || '').toUpperCase() !== 'PAID' && String(o.status || '').toUpperCase() !== 'CANCELLED');
+          
+          if (myOrders.length === 0) {
+            container.innerHTML = `<div class="py-12 text-center text-slate-400 text-xs">Aktif siparişiniz bulunmuyor.</div>`;
+            return;
+          }
+
+          container.innerHTML = myOrders.map(o => `
+            <div class="bg-slate-800 border border-slate-700 rounded-2xl p-4 space-y-2">
+              <div class="flex justify-between items-center text-xs font-bold text-amber-400 border-b border-slate-700 pb-2">
+                <span>Sipariş #${o.id}</span>
+                <span class="px-2 py-0.5 rounded bg-slate-700 text-white">${o.status || 'WAITING'}</span>
+              </div>
+              <div class="space-y-1 text-xs">
+                ${(o.items || []).map(i => `<div class="flex justify-between text-slate-300"><span>${i.title}</span><span class="font-bold">${i.price} ₺</span></div>`).join('')}
+              </div>
+            </div>
+          `).join('');
         }
-      } catch (e) {}
-
-      const myOrders = allOrders.filter(o => orderIds.includes(String(o.id)) && String(o.status || '').toUpperCase() !== 'PAID' && String(o.status || '').toUpperCase() !== 'CANCELLED');
-      
-      if (myOrders.length === 0) {
-        container.innerHTML = `<div class="py-12 text-center text-slate-400 text-xs">Aktif siparişiniz bulunmuyor.</div>`;
-        return;
+      } catch (e) {
+        container.innerHTML = `<div class="py-12 text-center text-slate-400 text-xs">Sipariş bilgileri yüklenemedi.</div>`;
       }
-
-      container.innerHTML = myOrders.map(o => {
-        const st = String(o.status || 'WAITING').toUpperCase();
-        let statusBadge = '<span class="bg-amber-500/20 text-amber-400 px-2.5 py-1 rounded-lg text-[10px] font-bold">Onay Bekliyor</span>';
-        if (st === 'PREPARING') statusBadge = '<span class="bg-blue-500/20 text-blue-400 px-2.5 py-1 rounded-lg text-[10px] font-bold">Mutfakta Hazırlanıyor</span>';
-        else if (st === 'SERVED') statusBadge = '<span class="bg-indigo-500/20 text-indigo-400 px-2.5 py-1 rounded-lg text-[10px] font-bold">Servis Edildi / Ödeme Bekliyor</span>';
-
-        return `
-          <div class="bg-slate-800 border border-slate-700 rounded-2xl p-4 space-y-3">
-            <div class="flex justify-between items-center border-b border-slate-700 pb-2">
-              <span class="text-xs font-black text-amber-400">Sipariş #${o.id}</span>
-              ${statusBadge}
-            </div>
-            <div class="space-y-1.5">
-              ${(o.items || []).map(i => `
-                <div class="flex justify-between text-xs">
-                  <span class="text-slate-300">${i.title} (${i.size || ''})</span>
-                  <span class="font-bold text-white">${i.price} ₺</span>
-                </div>
-              `).join('')}
-            </div>
-            <div class="flex justify-between items-center pt-2 border-t border-slate-700 text-xs font-black">
-              <span class="text-slate-400">Toplam:</span>
-              <span class="text-red-400 text-sm">${o.totalPrice || o.total} ₺</span>
-            </div>
-          </div>
-        `;
-      }).join('');
     }
   </script>
 </body>
