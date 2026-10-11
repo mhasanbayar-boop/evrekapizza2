@@ -248,7 +248,7 @@
     let selectedCampPizza = null;
     let selectedCampaignDrink = availableMenuDrinks[0];
 
-    // SAYFA AÇILDIĞI AN ANINDA RENDER ET
+    // SAYFA AÇILDIĞI AN ANINDA RENDER ET VE ANLIK SENKRONİZASYON BAŞLAT
     (function initApp() {
       try {
         const params = new URLSearchParams(window.location.search);
@@ -260,7 +260,19 @@
         renderProducts('all');
         renderCampaigns();
         checkOrders();
-        setInterval(checkOrders, 3000);
+
+        // 1 saniyede bir anlık kontrol (Garson paneli değişimlerini anında yakalamak için)
+        setInterval(checkOrders, 1000);
+
+        // Sekmeler arası anlık senkronizasyon (Storage olayı)
+        window.addEventListener('storage', (e) => {
+          if (e.key === `orders_data_${currentTable}` || e.key?.startsWith('orders_data_')) {
+            checkOrders();
+            if (!document.getElementById('tracker-drawer').classList.contains('hidden') || document.getElementById('tracker-drawer').classList.contains('active')) {
+              renderTrackerOrders();
+            }
+          }
+        });
       } catch (err) {
         console.error("Init Error:", err);
       }
@@ -454,7 +466,6 @@
         sizesBox.classList.add('hidden');
       }
 
-      // SADECE PİZZA VE BURGERLERDE MENÜ / PAKET SEÇENEĞİ GÖSTER
       const serviceSec = document.getElementById('service-options-section');
       const cat = String(prod.category || '').toLowerCase();
       if (cat === 'pizza' || cat === 'burger') {
@@ -655,7 +666,7 @@
     }
     window.openTracker = openTracker;
 
-    // SİPARİŞLERİ YÖNETME VE SENKRONİZASYON SİSTEMİ
+    // KESİNLİKLE TAKILMAYAN GÜVENLİ SİPARİŞ GÖNDERME
     function getLocalOrders() {
       const data = safeGetItem(`orders_data_${currentTable}`);
       return data ? JSON.parse(data) : [];
@@ -674,7 +685,7 @@
         items: [...cart],
         totalPrice: cart.reduce((sum, i) => sum + i.price, 0),
         total: cart.reduce((sum, i) => sum + i.price, 0),
-        status: 'GARSON ONAYI BEKLİYOR', // İlk durum
+        status: 'GARSON ONAYI BEKLİYOR',
         time: new Date().toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })
       };
 
@@ -684,20 +695,21 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(newOrder)
         });
-      } catch (e) {}
+      } catch (e) {} finally {
+        let orders = getLocalOrders();
+        orders.push(newOrder);
+        safeSetItem(`orders_data_${currentTable}`, JSON.stringify(orders));
 
-      let orders = getLocalOrders();
-      orders.push(newOrder);
-      safeSetItem(`orders_data_${currentTable}`, JSON.stringify(orders));
+        cart = [];
+        updateCartUI();
+        toggleCart();
+        
+        btn.disabled = false;
+        btn.innerText = "Garsona Siparişi Gönder";
 
-      cart = [];
-      updateCartUI();
-      toggleCart();
-      btn.disabled = false;
-      btn.innerText = "Garsona Siparişi Gönder";
-
-      checkOrders();
-      openTracker();
+        checkOrders();
+        openTracker();
+      }
     }
     window.sendOrder = sendOrder;
 
@@ -712,17 +724,14 @@
         else if (data.orders && Array.isArray(data.orders)) serverOrders = data.orders;
         else if (data.data && Array.isArray(data.data)) serverOrders = data.data;
 
-        // Bu masaya ait sunucudaki siparişleri filtrele
         const tableServerOrders = serverOrders.filter(o => String(o.table || o.tableName) === String(currentTable));
         
         if (tableServerOrders.length > 0) {
-          // Ödemesi alınmış (PAID / Kapatılmış) siparişleri temizle, aktifleri senkronize et
           const activeServerOrders = tableServerOrders.filter(o => {
             const st = String(o.status || '').toUpperCase();
             return st !== 'PAID' && st !== 'COMPLETED' && st !== 'CANCELLED' && st !== 'ÖDENDİ' && !o.isPaid;
           });
 
-          // Sunucudan gelen güncel statüleri (Garson onayından sonra hazırlanıyor vb.) yerel hafızaya işle
           orders = activeServerOrders.map(so => {
             const existing = orders.find(loc => String(loc.id) === String(so.id || so._id));
             return {
@@ -737,12 +746,6 @@
 
           safeSetItem(`orders_data_${currentTable}`, JSON.stringify(orders));
         } else if (serverOrders.length > 0) {
-          // Eğer sunucuda bu masa için hiç aktif sipariş kalmadıysa (Ödemeyi al ve kapat denildiyse) komple temizle
-          const otherTableOrders = serverOrders.filter(o => {
-            const st = String(o.status || '').toUpperCase();
-            return String(o.table || o.tableName) !== String(currentTable) && st !== 'PAID' && st !== 'COMPLETED' && !o.isPaid;
-          });
-          // Eğer sunucu bu masanın siparişlerini sildiyse yereli de sıfırla
           if (!serverOrders.some(o => String(o.table || o.tableName) === String(currentTable) && String(o.status || '').toUpperCase() !== 'PAID')) {
             orders = [];
             safeSetItem(`orders_data_${currentTable}`, JSON.stringify([]));
@@ -758,6 +761,12 @@
         } else {
           banner.classList.add('hidden');
         }
+      }
+
+      // Eğer açık takip çekmecesi varsa ekrandakileri de anında yenile
+      const trackerDrawer = document.getElementById('tracker-drawer');
+      if (trackerDrawer && trackerDrawer.classList.contains('active')) {
+        renderTrackerOrders();
       }
     }
 
