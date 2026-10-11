@@ -83,7 +83,7 @@
       <button onclick="filterCategory('dessert', this)" class="cat-btn px-4 py-2 rounded-2xl bg-white text-slate-600 border border-slate-200 text-xs font-bold whitespace-nowrap transition">Tatlılar</button>
     </div>
 
-    <!-- ÜRÜN LİSTESİ (Belirgin Sınırlı, Şık Beyaz Kartlar) -->
+    <!-- ÜRÜN LİSTESİ -->
     <div class="px-4 mt-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4" id="product-list"></div>
   </main>
 
@@ -181,7 +181,7 @@
         <div class="grid grid-cols-2 gap-2" id="modal-sizes"></div>
       </div>
 
-      <!-- SERVİS / MENÜ / PAKET SEÇENEKLERİ (PİZZA & BURGER İÇİN) -->
+      <!-- SERVİS / MENÜ / PAKET SEÇENEKLERİ -->
       <div class="mt-5 hidden" id="service-options-section">
         <label class="block text-xs font-extrabold text-slate-700 uppercase tracking-wider mb-2">Servis ve Menü Seçenekleri *</label>
         <div class="grid grid-cols-3 gap-2" id="service-options-container">
@@ -199,7 +199,6 @@
           </button>
         </div>
 
-        <!-- MENÜ VEYA PAKET SEÇİLDİĞİNDE ÇIKACAK İÇECEK VE PATATES BİLGİSİ -->
         <div id="menu-details-box" class="mt-3 hidden bg-slate-50 border border-slate-200 rounded-2xl p-3.5 space-y-3">
           <div class="text-xs font-bold text-emerald-700 flex items-center gap-1.5">
             <i class="fa-solid fa-circle-check"></i> Zorunlu: Orta Boy Patates Kızartması dahildir.
@@ -233,13 +232,25 @@
   </div>
 
   <script>
-    let catalog = [];
+    // VARSAYILAN KATEGORİ VE ÜRÜNLER (Asla boş kalmaz, anında görünür)
+    let catalog = [
+      { id: 'p1', title: 'Pepperoni Pizza', category: 'pizza', basePrice: 260, description: 'Mozzarella, yoğun sucuk dilimleri, özel domates sosu', image: 'https://images.unsplash.com/photo-1628840042765-356cda07504e?w=500', sizes: [{ id: 's1', name: 'Orta Boy', priceOffset: 0 }, { id: 's2', name: 'Büyük Boy', priceOffset: 70 }] },
+      { id: 'p2', title: 'Margherita Pizza', category: 'pizza', basePrice: 240, description: 'Taze mozzarella, fesleğen yaprakları, sızma zeytinyağı', image: 'https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=500', sizes: [{ id: 's1', name: 'Orta Boy', priceOffset: 0 }, { id: 's2', name: 'Büyük Boy', priceOffset: 60 }] },
+      { id: 'b1', title: 'Cheeseburger', category: 'burger', basePrice: 260, description: '150gr dana köfte, cheddar peyniri, karamelize soğan', image: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=500' },
+      { id: 's1', title: 'Sezar Salatası', category: 'salad', basePrice: 190, description: 'Izgara tavuk dilimleri, marul, kruton, sezar sos', image: 'https://images.unsplash.com/photo-1550304943-4f24f54ddde9?w=500' },
+      { id: 'st1', title: 'Patates Kızartması', category: 'side', basePrice: 110, description: 'Çıtır patates, özel baharatlar ve soslar ile', image: 'https://images.unsplash.com/photo-1573080496219-bb080dd4f877?w=500' },
+      { id: 'bev1', title: 'Coca-Cola (330ml)', category: 'beverage', basePrice: 60, description: 'Soğuk kutu içecek', image: 'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=500' },
+      { id: 'd1', title: 'Souffle', category: 'dessert', basePrice: 150, description: 'Sıcak çikolatalı sufle, dondurma eşliğinde', image: 'https://images.unsplash.com/photo-1606313564200-e75d5e30476c?w=500' }
+    ];
+
+    let campaigns = [
+      { id: 'camp_1', title: 'Haftanın Özel Menüsü', description: 'Seçeceğiniz orta boy pizza + kutu içecek sadece 320 ₺!', badge: '%15 İNDİRİM', image: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=500' }
+    ];
+
     let currentTable = 'Masa-1';
     let cart = [];
-    let campaigns = [];
     let selectedProduct = null;
     let selectedSize = null;
-    let selectedExtras = [];
     let isCampaignModal = false;
     let selectedCampPizza = null;
     let selectedCampaignDrink = { name: 'ColaTurka / Sarıyer (200ml Şişe)', extraPrice: 0 };
@@ -256,9 +267,7 @@
       { name: 'Sade Soda Şişe', type: 'sise', extraPrice: 0 },
       { name: 'ColaTurka / Sarıyer (330ml Kutu)', type: 'kutu', extraPrice: 20 },
       { name: 'Pepsi (330ml Kutu)', type: 'kutu', extraPrice: 20 },
-      { name: 'Coca-Cola (330ml Kutu)', type: 'kutu', extraPrice: 20 },
-      { name: 'Fanta (330ml Kutu)', type: 'kutu', extraPrice: 20 },
-      { name: 'Sprite Kutu', type: 'kutu', extraPrice: 20 }
+      { name: 'Coca-Cola (330ml Kutu)', type: 'kutu', extraPrice: 20 }
     ];
 
     document.addEventListener('DOMContentLoaded', () => {
@@ -276,47 +285,38 @@
       document.getElementById('active-table-display').innerText = currentTable;
       document.getElementById('cart-drawer-table-display').innerHTML = `<i class="fa-solid fa-lock text-[10px]"></i> ${currentTable}`;
 
-      loadMenu();
-      loadCampaigns();
+      // Varsayılan verilerle hemen render et
+      renderProducts('all');
+      renderCampaigns();
+
+      // Arkadan API verilerini çekmeye çalış (Başarılı olursa günceller)
+      loadMenuFromAPI();
+      loadCampaignsFromAPI();
+
       checkActiveOrdersMini();
       setInterval(checkActiveOrdersMini, 2000);
     });
 
-    // MENÜYÜ SUNUCUDAN ÇEK (/api/catalog)[cite: 1]
-    async function loadMenu() {
+    async function loadMenuFromAPI() {
       try {
-        const res = await fetch('/api/catalog');
+        const res = await fetch('/api/catalog');[cite: 1]
         const data = await res.json();
         if (data.success && Array.isArray(data.catalog) && data.catalog.length > 0) {
           catalog = data.catalog;
           renderProducts('all');
-          return;
         }
       } catch (e) {}
-      
-      // Fallback Menü (server.js ile tam uyumlu)
-      catalog = [
-        { id: 'c1', title: 'Pepperoni', category: 'pizza', basePrice: 260, description: 'Mozzarella, kaşar, sucuk, mantar, biber, mısır, zeytin', image: 'https://images.unsplash.com/photo-1628840042765-356cda07504e?w=300', sizes: [{ id: 'medium', name: 'Orta Boy (Medium)', priceOffset: 0 }, { id: 'jumbo', name: 'Büyük Boy (Jumbo)', priceOffset: 70 }] },
-        { id: 'b1', title: 'Hamburger (Classic)', category: 'burger', basePrice: 260, description: 'Susamlı ekmek, 100gr dana köfte, domates, marul, turşu, karamelize soğan, özel sos', image: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=300' }
-      ];
-      renderProducts('all');
     }
 
-    // KAMPANYALARI ÇEK (/api/campaigns)[cite: 1]
-    async function loadCampaigns() {
+    async function loadCampaignsFromAPI() {
       try {
-        const res = await fetch('/api/campaigns');
+        const res = await fetch('/api/campaigns');[cite: 1]
         const data = await res.json();
         if (data.success && Array.isArray(data.campaigns)) {
           campaigns = data.campaigns;
           renderCampaigns();
-          return;
         }
       } catch (e) {}
-      campaigns = [
-        { id: 'camp_1', title: 'Haftanın Özel Menüsü', description: 'Seçeceğiniz orta boy pizza + kutu içecek sadece 320 ₺!', badge: '%15 İNDİRİM', image: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=500' }
-      ];
-      renderCampaigns();
     }
 
     function renderCampaigns() {
@@ -349,7 +349,7 @@
       isCampaignModal = true;
       selectedCampaignForModal = camp;
       
-      const pizzas = catalog.filter(p => p.category === 'pizza');
+      const pizzas = catalog.filter(p => String(p.category || '').toLowerCase() === 'pizza');
       selectedCampPizza = pizzas.length > 0 ? pizzas[0] : { title: 'Özel Pizza' };
       selectedCampaignDrink = availableMenuDrinks[0];
 
@@ -403,7 +403,7 @@
     }
 
     function selectCampPizza(pizzaId) {
-      const pizzas = catalog.filter(p => p.category === 'pizza');
+      const pizzas = catalog.filter(p => String(p.category || '').toLowerCase() === 'pizza');
       selectedCampPizza = pizzas.find(p => String(p.id) === String(pizzaId));
       document.querySelectorAll('.camp-piz-btn').forEach(b => {
         if (b.id === `camp-piz-${pizzaId}`) {
@@ -532,7 +532,7 @@
         return;
       }
 
-      // Ürün kartları belirgin sınırlı (border-slate-200) ve şık beyaz tasarımlıdır
+      // Ürün kartları belirgin sınırlı (border border-slate-200) ve şık beyaz tasarımlıdır
       container.innerHTML = filtered.map(p => `
         <div onclick="openOptionsModal('${p.id}')" class="bg-white rounded-3xl p-3.5 border border-slate-200 shadow-sm hover:shadow-md transition flex gap-3.5 cursor-pointer group">
           <img src="${p.image}" class="w-24 h-24 rounded-2xl object-cover flex-shrink-0 group-hover:scale-105 transition">
@@ -560,7 +560,6 @@
       selectedCampaignForModal = null;
       selectedProduct = prod;
       selectedSize = prod.sizes && prod.sizes.length > 0 ? prod.sizes[0] : null;
-      selectedExtras = [];
       selectedServiceType = 'normal';
       selectedMenuDrink = availableMenuDrinks[0];
 
@@ -571,7 +570,6 @@
 
       document.getElementById('campaign-options-section').classList.add('hidden');
 
-      // Boyutlar
       const sizeSec = document.getElementById('size-section');
       if (prod.sizes && prod.sizes.length > 0) {
         sizeSec.classList.remove('hidden');
@@ -585,7 +583,6 @@
         sizeSec.classList.add('hidden');
       }
 
-      // Servis / Menü / Paket Seçenekleri (Pizza ve Burger için)
       const serviceSec = document.getElementById('service-options-section');
       const cat = String(prod.category || '').toLowerCase();
       if (cat === 'pizza' || cat === 'burger') {
@@ -764,7 +761,6 @@
       updateCartBar();
     }
 
-    // SİPARİŞİ SUNUCUYA GÖNDER (/api/orders)[cite: 1]
     async function submitOrderToAPI() {
       if (cart.length === 0) return;
       if (!currentTable) {
