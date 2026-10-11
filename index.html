@@ -182,6 +182,14 @@
   </div>
 
   <script>
+    // GÜVENLİ STORAGE YARDIMCILARI
+    function safeGetItem(key) {
+      try { return localStorage.getItem(key); } catch (e) { return null; }
+    }
+    function safeSetItem(key, val) {
+      try { localStorage.setItem(key, val); } catch (e) {}
+    }
+
     // KESİN GARANTİ KATALOG VE KAMPANYALAR
     let catalog = [
       { id: '1', title: 'Pepperoni Pizza', category: 'pizza', price: 260, description: 'Mozzarella, yoğun sucuk dilimleri, özel domates sosu', image: 'https://images.unsplash.com/photo-1628840042765-356cda07504e?w=500', sizes: [{name: 'Orta Boy', price: 0}, {name: 'Büyük Boy', price: 70}] },
@@ -222,16 +230,20 @@
     let selectedCampPizza = null;
     let selectedCampaignDrink = availableMenuDrinks[0];
 
-    // SAYFA AÇILDIĞI AN DOĞRUDAN ÇALIŞIR
+    // SAYFA AÇILDIĞI AN ANINDA RENDER ET
     (function initApp() {
-      const params = new URLSearchParams(window.location.search);
-      currentTable = params.get('masa') || params.get('table') || localStorage.getItem('evreka_table') || 'Masa-1';
-      localStorage.setItem('evreka_table', currentTable);
-      const badge = document.getElementById('table-badge');
-      if (badge) badge.innerText = currentTable;
+      try {
+        const params = new URLSearchParams(window.location.search);
+        currentTable = params.get('masa') || params.get('table') || safeGetItem('evreka_table') || 'Masa-1';
+        safeSetItem('evreka_table', currentTable);
+        const badge = document.getElementById('table-badge');
+        if (badge) badge.innerText = currentTable;
 
-      renderProducts('all');
-      renderCampaigns();
+        renderProducts('all');
+        renderCampaigns();
+      } catch (err) {
+        console.error("Init Error:", err);
+      }
     })();
 
     function renderCampaigns() {
@@ -663,7 +675,7 @@
     window.sendOrder = sendOrder;
 
     function getLocalOrders() {
-      const list = localStorage.getItem(`orders_${currentTable}`);
+      const list = safeGetItem(`orders_${currentTable}`);
       return list ? JSON.parse(list) : [];
     }
 
@@ -671,84 +683,7 @@
       let list = getLocalOrders();
       if (!list.includes(String(id))) {
         list.push(String(id));
-        localStorage.setItem(`orders_${currentTable}`, JSON.stringify(list));
-      }
-    }
-
-    async function checkOrders() {
-      const orderIds = getLocalOrders();
-      if (orderIds.length === 0) {
-        const banner = document.getElementById('tracker-banner');
-        if (banner) banner.classList.add('hidden');
-        return;
-      }
-
-      try {
-        const res = await fetch('/api/orders');
-        const data = await res.json();
-        
-        let orderList = [];
-        if (Array.isArray(data)) orderList = data;
-        else if (data.orders && Array.isArray(data.orders)) orderList = data.orders;
-        else if (data.data && Array.isArray(data.data)) orderList = data.data;
-
-        const activeIds = orderIds.filter(id => {
-          const found = orderList.find(o => String(o.id || o._id) === String(id));
-          if (!found) return true;
-          const st = String(found.status || '').toUpperCase();
-          return st !== 'PAID' && st !== 'COMPLETED' && st !== 'CANCELLED';
-        });
-
-        if (activeIds.length !== orderIds.length) {
-          localStorage.setItem(`orders_${currentTable}`, JSON.stringify(activeIds));
-        }
-
-        const banner = document.getElementById('tracker-banner');
-        if (banner) {
-          if (activeIds.length > 0) banner.classList.remove('hidden');
-          else banner.classList.add('hidden');
-        }
-      } catch (e) {}
-    }
-
-    async function renderTrackerOrders() {
-      const container = document.getElementById('tracker-items');
-      const orderIds = getLocalOrders();
-
-      if (orderIds.length === 0) {
-        container.innerHTML = `<div class="py-12 text-center text-slate-400 text-xs">Aktif siparişiniz bulunmuyor.</div>`;
-        return;
-      }
-
-      try {
-        const res = await fetch('/api/orders');
-        const data = await res.json();
-        
-        let orderList = [];
-        if (Array.isArray(data)) orderList = data;
-        else if (data.orders && Array.isArray(data.orders)) orderList = data.orders;
-        else if (data.data && Array.isArray(data.data)) orderList = data.data;
-
-        const myOrders = orderList.filter(o => orderIds.includes(String(o.id || o._id)) && String(o.status || '').toUpperCase() !== 'PAID' && String(o.status || '').toUpperCase() !== 'COMPLETED' && String(o.status || '').toUpperCase() !== 'CANCELLED');
-        
-        if (myOrders.length === 0) {
-          container.innerHTML = `<div class="py-12 text-center text-slate-400 text-xs">Aktif siparişiniz bulunmuyor.</div>`;
-          return;
-        }
-
-        container.innerHTML = myOrders.map(o => `
-          <div class="bg-slate-800 border border-slate-700 rounded-2xl p-4 space-y-2">
-            <div class="flex justify-between items-center text-xs font-bold text-amber-400 border-b border-slate-700 pb-2">
-              <span>Sipariş #${o.id || o._id}</span>
-              <span class="px-2 py-0.5 rounded bg-slate-700 text-white">${o.status || 'WAITING'}</span>
-            </div>
-            <div class="space-y-1 text-xs">
-              ${(o.items || []).map(i => `<div class="flex justify-between text-slate-300"><span>${i.title \vert{}\vert{} i.name} (${i.size || ''})</span><span class="font-bold">${i.price || i.tutar} ₺</span></div>`).join('')}
-            </div>
-          </div>
-        `).join('');
-      } catch (e) {
-        container.innerHTML = `<div class="py-12 text-center text-slate-400 text-xs">Sipariş bilgileri yüklenemedi.</div>`;
+        safeSetItem(`orders_${currentTable}`, JSON.stringify(list));
       }
     }
   </script>
