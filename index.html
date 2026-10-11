@@ -156,9 +156,14 @@
           <div class="text-xs font-bold text-emerald-700 flex items-center gap-1.5">
             <i class="fa-solid fa-circle-check"></i> Zorunlu: Orta Boy Patates Kızartması dahildir.
           </div>
-          <div>
-            <label class="block text-[11px] font-extrabold text-slate-700 uppercase tracking-wider mb-1.5">İçecek Seçin *</label>
-            <div id="menu-drinks-container" class="grid grid-cols-1 gap-1.5 max-h-36 overflow-y-auto no-scrollbar pr-1"></div>
+          <!-- AÇILIR KAPANIR (AKORDİYON) İÇECEK SEÇİCİ -->
+          <div class="relative">
+            <label class="block text-[11px] font-extrabold text-slate-700 uppercase tracking-wider mb-1">İçecek Seçin *</label>
+            <button onclick="toggleDrinkDropdown('menu')" type="button" class="w-full bg-white border border-slate-200 rounded-xl p-2.5 text-left text-xs font-bold text-slate-800 flex items-center justify-between shadow-sm">
+              <span id="selected-drink-label" class="truncate">Coca-Cola (330ml Kutu)</span>
+              <i class="fa-solid fa-chevron-down text-slate-400 text-xs ml-2 flex-shrink-0"></i>
+            </button>
+            <div id="drink-dropdown-content" class="hidden absolute left-0 right-0 top-full mt-1 bg-white border border-slate-200 rounded-xl shadow-xl z-30 max-h-40 overflow-y-auto no-scrollbar p-1.5 space-y-1"></div>
           </div>
         </div>
       </div>
@@ -190,7 +195,6 @@
       try { localStorage.setItem(key, val); } catch (e) {}
     }
 
-    // EKSİKSİZ FULL MENÜ KATALOĞU
     let catalog = [
       { id: '1', title: 'Pepperoni Pizza', category: 'pizza', price: 260, description: 'Mozzarella, yoğun sucuk dilimleri, özel domates sosu', image: 'https://images.unsplash.com/photo-1628840042765-356cda07504e?w=500', sizes: [{name: 'Orta Boy', price: 0}, {name: 'Büyük Boy', price: 70}] },
       { id: '2', title: 'Margherita Pizza', category: 'pizza', price: 240, description: 'Taze mozzarella, fesleğen yaprakları', image: 'https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=500', sizes: [{name: 'Orta Boy', price: 0}, {name: 'Büyük Boy', price: 60}] },
@@ -249,6 +253,17 @@
     let selectedCampPizza = null;
     let selectedCampaignDrink = availableMenuDrinks[0];
 
+    // DURUM ÇEVİRİ YARDIMCISI (İngilizce/Diğer terimleri Türkçeye çevirir)
+    function translateStatus(status) {
+      const st = String(status || '').toUpperCase().trim();
+      if (st.includes('PREPARING') || st === 'HAZIRLANIYOR') return 'HAZIRLANIYOR';
+      if (st.includes('PENDING') || st.includes('ONAY') || st === 'GARSON ONAYI BEKLİYOR') return 'GARSON ONAYI BEKLİYOR';
+      if (st.includes('READY') || st === 'HAZIR') return 'HAZIR';
+      if (st.includes('SERVED') || st.includes('SERVİS') || st === 'MASAYA SERVİS EDİLDİ') return 'MASAYA SERVİS EDİLDİ';
+      if (st.includes('COMPLETED') || st.includes('PAID') || st.includes('ÖDENDİ')) return 'TAMAMLANDI';
+      return status || 'GARSON ONAYI BEKLİYOR';
+    }
+
     // SAYFA AÇILDIĞI AN ANINDA RENDER ET VE ANLIK SENKRONİZASYON BAŞLAT
     (function initApp() {
       try {
@@ -262,10 +277,8 @@
         renderCampaigns();
         checkOrders();
 
-        // 1 saniyede bir anlık kontrol (Garson paneli değişimlerini anında yakalamak için)
         setInterval(checkOrders, 1000);
 
-        // Sekmeler arası anlık senkronizasyon (Storage olayı)
         window.addEventListener('storage', (e) => {
           if (e.key === `orders_data_${currentTable}` || e.key?.startsWith('orders_data_')) {
             checkOrders();
@@ -327,12 +340,18 @@
         pizzaSelectorHtml = `
           <div class="mb-3">
             <label class="block text-[11px] font-extrabold text-slate-700 uppercase tracking-wider mb-1.5">Pizza Seçin *</label>
-            <div class="grid grid-cols-1 gap-1.5 max-h-36 overflow-y-auto no-scrollbar pr-1">
-              ${pizzas.map((p, idx) => `
-                <button onclick="selectCampPizza('${p.id}')" type="button" id="camp-piz-${p.id}" class="camp-piz-btn p-2 rounded-xl border text-left text-xs ${idx === 0 ? 'border-red-600 bg-red-50 text-red-600 font-bold' : 'border-slate-200 text-slate-600'}">
-                  <div class="truncate">${p.title}</div>
-                </button>
-              `).join('')}
+            <div class="relative">
+              <button onclick="toggleDrinkDropdown('camp-pizza')" type="button" class="w-full bg-white border border-slate-200 rounded-xl p-2.5 text-left text-xs font-bold text-slate-800 flex items-center justify-between shadow-sm">
+                <span id="selected-camp-pizza-label" class="truncate">${selectedCampPizza.title}</span>
+                <i class="fa-solid fa-chevron-down text-slate-400 text-xs ml-2 flex-shrink-0"></i>
+              </button>
+              <div id="camp-pizza-dropdown-content" class="hidden absolute left-0 right-0 top-full mt-1 bg-white border border-slate-200 rounded-xl shadow-xl z-30 max-h-40 overflow-y-auto no-scrollbar p-1.5 space-y-1">
+                ${pizzas.map(p => `
+                  <button onclick="selectCampPizza('${p.id}', '${p.title}')" type="button" class="w-full p-2 text-left text-xs rounded-lg hover:bg-slate-50 transition ${selectedCampPizza.id === p.id ? 'font-bold text-red-600 bg-red-50' : 'text-slate-700'}">
+                    ${p.title}
+                  </button>
+                `).join('')}
+              </div>
             </div>
           </div>
         `;
@@ -342,11 +361,15 @@
         <div class="text-xs font-bold text-emerald-700 flex items-center gap-1.5 mb-2">
           <i class="fa-solid fa-circle-check"></i> Zorunlu: Orta Boy Patates Kızartması dahildir.
         </div>
-        <div>
-          <label class="block text-[11px] font-extrabold text-slate-700 uppercase tracking-wider mb-1.5">İçecek Seçin *</label>
-          <div class="grid grid-cols-1 gap-1.5 max-h-36 overflow-y-auto no-scrollbar pr-1">
-            ${availableMenuDrinks.map((d, idx) => `
-              <button onclick="selectCampDrinkByName('${d.name}')" type="button" class="camp-drink-btn p-2 rounded-xl border flex items-center justify-between text-xs ${idx === 0 ? 'border-red-600 bg-red-50 text-red-600 font-bold' : 'border-slate-200 text-slate-600'}">
+        <div class="relative">
+          <label class="block text-[11px] font-extrabold text-slate-700 uppercase tracking-wider mb-1">İçecek Seçin *</label>
+          <button onclick="toggleDrinkDropdown('camp-drink')" type="button" class="w-full bg-white border border-slate-200 rounded-xl p-2.5 text-left text-xs font-bold text-slate-800 flex items-center justify-between shadow-sm">
+            <span id="selected-camp-drink-label" class="truncate">${selectedCampaignDrink.name} ${selectedCampaignDrink.extraPrice > 0 ? `(+${selectedCampaignDrink.extraPrice}₺)` : '(Dahil)'}</span>
+            <i class="fa-solid fa-chevron-down text-slate-400 text-xs ml-2 flex-shrink-0"></i>
+          </button>
+          <div id="camp-drink-dropdown-content" class="hidden absolute left-0 right-0 top-full mt-1 bg-white border border-slate-200 rounded-xl shadow-xl z-30 max-h-40 overflow-y-auto no-scrollbar p-1.5 space-y-1">
+            ${availableMenuDrinks.map(d => `
+              <button onclick="selectCampDrinkByName('${d.name}')" type="button" class="w-full p-2 text-left text-xs rounded-lg hover:bg-slate-50 flex items-center justify-between transition ${selectedCampaignDrink.name === d.name ? 'font-bold text-red-600 bg-red-50' : 'text-slate-700'}">
                 <span class="truncate">${d.name}</span>
                 <span class="text-[10px] opacity-75 flex-shrink-0 ml-2">${d.extraPrice > 0 ? `+${d.extraPrice} ₺` : 'Dahil'}</span>
               </button>
@@ -360,16 +383,12 @@
     }
     window.openCampaignModal = openCampaignModal;
 
-    function selectCampPizza(pizzaId) {
+    function selectCampPizza(pizzaId, pizzaTitle) {
       const pizzas = catalog.filter(p => String(p.category || '').toLowerCase() === 'pizza');
       selectedCampPizza = pizzas.find(p => String(p.id) === String(pizzaId));
-      document.querySelectorAll('.camp-piz-btn').forEach(b => {
-        if (b.id === `camp-piz-${pizzaId}`) {
-          b.className = "camp-piz-btn p-2 rounded-xl border text-left text-xs border-red-600 bg-red-50 text-red-600 font-bold";
-        } else {
-          b.className = "camp-piz-btn p-2 rounded-xl border text-left text-xs border-slate-200 text-slate-600";
-        }
-      });
+      const lbl = document.getElementById('selected-camp-pizza-label');
+      if (lbl) lbl.innerText = pizzaTitle;
+      toggleDrinkDropdown('camp-pizza');
       updateModalPrice();
     }
     window.selectCampPizza = selectCampPizza;
@@ -378,17 +397,28 @@
       const found = availableMenuDrinks.find(d => d.name === name);
       if (found) {
         selectedCampaignDrink = found;
-        document.querySelectorAll('.camp-drink-btn').forEach(b => {
-          if (b.innerText.includes(name)) {
-            b.className = "camp-drink-btn p-2 rounded-xl border flex items-center justify-between text-xs border-red-600 bg-red-50 text-red-600 font-bold";
-          } else {
-            b.className = "camp-drink-btn p-2 rounded-xl border flex items-center justify-between text-xs border-slate-200 text-slate-600";
-          }
-        });
+        const lbl = document.getElementById('selected-camp-drink-label');
+        if (lbl) lbl.innerText = `${found.name} ${found.extraPrice > 0 ? `(+${found.extraPrice}₺)` : '(Dahil)'}`;
+        toggleDrinkDropdown('camp-drink');
         updateModalPrice();
       }
     }
     window.selectCampDrinkByName = selectCampDrinkByName;
+
+    function toggleDrinkDropdown(type) {
+      const content = document.getElementById(type === 'menu' ? 'drink-dropdown-content' : (type === 'camp-pizza' ? 'camp-pizza-dropdown-content' : 'camp-drink-dropdown-content'));
+      if (!content) return;
+      const isHidden = content.classList.contains('hidden');
+      
+      document.querySelectorAll('#drink-dropdown-content, #camp-pizza-dropdown-content, #camp-drink-dropdown-content').forEach(el => el.classList.add('hidden'));
+
+      if (isHidden) {
+        content.classList.remove('hidden');
+      } else {
+        content.classList.add('hidden');
+      }
+    }
+    window.toggleDrinkDropdown = toggleDrinkDropdown;
 
     function filterCat(cat, btn) {
       document.querySelectorAll('.cat-btn').forEach(b => {
@@ -522,12 +552,15 @@
     }
 
     function renderMenuDrinks() {
-      const container = document.getElementById('menu-drinks-container');
+      const container = document.getElementById('drink-dropdown-content');
+      const label = document.getElementById('selected-drink-label');
+      if (label) label.innerText = `${selectedMenuDrink.name} ${selectedMenuDrink.extraPrice > 0 ? `(+${selectedMenuDrink.extraPrice}₺)` : '(Dahil)'}`;
       if (!container) return;
+
       container.innerHTML = availableMenuDrinks.map((d) => {
         const isSelected = selectedMenuDrink.name === d.name;
         return `
-          <button onclick="selectMenuDrinkByName('${d.name}')" type="button" class="menu-drink-btn p-2 rounded-xl border flex items-center justify-between text-xs ${isSelected ? 'border-red-600 bg-red-50 text-red-600 font-bold' : 'border-slate-200 text-slate-600'}">
+          <button onclick="selectMenuDrinkByName('${d.name}')" type="button" class="w-full p-2 text-left text-xs rounded-lg hover:bg-slate-50 flex items-center justify-between transition ${isSelected ? 'font-bold text-red-600 bg-red-50' : 'text-slate-700'}">
             <span class="truncate">${d.name}</span>
             <span class="text-[10px] opacity-75 flex-shrink-0 ml-2">${d.extraPrice > 0 ? `+${d.extraPrice} ₺` : 'Dahil'}</span>
           </button>
@@ -541,6 +574,7 @@
       if (found) {
         selectedMenuDrink = found;
         renderMenuDrinks();
+        toggleDrinkDropdown('menu');
         updateModalPrice();
       }
     }
@@ -667,7 +701,6 @@
     }
     window.openTracker = openTracker;
 
-    // KESİNLİKLE TAKILMAYAN GÜVENLİ SİPARİŞ GÖNDERME
     function getLocalOrders() {
       const data = safeGetItem(`orders_data_${currentTable}`);
       return data ? JSON.parse(data) : [];
@@ -740,7 +773,7 @@
               table: so.table || so.tableName || currentTable,
               items: so.items || (existing ? existing.items : []),
               total: so.total || so.totalPrice || (existing ? existing.total : 0),
-              status: so.status || (existing ? existing.status : 'GARSON ONAYI BEKLİYOR'),
+              status: translateStatus(so.status || (existing ? existing.status : 'GARSON ONAYI BEKLİYOR')),
               time: so.time || (existing ? existing.time : '')
             };
           });
@@ -783,7 +816,7 @@
         <div class="bg-slate-800 border border-slate-700 rounded-2xl p-4 space-y-3">
           <div class="flex justify-between items-center text-xs font-bold text-amber-400 border-b border-slate-700 pb-2">
             <span>Sipariş #${o.id || '---'} (${o.time || ''})</span>
-            <span class="px-2.5 py-0.5 rounded-lg bg-amber-500/20 text-amber-300 font-extrabold uppercase">${o.status || 'GARSON ONAYI BEKLİYOR'}</span>
+            <span class="px-2.5 py-0.5 rounded-lg bg-amber-500/20 text-amber-300 font-extrabold uppercase">${translateStatus(o.status)}</span>
           </div>
           <div class="space-y-1.5 text-xs">
             ${(o.items || []).map(i => `
