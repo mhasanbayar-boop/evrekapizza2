@@ -11,6 +11,7 @@ app.use(express.static(path.join(__dirname)));
 const ORDERS_FILE = path.join(__dirname, 'orders.json');
 const CATALOG_FILE = path.join(__dirname, 'catalog.json');
 
+// --- SİPARİŞLER İÇİN KALICI DEPOLAMA ---
 function getOrders() {
   try {
     if (!fs.existsSync(ORDERS_FILE)) {
@@ -29,7 +30,7 @@ function saveOrders(orders) {
   } catch (err) {}
 }
 
-// --- EKSİKSİZ VE TAM MENÜ (TÜM KATEGORİLER VE BOYUTLAR) ---
+// --- MENÜ / KATALOG (TÜM KATEGORİLER VE BOYUTLAR EKSİKSİZ) ---
 const initialCatalog = [
   // 1. KLASİK PİZZALAR (Orta ve Jumbo Boy Seçenekleriyle)
   {
@@ -583,6 +584,12 @@ function getCatalog() {
   }
 }
 
+function saveCatalog(catalog) {
+  try {
+    fs.writeFileSync(CATALOG_FILE, JSON.stringify(catalog, null, 2));
+  } catch (err) {}
+}
+
 let nextOrderId = 1001;
 const existingOrders = getOrders();
 if (existingOrders.length > 0) {
@@ -590,14 +597,45 @@ if (existingOrders.length > 0) {
   if (maxId >= nextOrderId) nextOrderId = maxId + 1;
 }
 
+// --- API ENDPOINTLERİ ---
+
+// Menüyü Getir
 app.get('/api/catalog', (req, res) => {
   res.json({ success: true, catalog: getCatalog() });
 });
 
+// Tüm Kataloğu / Menüyü Güncelle (Patron Paneli Toplu Kayıt)
+app.put('/api/catalog', (req, res) => {
+  const { catalog } = req.body;
+  if (!catalog || !Array.isArray(catalog)) {
+    return res.status(400).json({ success: false, error: 'Geçersiz katalog verisi' });
+  }
+  saveCatalog(catalog);
+  res.json({ success: true, catalog });
+});
+
+// Tekil Ürün Güncelle (Fiyat / Detay Değişikliği)
+app.patch('/api/catalog/:id', (req, res) => {
+  const { id } = req.params;
+  const updates = req.body;
+  let catalog = getCatalog();
+  const index = catalog.findIndex(item => String(item.id) === String(id));
+
+  if (index === -1) {
+    return res.status(404).json({ success: false, error: 'Ürün bulunamadı' });
+  }
+
+  catalog[index] = { ...catalog[index], ...updates };
+  saveCatalog(catalog);
+  res.json({ success: true, item: catalog[index] });
+});
+
+// Siparişleri Listele
 app.get('/api/orders', (req, res) => {
   res.json({ success: true, orders: getOrders() });
 });
 
+// Yeni Sipariş Oluştur (Türkiye Saat Dilimi Düzeltmesiyle)
 app.post('/api/orders', (req, res) => {
   const { tableName, items, totalPrice } = req.body;
   if (!tableName || !items || items.length === 0) {
@@ -605,8 +643,6 @@ app.post('/api/orders', (req, res) => {
   }
 
   const orders = getOrders();
-  
-  // Türkiye saat dilimine tam uyumlu, 2 saat geri kalma sorununu çözen saat damgası
   const now = new Date();
   const timeString = now.toLocaleTimeString('tr-TR', { timeZone: 'Europe/Istanbul', hour: '2-digit', minute: '2-digit' });
   const dateString = now.toLocaleDateString('tr-TR', { timeZone: 'Europe/Istanbul' });
@@ -625,6 +661,7 @@ app.post('/api/orders', (req, res) => {
   res.json({ success: true, order: newOrder });
 });
 
+// Sipariş Durumunu Güncelle
 app.patch('/api/orders/:id/status', (req, res) => {
   const { id } = req.params;
   const { status, handledBy, timeLogs } = req.body;
@@ -641,6 +678,7 @@ app.patch('/api/orders/:id/status', (req, res) => {
   res.json({ success: true, order });
 });
 
+// Sayfa Yönlendirmeleri
 app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
 app.get('/admin', (req, res) => res.sendFile(path.join(__dirname, 'admin.html')));
 
